@@ -42,8 +42,14 @@ Once virtual environment is created and dependencies are installed, you can foll
 ### Activate environment
 ```
 source dbt-venv/bin/activate (Linux)
-.\venv\Scripts\activate (Windows)
+.\dbt-venv\Scripts\activate (Windows)
 ```
+
+If you are using Windows, and get a problem with permission to run the Virtual Environment, use command:
+```
+Set-ExecutionPolicy Unrestricted -Scope Process
+```
+It can happen that you need to use it every time you open/reopen a new terminal session.
 
 ### Run applications within the environmet
 ```
