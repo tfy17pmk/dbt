@@ -145,11 +145,8 @@ class Kinematics:
         normal_vector = [normal_vector_x, normal_vector_y, normal_vector_z]
         print(normal_vector)
 
-        #motor_angles = self.kinema_inv(normal_vector, self.initial_position[2])
-        motor_angles = self.inverse_kinematics(normal_vector, self.initial_position[2])
+        # motor angles in absolut degrees
+        motor_angles = np.rad2deg(self.inverse_kinematics(normal_vector, self.initial_position[2]))
 
         return motor_angles
-
-        # TODO
-        # set motor angles code need to be added
     
