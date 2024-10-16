@@ -7,19 +7,21 @@
 
 Kinematics kinematics;
 
+  // Pin setup for motors First column first motor
+  int mode[3] = {14, 32, 15};
+  int direction[3] = {17, 27, 13};
+  int step[3] = {21, 33, 12};
+
 
 void setup() {
   Serial.begin(9600);
 
-  // Pin setup for motors First column first motor
-  const int mode[3] = {14, 32, 15};
-  const int direction[3] = {17, 27, 13};
-  const int step[3] = {21, 33, 12};
+  
 
-  //Motors motors(mode, direction, step);
+  Motors motors(mode, direction, step);
 
   // initialize position
-  //motors.initial_position(); // Set initial position of the motors
+  motors.initial_position(); // Set initial position of the motors
 
 
   
@@ -40,6 +42,7 @@ void setup() {
 
   std::array<double, 3> motor_angles = kinematics.setPosition(20*pi/180, 20*pi/180);
 
+
   // Print the motor angles
   for (size_t i = 0; i < motor_angles.size(); ++i) {
       Serial.print("Motor angle ");
@@ -57,5 +60,11 @@ void setup() {
 }
 
 void loop() {
-    // Your main code here
-}
+  Motors motors(mode, direction, step);
+
+  float goal_angles[3] = {1, 1, 1};
+  motors.set_angle(goal_angles);
+
+  delay(100);
+  }
+
