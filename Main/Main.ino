@@ -9,12 +9,16 @@ Kinematics kinematics;
 
   // Pin setup for motors First column first motor
   int mode[3] = {14, 32, 15};
-  int direction[3] = {17, 27, 13};
-  int step[3] = {21, 33, 12};
+  int direction[3] = {19, 27, 13};
+  int step[3] = {18, 33, 12};
+  HardwareSerial SerialPort(1);   // Use UART1 on ESP32
 
 
 void setup() {
   Serial.begin(9600);
+
+  // Initialize UART1 for communication with Raspberry Pi
+  SerialPort.begin(115200, SERIAL_8N1, 16, 17);  // UART1: TX=GPIO17, RX=GPIO16
 
   
 
