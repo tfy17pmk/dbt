@@ -9,7 +9,7 @@
 
 Kinematics kinematics;
 Motors motors;
-//AccelStepper stepper1 = motors.setup_homing();
+std::array<AccelStepper, 3>& stepper = motors.setup_accel();
 
 void IRAM_ATTR handleButtonPress1() {
   motors.buttonPressed[0] = true;  // Set flag when the button is pressed
@@ -29,28 +29,24 @@ void IRAM_ATTR handleButtonPress3() {
 void setup() {
   Serial.begin(115200);
   setCpuFrequencyMhz(160);
-  motors.setup_homing();
 
   motors.buttonPressed.fill(false);
+  motors.skipPhaseOne.fill(false);
 
   // Initialize UART1 for communication with Raspberry Pi
   SerialPort.begin(115200, SERIAL_8N1, 16, 17);  // UART1: TX=GPIO17, RX=GPIO16
-  pinMode(motors._buttonPin1, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(motors._buttonPin1), handleButtonPress1, RISING);
+  pinMode(motors.buttonPin[0], INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(motors.buttonPin[0]), handleButtonPress1, RISING);
 
-  pinMode(motors._buttonPin2, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(motors._buttonPin2), handleButtonPress2, RISING);
+  pinMode(motors.buttonPin[1], INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(motors.buttonPin[1]), handleButtonPress2, RISING);
 
-  pinMode(motors._buttonPin3, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(motors._buttonPin3), handleButtonPress3, RISING);
+  pinMode(motors.buttonPin[2], INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(motors.buttonPin[2]), handleButtonPress3, RISING);
 
   // Configure the stepper motor for the initial slow homing phase
   //stepper1.setMaxSpeed(500);   // Slow movement toward the switch
   //stepper1.setAcceleration(100);  // Slow acceleration for initial approach
-
-  //if(digitalRead(motors._buttonPin1) == HIGH) {
-    //motors._skipPhaseOne1 = true;
-  //}
 
   // initialize position
   motors.initial_position(); // Set initial position of the motors
@@ -96,8 +92,6 @@ void loop() {
     char receivedChar = SerialPort.read();  // Read data from Raspberry Pi
     Serial.print("Received: ");             // Print debug message
     Serial.println(receivedChar);           // Show the received character
-    
-    Serial.println(receivedChar);
 
     if(receivedChar == '0'){
       motors.home();
@@ -105,6 +99,10 @@ void loop() {
     }
     
   }
+
+  stepper[0].run();
+  stepper[1].run();
+  stepper[2].run();
 
   //float goal_angles[3] = {1, 1, 1};
   //motors.set_angle(goal_angles);

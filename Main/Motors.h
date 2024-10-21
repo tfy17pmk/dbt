@@ -11,7 +11,7 @@ public:
     Motors();
     
     void initial_position();
-    void setup_homing();
+    std::array<AccelStepper, 3>& setup_accel();
     void set_angle(float goal_angles[3]);
     void clean_up();
     void home();
@@ -19,16 +19,14 @@ public:
     void IRAM_ATTR handleButtonPress2();
     void IRAM_ATTR handleButtonPress3();
 
-    volatile bool _skipPhaseOne1 = false;
-    const int _buttonPin1 = 25;    // Button pin (limit switch or homing switch)
+    //const int _buttonPin1 = 25;    // Button pin (limit switch or homing switch)
 
-    volatile bool _skipPhaseOne2 = false;
-    const int _buttonPin2 = 5;    // Button pin (limit switch or homing switch)
+    //const int _buttonPin2 = 5;    // Button pin (limit switch or homing switch)
 
-    volatile bool _skipPhaseOne3 = false;
-    const int _buttonPin3 = 4;    // Button pin (limit switch or homing switch)
-
+    //const int _buttonPin3 = 4;    // Button pin (limit switch or homing switch)
+    std::array<int, 3> buttonPin = {25, 5, 4};
     std::array<bool, 3> buttonPressed;
+    std::array<bool, 3> skipPhaseOne;
 
 private:
     // Member variables for motor control
@@ -55,6 +53,7 @@ private:
     void phase1();
     void phase2(int motor, bool first_time);
     void phase3();
+    void move_up();
 
     
 

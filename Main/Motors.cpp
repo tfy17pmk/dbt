@@ -1,3 +1,4 @@
+#include "AccelStepper.h"
 #include "Arduino.h"
 #include "Motors.h"
 
@@ -18,7 +19,7 @@ Motors::Motors() {
 }
 
 
-void Motors::setup_homing() {
+std::array<AccelStepper, 3>& Motors::setup_accel() {
   AccelStepper tmp_stepper1(AccelStepper::DRIVER, _STEP[0], _DIR[0]);  // Set up the AccelStepper for DRV8825
   AccelStepper tmp_stepper2(AccelStepper::DRIVER, _STEP[1], _DIR[1]);  // Set up the AccelStepper for DRV8825
   AccelStepper tmp_stepper3(AccelStepper::DRIVER, _STEP[2], _DIR[2]);  // Set up the AccelStepper for DRV8825
@@ -26,7 +27,7 @@ void Motors::setup_homing() {
   stepper[0] = tmp_stepper1;
   stepper[1] = tmp_stepper2;
   stepper[2] = tmp_stepper3;
-  //return tmp_stepper1;
+  return stepper;
 }
 
 void Motors::phase1() {
@@ -45,21 +46,21 @@ void Motors::phase1() {
       
   while (!buttonPressed[0] || !buttonPressed[1] || !buttonPressed[2]) {  // Move until the button is pressed
 
-    if(!buttonPressed[0]) {
+    if(!buttonPressed[0] && !skipPhaseOne[0]) {
       stepper[0].runSpeed();
-    }else if(buttonPressed[0]) {
+    }else {
       phase2(0, first_time[0]);
       first_time[0] = false;
     }
 
-    if(!buttonPressed[1]) {
+    if(!buttonPressed[1] && !skipPhaseOne[1]) {
       stepper[1].runSpeed();
     }else {
       phase2(1, first_time[1]);
       first_time[1] = false;
     }
 
-    if(!buttonPressed[2]) {
+    if(!buttonPressed[2] && !skipPhaseOne[2]) {
       stepper[2].runSpeed();
     }else {
       phase2(2, first_time[2]);
@@ -140,34 +141,45 @@ void Motors::phase3() {
 }
 
 void Motors::home() {
-  static bool homingComplete = false;
-  buttonPressed[0] = false;
-  buttonPressed[1] = false;
-  buttonPressed[2] = false;
 
-  if (!homingComplete) {
-    if(!_skipPhaseOne1) {
-      phase1();
+  skipPhaseOne.fill(false);
+  for(int i = 0; i < 3; i++) {
+    if(digitalRead(buttonPin[i]) == HIGH) {
+      skipPhaseOne[i] = true;
     }
+  }
 
-    while(stepper[0].distanceToGo() != 0 || stepper[1].distanceToGo() != 0 || stepper[2].distanceToGo() != 0) {
-      for(int i = 0; i < 3; i++) {
+  Serial.println("nu startar home!");
+  bool homingComplete = false;
+  buttonPressed.fill(false);
 
-        if(stepper[i].distanceToGo() != 0) {
-          phase2(i, false);
-        }
+  phase1();
+
+  //finish/run phase 2 depending on if the button is pressed from the beginning.
+  while(stepper[0].distanceToGo() != 0 || stepper[1].distanceToGo() != 0 || stepper[2].distanceToGo() != 0) {
+    for(int i = 0; i < 3; i++) {
+
+      if(stepper[i].distanceToGo() != 0) {
+        phase2(i, false);
       }
     }
+  }
 
-    Serial.println("Back off complete. Fine tuning...");
+  Serial.println("Back off complete. Fine tuning...");
 
-    phase3();
+  phase3();
 
-    // Homing phase 3: Use interrupt-based fine-tuning but with slower movement
-    // Homing complete: Save the current position
-    // Set this as the home position
-    Serial.println("Homing complete, position set to 0.");
-    homingComplete = true;  // Mark homing as complete
+
+  move_up();
+  Serial.println("Homing complete, position set to 0.");
+}
+
+void Motors::move_up() {
+
+  for(int i = 0; i < 3; i++) {
+    stepper[i].setMaxSpeed(4000);   // Increase max speed significantly
+    stepper[i].setAcceleration(1000);
+    stepper[i].moveTo(-750);
   }
 
 }
