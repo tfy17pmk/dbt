@@ -36,7 +36,7 @@ void setup() {
   motors.skipPhaseOne.fill(false);
 
   // Initialize UART1 for communication with Raspberry Pi
-  SerialPort.begin(115200, SERIAL_8N1, 16, 17);  // UART1: TX=GPIO17, RX=GPIO16
+  //SerialPort.begin(115200, SERIAL_8N1, 16, 17);  // UART1: TX=GPIO17, RX=GPIO16
   pinMode(motors.buttonPin[0], INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(motors.buttonPin[0]), handleButtonPress1, RISING);
 
@@ -88,8 +88,8 @@ void setup() {
 
 void loop() {
 
-  if (SerialPort.available()) {
-    char receivedChar = SerialPort.read();  // Read data from Raspberry Pi
+  if (Serial.available()) {
+    char receivedChar = Serial.read();  // Read data from Raspberry Pi
     Serial.print("Received: ");             // Print debug message
     Serial.println(receivedChar);           // Show the received character
 
