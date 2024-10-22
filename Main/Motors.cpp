@@ -179,7 +179,7 @@ void Motors::move_up() {
   for(int i = 0; i < 3; i++) {
     stepper[i].setMaxSpeed(4000);   // Increase max speed significantly
     stepper[i].setAcceleration(1000);
-    stepper[i].moveTo(-750);
+    stepper[i].moveTo(-850);
   }
 
 }
@@ -191,42 +191,13 @@ void Motors::initial_position() {
     }
 }
 
-void Motors::set_angle(float goal_angles[3]) {
-    for (int i = 0; i < 3; i++) {
-        _relative_angles[i] = goal_angles[i] - _current_angles[i];
-        _current_angles[i] = goal_angles[i];
-        _required_steps[i] = abs(_relative_angles[i]) / _degree_per_step; // Convert angle to steps
-        _rotation_times[i] = _required_steps[i] * 1000000 / _PWM_frequency; // Calculate rotation times
-        _step_direction[i] = (_relative_angles[i] > 0) ? 0 : 1; // Determine step direction
-    }
-
-    for (int i = 0; i < 3; i++) {
-        if (_relative_angles[i] != 0) {
-            digitalWrite(_DIR[i], _step_direction[i]); // Set direction
-            delay(1); // Short delay for motor stabilization
-            ledcWrite(_STEP[i], _PWM_duty); // Start stepping
-        }
-    }
-
-    unsigned long start_tick = millis();
-    unsigned long max_rotation_time = 0;
-    for (int i = 0; i < 3; i++) {
-        if (_rotation_times[i] > max_rotation_time) {
-            max_rotation_time = _rotation_times[i];
-        }
-    }
-
-    while (millis() - start_tick < max_rotation_time) {
-        for (int i = 0; i < 3; i++) {
-            if (millis() - start_tick >= _rotation_times[i]) {
-                ledcWrite(_STEP[i], 0); // Stop stepping for this motor
-            }
-        }
-    }
-
-    // Stop all motors after completing the rotation
-    for (int i = 0; i < 3; i++) {
-        ledcWrite(_STEP[i], 0); // Set PWM to 0
+void Motors::set_angle(double goal_angles[3]) {
+    for(int i = 0; i < 3; i++) {
+      _steps = floor(goal_angles[i] * 17.777778); // convert degrees to steps
+      Serial.println(_steps);
+      stepper[i].setMaxSpeed(4000);   // Increase max speed significantly
+      stepper[i].setAcceleration(1000);
+      stepper[i].moveTo(-_steps);
     }
 }
 

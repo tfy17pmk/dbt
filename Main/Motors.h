@@ -12,7 +12,7 @@ public:
     
     void initial_position();
     std::array<AccelStepper, 3>& setup_accel();
-    void set_angle(float goal_angles[3]);
+    void set_angle(double goal_angles[3]);
     void clean_up();
     void home();
     void IRAM_ATTR handleButtonPress1();
@@ -49,6 +49,7 @@ private:
     float _degree_per_step = 1.8/32.0; // Set degree per step;
     int _PWM_frequency = 8000; // Set PWM frequency;
     int _PWM_duty = 128; // Set default PWM value
+    int _steps = 0;
 
     void phase1();
     void phase2(int motor, bool first_time);

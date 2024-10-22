@@ -10,6 +10,8 @@
 Kinematics kinematics;
 Motors motors;
 std::array<AccelStepper, 3>& stepper = motors.setup_accel();
+std::array<double, 3> motor_angles = {0,0,0};
+
 
 void IRAM_ATTR handleButtonPress1() {
   motors.buttonPressed[0] = true;  // Set flag when the button is pressed
@@ -66,8 +68,6 @@ void setup() {
   */
   
 
-  std::array<double, 3> motor_angles = kinematics.setPosition(20*pi/180, 20*pi/180);
-
   // Print the motor angles
   for (size_t i = 0; i < motor_angles.size(); ++i) {
       Serial.print("Motor angle ");
@@ -97,9 +97,14 @@ void loop() {
       motors.home();
       Serial.println("fick en 0a");
     }
-    
-  }
 
+    if(receivedChar == '2'){
+      Serial.println("Ny position");
+      motor_angles = kinematics.setPosition(20*pi/180, 20*pi/180); // return degree
+      motors.set_angle(motor_angles.data());
+    }
+  }
+  
   stepper[0].run();
   stepper[1].run();
   stepper[2].run();
