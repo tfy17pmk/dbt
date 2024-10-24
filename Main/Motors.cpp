@@ -112,21 +112,21 @@ void Motors::phase3() {
     if(!buttonPressed[0]) {
       stepper[0].runSpeed();
     }else {
-      stepper[0].setCurrentPosition(0);
+      stepper[0].setCurrentPosition(3700); // stright out 500, vertical 2100
       saved_pos[0] = true;
     }
 
     if(!buttonPressed[1]) {
       stepper[1].runSpeed();
     }else {
-      stepper[1].setCurrentPosition(0);
+      stepper[1].setCurrentPosition(3700);
       saved_pos[1] = true;
     }
 
     if(!buttonPressed[2]) {
       stepper[2].runSpeed();
     }else {
-      stepper[2].setCurrentPosition(0);
+      stepper[2].setCurrentPosition(3700);
       saved_pos[2] = true;
     }
 
@@ -134,7 +134,7 @@ void Motors::phase3() {
 
   for(int i = 0; i < 3; i++) {
     if(!saved_pos[i]) {
-      stepper[i].setCurrentPosition(0);
+      stepper[i].setCurrentPosition(3700);
     }
   }
 
@@ -168,7 +168,10 @@ void Motors::home() {
   Serial.println("Back off complete. Fine tuning...");
 
   phase3();
-
+  
+  Serial.println(stepper[0].currentPosition());
+  Serial.println(stepper[1].currentPosition());
+  Serial.println(stepper[2].currentPosition());
 
   move_up();
   Serial.println("Homing complete, position set to 0.");
@@ -179,7 +182,7 @@ void Motors::move_up() {
   for(int i = 0; i < 3; i++) {
     stepper[i].setMaxSpeed(4000);   // Increase max speed significantly
     stepper[i].setAcceleration(1000);
-    stepper[i].moveTo(-850);
+    stepper[i].moveTo(3200);
   }
 
 }
@@ -194,10 +197,10 @@ void Motors::initial_position() {
 void Motors::set_angle(double goal_angles[3]) {
     for(int i = 0; i < 3; i++) {
       _steps = floor(goal_angles[i] * 17.777778); // convert degrees to steps
-      Serial.println(_steps);
+      //Serial.println(_steps);
       stepper[i].setMaxSpeed(4000);   // Increase max speed significantly
       stepper[i].setAcceleration(1000);
-      stepper[i].moveTo(-_steps);
+      stepper[i].moveTo(_steps);
     }
 }
 

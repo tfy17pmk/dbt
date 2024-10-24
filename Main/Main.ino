@@ -1,5 +1,6 @@
 #include "Arduino.h"
 #include "Kinematics.h"
+#include "InverseKinematics.h" // not ours
 #include "Motors.h"
 #include <AccelStepper.h>
 #include <array>  // Include array library
@@ -100,7 +101,16 @@ void loop() {
 
     if(receivedChar == '2'){
       Serial.println("Ny position");
-      motor_angles = kinematics.setPosition(20*pi/180, 20*pi/180); // return degree
+      motor_angles = kinematics.setPosition(19*pi/180, 19*pi/180); // input rad; return degree
+
+      // Print the motor angles
+      for (size_t i = 0; i < motor_angles.size(); ++i) {
+        Serial.print("Motor angle ");
+        Serial.print(i);
+        Serial.print(": ");
+        Serial.println(motor_angles[i]);
+      }      
+
       motors.set_angle(motor_angles.data());
     }
   }
