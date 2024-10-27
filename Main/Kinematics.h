@@ -23,6 +23,7 @@ private:
   std::array<double, 3> motor_angles = {0, 0, 0};
   double _initialPosition[3] = {0, 0, 0.21};
   double _maxHeight = 0.27;
+  double _height = 15;
   double _minHeight = 0.1;
   double _maxPhi = 20*pi/180;
   double _minPhi = -20*pi/180;
@@ -30,8 +31,8 @@ private:
   double _minTheta = -20*pi/180;
 
   double _d = 7.5;  //distance from the center of the base to any of its corners
-  double _e = 22;  //distance from the center of the platform to any of its corners
-  double _f = 14.5;  //length of link #1
+  double _e = 22;  //22distance from the center of the platform to any of its corners
+  double _f = 9;  //length of link #1
   double _g = 15;  //length of link #2
 
   //Calculation Variables

@@ -181,8 +181,8 @@ void Motors::move_up() {
 
   for(int i = 0; i < 3; i++) {
     stepper[i].setMaxSpeed(4000);   // Increase max speed significantly
-    stepper[i].setAcceleration(1000);
-    stepper[i].moveTo(3200);
+    stepper[i].setAcceleration(4000*30);
+    stepper[i].moveTo(3200);   
   }
 
 }
@@ -197,9 +197,11 @@ void Motors::initial_position() {
 void Motors::set_angle(double goal_angles[3]) {
     for(int i = 0; i < 3; i++) {
       _steps = floor(goal_angles[i] * 17.777778); // convert degrees to steps
+      //if (stepper[i].distanceToGo() == 0)
+
       //Serial.println(_steps);
       stepper[i].setMaxSpeed(4000);   // Increase max speed significantly
-      stepper[i].setAcceleration(1000);
+      stepper[i].setAcceleration(4000*30);
       stepper[i].moveTo(_steps);
     }
 }

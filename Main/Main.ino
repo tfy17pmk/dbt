@@ -5,8 +5,22 @@
 #include <AccelStepper.h>
 #include <array>  // Include array library
 #include <esp32-hal-cpu.h>
+#include <HardwareSerial.h>
+
 
 #define pi 3.1415926535
+
+const uint8_t START_BYTE = 0x02;  
+
+// Read the complete message (assuming 14 bytes total)
+double theta, phi, height;
+uint8_t states_byte, homing_byte;
+bool homing;
+
+const size_t MESSAGE_LENGTH = 3 * sizeof(double) + 2 * sizeof(uint8_t);
+
+
+
 
 Kinematics kinematics;
 Motors motors;
@@ -31,6 +45,7 @@ void IRAM_ATTR handleButtonPress3() {
 
 void setup() {
   Serial.begin(115200);
+  SerialPort.begin(115200, SERIAL_8N1, 16, 17);
   setCpuFrequencyMhz(160);
 
   motors.buttonPressed.fill(false);
@@ -47,27 +62,8 @@ void setup() {
   pinMode(motors.buttonPin[2], INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(motors.buttonPin[2]), handleButtonPress3, RISING);
 
-  // Configure the stepper motor for the initial slow homing phase
-  //stepper1.setMaxSpeed(500);   // Slow movement toward the switch
-  //stepper1.setAcceleration(100);  // Slow acceleration for initial approach
-
   // initialize position
-  motors.initial_position(); // Set initial position of the motors
-
-  /*
-  const int pin_direction_motor1 = 19;
-  const int pin_direction_motor2 = 27;
-  const int pin_direction_motor3 = 13;
-
-  const int pin_step_motor1 = 18;
-  const int pin_step_motor2 = 33;
-  const int pin_step_motor3 = 12;
-
-  const int Mode1 = 14;
-  const int Mode2 = 32;
-  const int Mode3 = 15;
-  */
-  
+  motors.home(); 
 
   // Print the motor angles
   for (size_t i = 0; i < motor_angles.size(); ++i) {
@@ -77,18 +73,81 @@ void setup() {
       Serial.println(motor_angles[i]);
   }
 
-  /*
-  Serial.println(motor_angle[0]);
-  Serial.println(motor_angle[1]);
-  Serial.println(motor_angle[2]);
-  */
-
   Serial.println("setup done!");
 
 }
 
+void receiveData() {
+  // Wait for the start byte
+  if ((SerialPort.available() > 0) && SerialPort.read() == START_BYTE) {
+    unsigned long startTime = millis();
+
+    // Wait until the complete message is available or a timeout occurs
+    while (SerialPort.available() < MESSAGE_LENGTH - 1) {
+      if (millis() - startTime > 1000) { // 1-second timeout
+        Serial.println("Timeout! Discarding incomplete message.");
+        SerialPort.flush();
+        return;
+      }
+    }
+
+    // Read and unpack the data
+    
+    SerialPort.readBytes((char*)&theta, sizeof(double));
+    SerialPort.readBytes((char*)&phi, sizeof(double));
+    SerialPort.readBytes((char*)&height, sizeof(double));
+    SerialPort.readBytes((char*)&states_byte, 1);
+    SerialPort.readBytes((char*)&homing_byte, 1);
+
+    // Process the data
+    bool state1 = (states_byte & 0b100) >> 2;
+    bool state2 = (states_byte & 0b010) >> 1;
+    bool state3 = (states_byte & 0b001);
+    homing = homing_byte == 1;
+
+    // Print received values for debugging
+    Serial.print("Received: theta=");
+    Serial.print(theta);
+    Serial.print(", phi=");
+    Serial.print(phi);
+    Serial.print(", height=");
+    Serial.print(height);
+    Serial.print(", states=(");
+    Serial.print(state1);
+    Serial.print(", ");
+    Serial.print(state2);
+    Serial.print(", ");
+    Serial.print(state3);
+    Serial.print("), homing=");
+    Serial.println(homing);
+  }
+}
+
 void loop() {
 
+  receiveData();
+  if (homing == true){
+    motors.home();
+    homing = false;
+  } else {
+    motor_angles = kinematics.setPosition(theta*pi/180, phi*pi/180); // input rad; return degree
+
+    // Print the motor angles
+    for (size_t i = 0; i < motor_angles.size(); ++i) {
+      Serial.print("Motor angle ");
+      Serial.print(i);
+      Serial.print(": ");
+      Serial.println(motor_angles[i]);
+    }      
+    //delay(1000);
+
+    motors.set_angle(motor_angles.data());
+    stepper[0].run();
+    stepper[1].run();
+    stepper[2].run();
+
+  }
+/*
   if (Serial.available()) {
     char receivedChar = Serial.read();  // Read data from Raspberry Pi
     Serial.print("Received: ");             // Print debug message
@@ -121,5 +180,6 @@ void loop() {
 
   //float goal_angles[3] = {1, 1, 1};
   //motors.set_angle(goal_angles);
+  */
   }
 

@@ -158,8 +158,9 @@ double Kinematics::thetas(int leg, double hz, double nx, double ny) {
       _mag = sqrt(pow(_y, 2) + pow(_z, 2));
       //Serial.println(_y / _mag) + acos((pow(_mag, 2) + pow(_f, 2) - pow(_g, 2)) / (2 * _mag * _f));
       _clamped = (pow(_mag, 2) + pow(_f, 2) - pow(_g, 2)) / (2 * _mag * _f);
-      _clamped = constrain(_clamped, -1, 1);
+      //_clamped = constrain(_clamped, -1, 1);
       _angle = acos(_y / _mag) + acos(_clamped);
+      Serial.println(_angle);
       break;
     case leg2:  //Leg B
       _x = (sqrt(3) / 2) * (_e * (1 - (pow(nx, 2) + sqrt(3) * nx * ny) / (nz + 1)) - _d);
@@ -167,7 +168,7 @@ double Kinematics::thetas(int leg, double hz, double nx, double ny) {
       _z = hz - (_e / 2) * (sqrt(3) * nx + ny);
       _mag = sqrt(pow(_x, 2) + pow(_y, 2) + pow(_z, 2));
       _clamped = (pow(_mag, 2) + pow(_f, 2) - pow(_g, 2)) / (2 * _mag * _f);
-      _clamped = constrain(_clamped, -1, 1);
+      //_clamped = constrain(_clamped, -1, 1);
       _angle = acos((sqrt(3) * _x + _y) / (-2 * _mag)) + acos(_clamped);
       Serial.println(_angle);
       break;
@@ -177,8 +178,9 @@ double Kinematics::thetas(int leg, double hz, double nx, double ny) {
       _z = hz + (_e / 2) * (sqrt(3) * nx - ny);
       _mag = sqrt(pow(_x, 2) + pow(_y, 2) + pow(_z, 2));
       _clamped = (pow(_mag, 2) + pow(_f, 2) - pow(_g, 2)) / (2 * _mag * _f);
-      _clamped = constrain(_clamped, -1, 1);
+      //_clamped = constrain(_clamped, -1, 1);
       _angle = acos((sqrt(3) * _x - _y) / (2 * _mag)) + acos(_clamped);
+      Serial.println(_angle);
       break;
   }
   return (_angle * (180 / pi));  //converts angle to degrees and returns the value
@@ -188,7 +190,7 @@ std::array<double, 3> Kinematics::setPosition(double theta, double phi) {
   if (theta > _maxTheta) {
     theta = _maxTheta;
   }
-  else if (theta < _maxTheta) {
+  else if (theta < _minTheta) {
     theta = _minTheta;
   }
 
@@ -201,17 +203,19 @@ std::array<double, 3> Kinematics::setPosition(double theta, double phi) {
 
 
   // Calculate x, y, z component of normal from angles theta and phi
-  double normal_vector_x = -cos(pi/2 - theta);
-  double normal_vector_y = -cos(pi/2 - phi);
+  double normal_vector_x = cos(pi/2 - theta);
+  double normal_vector_y = cos(pi/2 - phi);
+  //Serial.println(-cos(pi/2 - theta));
+  //Serial.println(-cos(pi/2 - theta));
   double normal_vector_z = sqrt(1 - pow(normal_vector_x,2) - pow(normal_vector_y,2));
 
   double normal_vector[3] = {normal_vector_x, normal_vector_y, normal_vector_z};
   // motor angles in absolut degrees
   // = inverseKinematics(normal_vector, _initialPosition[2]);
 
-  motor_angles[0] = thetas(leg1, 15, normal_vector_x, normal_vector_y); // return degree
-  motor_angles[1] = thetas(leg2, 15, normal_vector_x, normal_vector_y);
-  motor_angles[2] = thetas(leg3, 15, normal_vector_x, normal_vector_y);
+  motor_angles[0] = thetas(leg1, _height, normal_vector_x, normal_vector_y); // return degree
+  motor_angles[1] = thetas(leg2, _height, normal_vector_x, normal_vector_y);
+  motor_angles[2] = thetas(leg3, _height, normal_vector_x, normal_vector_y);
 
   /*motor_angles[0] = motor_angles[0]*(180/pi);
   motor_angles[1] = motor_angles[1]*(180/pi);
