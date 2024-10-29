@@ -2,3 +2,5 @@
 /dbt-venv
 
 # Other stuff
+.vscode
+GUI/__pycache__/
