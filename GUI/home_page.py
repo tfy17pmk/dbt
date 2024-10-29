@@ -1,5 +1,6 @@
 import tkinter as tk
 from PIL import Image, ImageTk  # Import Pillow for image resizing
+import config
 
 # Page 1: Home Page
 class Home_page(tk.Frame):
@@ -7,8 +8,7 @@ class Home_page(tk.Frame):
         super().__init__(parent)
         self.controller = controller
         
-        background_color = "#00263E"
-        self.configure(bg=background_color)
+        self.configure(bg=config.background_color)
 
         # Get screen dimensions
         screen_width = self.winfo_screenwidth()
@@ -19,9 +19,9 @@ class Home_page(tk.Frame):
 
         # Load and resize images for each button
         # Replace 'path_to_image1.png' with the path to your actual image files
-        self.info_image = Image.open("assets/info.png").resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
-        self.competition_image = Image.open("assets/competition.png").resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
-        self.pattern_image = Image.open("assets/pattern.png").resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
+        self.info_image = Image.open(config.INFO_IMAGE).resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
+        self.competition_image = Image.open(config.COMPETITION_IMAGE).resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
+        self.pattern_image = Image.open(config.PATTERN_IMAGE).resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
 
         # Convert images to PhotoImage for tkinter compatibility
         self.info_image = ImageTk.PhotoImage(self.info_image)
@@ -29,21 +29,21 @@ class Home_page(tk.Frame):
         self.pattern_image = ImageTk.PhotoImage(self.pattern_image)
 
         # Frame to hold buttons and text in a single row, centered
-        button_frame = tk.Frame(self, bg=background_color)
+        button_frame = tk.Frame(self, bg=config.background_color)
         button_frame.pack(anchor="center", expand=True)  # Center button frame in the middle of Home_page
 
         # Custom function to create circular buttons with labels and images
         def create_circular_button(frame, text, command, image):
             # Frame for each button and its label
-            btn_container = tk.Frame(frame, bg=background_color)
+            btn_container = tk.Frame(frame, bg=config.background_color)
             btn_container.pack(side="left", padx=40)
 
             # Label above the button with extra vertical padding
-            btn_label = tk.Label(btn_container, text=text, font=("Arial", 32, "bold"), bg=background_color)
+            btn_label = tk.Label(btn_container, text=text, font=config.heading, bg=config.background_color, fg=config.text_color)
             btn_label.pack(pady=(0, 10))  # Adds 10 pixels of space below the label
 
             # Canvas for circular button, based on calculated button diameter
-            canvas = tk.Canvas(btn_container, width=button_diameter, height=button_diameter, highlightthickness=0, bg=background_color)
+            canvas = tk.Canvas(btn_container, width=button_diameter, height=button_diameter, highlightthickness=0, bg=config.background_color)
             canvas.pack()
 
             # Draw circular button shape with calculated diameter
