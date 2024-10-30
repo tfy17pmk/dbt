@@ -1,4 +1,6 @@
 import tkinter as tk
+from tkinter import ttk
+from PIL import Image, ImageTk  # Requires the Pillow library
 import constants
 
 class Info_page(tk.Frame):
@@ -8,6 +10,11 @@ class Info_page(tk.Frame):
         self.current_page = 0
         
         self.configure(bg=constants.background_color)
+
+        # Load the arrow icon and create rotated version for left button
+        original_arrow = Image.open(constants.RIGHT_ARROW).resize((20, 20))  # Load and resize image
+        self.right_arrow_icon = ImageTk.PhotoImage(original_arrow)  # Right-facing arrow
+        self.left_arrow_icon = ImageTk.PhotoImage(original_arrow.rotate(180))  # Left-facing arrow (rotated)
 
         # Placeholder list for pages (create individual frames or widgets for each page if needed)
         self.pages = [tk.Label(self, text=f"Page {i + 1}", font=constants.heading) for i in range(5)]
@@ -22,17 +29,21 @@ class Info_page(tk.Frame):
         self.grid_columnconfigure(2, weight=0)  # Spacer column on the right
 
         # Dots canvas for page indicators at the bottom, spanning all columns
-        self.dots = tk.Canvas(self, height=30)
+        self.dots = tk.Canvas(self, height=30, bg=constants.background_color, highlightthickness=0)
         self.dots.grid(row=2, column=1, pady=30, sticky="n")  # Center the dots canvas in its cell
 
-        # Navigation buttons aligned with dots row
-        self.btn_prev = tk.Button(self, text="<< Prev", command=self.prev_page)
-        self.btn_prev.grid(row=2, column=1, padx=500, pady=30, sticky="nw")  # Centered in the left cell
+        # Create canvas for circular buttons
+        self.btn_prev_canvas = tk.Canvas(self, width=40, height=40, bg=constants.background_color, highlightthickness=0)
+        self.btn_prev_canvas.grid(row=2, column=1, sticky="nw", padx=(500, 0), pady=30)
 
-        self.btn_next = tk.Button(self, text="Next >>", command=self.next_page)
-        self.btn_next.grid(row=2, column=1, padx=500, pady=30, sticky="ne")  # Centered in the right cell
-        
-        self.lower_left_button = tk.Button(self, text="Tillbaka", command=lambda: controller.show_frame("Home_page"))
+        self.btn_next_canvas = tk.Canvas(self, width=40, height=40, bg=constants.background_color, highlightthickness=0)
+        self.btn_next_canvas.grid(row=2, column=1, sticky="ne", padx=(0, 500), pady=30)
+
+        # Draw circular buttons with arrow icons
+        self.create_circle_button(self.btn_prev_canvas, 20, 20, 18, self.left_arrow_icon, self.prev_page)
+        self.create_circle_button(self.btn_next_canvas, 20, 20, 18, self.right_arrow_icon, self.next_page)
+
+        self.lower_left_button = ttk.Button(self, text="Tillbaka", command=lambda: controller.show_frame("Home_page"), style="Flat.TButton")
         self.lower_left_button.grid(row=2, column=1, padx=10, pady=10, sticky="sw")  # Lower-left corner
 
         # Show the first page initially
@@ -40,6 +51,18 @@ class Info_page(tk.Frame):
 
         # Fix for initial rendering of dots
         self.after(100, self.update_dots)
+
+    def create_circle_button(self, canvas, x, y, radius, icon, command):
+        """Draw a circular button with an icon inside it on the canvas and bind it to a command."""
+        # Draw circle
+        circle = canvas.create_oval(x - radius, y - radius, x + radius, y + radius, fill="gray", outline="")
+
+        # Place the arrow icon inside the circle
+        image = canvas.create_image(x, y, image=icon)
+
+        # Bind click event to the circle and image to behave like a button
+        canvas.tag_bind(circle, "<Button-1>", lambda event: command())
+        canvas.tag_bind(image, "<Button-1>", lambda event: command())
 
     def show_page(self, page_index):
         """Show page at given index by bringing it to the front."""

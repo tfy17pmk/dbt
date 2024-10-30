@@ -10,6 +10,7 @@ body_text = ("Arial", 14)
 INFO_IMAGE = "assets/info.png"
 COMPETITION_IMAGE = "assets/competition.png"
 PATTERN_IMAGE = "assets/pattern.png"
+RIGHT_ARROW = "assets/right_arrow.png"
 
 #Flags
 show_speaker = True
