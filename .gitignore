@@ -4,3 +4,4 @@
 # Other stuff
 .vscode
 GUI/__pycache__/
+.DS_Store
