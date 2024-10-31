@@ -16,6 +16,16 @@ class Info_page(tk.Frame):
         self.right_arrow_icon = ImageTk.PhotoImage(original_arrow)
         self.left_arrow_icon = ImageTk.PhotoImage(original_arrow.rotate(180))
 
+        # Load images for each page (eyes, arm, and brain images)
+        eyes_image_original = Image.open(constants.EYES).resize((300, 300))
+        self.eyes_image_icon = ImageTk.PhotoImage(eyes_image_original)
+
+        arm_image_original = Image.open(constants.ARM).resize((250, 250))
+        self.arm_image_icon = ImageTk.PhotoImage(arm_image_original)
+
+        brain_image_original = Image.open(constants.BRAIN).resize((250, 250))
+        self.brain_image_icon = ImageTk.PhotoImage(brain_image_original)
+
         # Placeholder for each page's unique text and actions
         self.page_texts = constants.info_text
 
@@ -63,8 +73,8 @@ class Info_page(tk.Frame):
             font=constants.body_text, 
             bg=constants.background_color, 
             relief="flat", 
-            height=10, 
-            width=50, 
+            height=40, 
+            width=90, 
             highlightthickness=0,
             pady=100,
             padx=100
@@ -76,7 +86,7 @@ class Info_page(tk.Frame):
 
         # Frame to hold the button (keeps layout stable)
         self.dynamic_button_frame = tk.Frame(self, bg=constants.background_color)
-        self.dynamic_button_frame.grid(row=1, column=1, pady=(200, 0), sticky="s")
+        self.dynamic_button_frame.grid(row=1, column=1, pady=200, padx=300, sticky="e")
 
         # Placeholder spacer label to maintain consistent layout when button is hidden
         self.spacer_label = tk.Label(self.dynamic_button_frame, text="", height=2, bg=constants.background_color)
@@ -89,6 +99,11 @@ class Info_page(tk.Frame):
         # Lower-left corner button to go back
         self.lower_left_button = ttk.Button(self, text="Tillbaka", command=lambda: controller.show_frame("Home_page"), style="Flat.TButton")
         self.lower_left_button.grid(row=2, column=1, padx=10, pady=10, sticky="sw")
+
+        # Canvas to display images on relevant pages
+        self.image_canvas = tk.Canvas(self, width=250, height=300, bg=constants.background_color, highlightthickness=0)
+        self.image_canvas.grid(row=1, column=1, padx=50, sticky="nw")
+        self.image_canvas.grid_remove()  # Initially hidden
 
         # Display the first page initially
         self.show_page(0)
@@ -114,11 +129,34 @@ class Info_page(tk.Frame):
         # Clear and update the Text widget for the current page
         self.page_content_text.config(state="normal")
         self.page_content_text.delete("1.0", tk.END)
-        
-        # Insert heading and body text with tags
-        self.page_content_text.insert(tk.END, self.page_texts[page_index]["heading"] + "\n", "heading")
-        self.page_content_text.insert(tk.END, self.page_texts[page_index]["body"], "body")
+
+        # Set text alignment based on the current page
+        if page_index == 0:
+            self.page_content_text.tag_configure("center", justify="center")
+            self.page_content_text.insert(tk.END, self.page_texts[page_index]["heading"] + "\n", ("heading", "center"))
+            self.page_content_text.insert(tk.END, self.page_texts[page_index]["body"], ("body", "center"))
+            self.page_content_text.grid(sticky="")
+        else:
+            self.page_content_text.tag_configure("left", justify="left")
+            self.page_content_text.insert(tk.END, self.page_texts[page_index]["heading"] + "\n", ("heading", "left"))
+            self.page_content_text.insert(tk.END, self.page_texts[page_index]["body"], ("body", "left"))
+            self.page_content_text.grid(sticky="ne")
+            
         self.page_content_text.config(state="disabled")
+
+        # Show or hide the appropriate image based on the current page
+        self.image_canvas.delete("all")  # Clear any existing image first
+        if page_index == 1:
+            self.image_canvas.create_image(125, 125, image=self.eyes_image_icon)
+            self.image_canvas.grid()  # Show the canvas
+        elif page_index == 2:
+            self.image_canvas.create_image(125, 170, image=self.arm_image_icon)
+            self.image_canvas.grid()  # Show the canvas
+        elif page_index == len(self.page_texts) - 1:
+            self.image_canvas.create_image(125, 170, image=self.brain_image_icon)
+            self.image_canvas.grid()  # Show the canvas
+        else:
+            self.image_canvas.grid_remove()  # Hide the canvas if no image is needed
 
         # Update dynamic button visibility based on the current page
         if page_index == 0:
@@ -134,6 +172,9 @@ class Info_page(tk.Frame):
 
         # Update the dots to show the current page
         self.update_dots()
+
+
+
 
     def update_arrow_visibility(self):
         """Hide left arrow on the first page and right arrow on the last page."""
