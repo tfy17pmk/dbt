@@ -101,7 +101,7 @@ class Info_page(tk.Frame):
         self.lower_left_button.grid(row=2, column=1, padx=10, pady=10, sticky="sw")
 
         # Canvas to display images on relevant pages
-        self.image_canvas = tk.Canvas(self, width=250, height=300, bg=constants.background_color, highlightthickness=0)
+        self.image_canvas = tk.Canvas(self, width=400, height=300, bg=constants.background_color, highlightthickness=0)
         self.image_canvas.grid(row=1, column=1, padx=50, sticky="nw")
         self.image_canvas.grid_remove()  # Initially hidden
 
