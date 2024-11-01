@@ -13,7 +13,7 @@ class Info_page(tk.Frame):
         self.configure(bg=constants.background_color)
 
         # Load the arrow icon and create rotated version for left button
-        original_arrow = Image.open(constants.RIGHT_ARROW).resize((20, 20))
+        original_arrow = Image.open(constants.RIGHT_ARROW).resize((40, 40))
         self.right_arrow_icon = ImageTk.PhotoImage(original_arrow)
         self.left_arrow_icon = ImageTk.PhotoImage(original_arrow.rotate(180))
 
@@ -33,7 +33,7 @@ class Info_page(tk.Frame):
         button_frame = tk.Frame(self, bg=constants.background_color, highlightthickness=0, borderwidth=0)
         button_frame.config(borderwidth=0)
         button_frame.grid(row=2, column=1, sticky="sw")
-
+        
         # Placeholder for each page's unique text and actions
         self.page_texts = constants.info_text
 
@@ -60,19 +60,19 @@ class Info_page(tk.Frame):
         self.grid_propagate(False)
 
         # Dots canvas for page indicators
-        self.dots = tk.Canvas(self, height=30, bg=constants.background_color, highlightthickness=0)
+        self.dots = tk.Canvas(self, height=40, bg=constants.background_color, highlightthickness=0)
         self.dots.grid(row=2, column=1, pady=30, sticky="n")
 
         # Create canvases for navigation buttons
-        self.btn_prev_canvas = tk.Canvas(self, width=40, height=40, bg=constants.background_color, highlightthickness=0)
-        self.btn_prev_canvas.grid(row=2, column=1, sticky="nw", padx=(500, 0), pady=30)
+        self.btn_prev_canvas = tk.Canvas(self, width=80, height=80, bg=constants.background_color, highlightthickness=0)
+        self.btn_prev_canvas.grid(row=2, column=1, sticky="nw", padx=535, pady=5)
         
-        self.btn_next_canvas = tk.Canvas(self, width=40, height=40, bg=constants.background_color, highlightthickness=0)
-        self.btn_next_canvas.grid(row=2, column=1, sticky="ne", padx=(0, 500), pady=30)
+        self.btn_next_canvas = tk.Canvas(self, width=80, height=80, bg=constants.background_color, highlightthickness=0)
+        self.btn_next_canvas.grid(row=2, column=1, sticky="ne", padx=550, pady=5)
 
         # Draw circular buttons with arrow icons, and store IDs
-        self.left_arrow_id = self.create_circle_button(self.btn_prev_canvas, 20, 20, 18, self.left_arrow_icon, self.prev_page)
-        self.right_arrow_id = self.create_circle_button(self.btn_next_canvas, 20, 20, 18, self.right_arrow_icon, self.next_page)
+        self.left_arrow_id = self.create_circle_button(self.btn_prev_canvas, 40, 40, 30, self.left_arrow_icon, self.prev_page)
+        self.right_arrow_id = self.create_circle_button(self.btn_next_canvas, 40, 40, 30, self.right_arrow_icon, self.next_page)
 
         # Text widget for page content with tagged fonts
         self.page_content_text = tk.Text(
@@ -178,6 +178,8 @@ class Info_page(tk.Frame):
 
         # Show or hide the appropriate image based on the current page
         self.image_canvas.delete("all")  # Clear any existing image first
+        self.image_canvas.config(bg=constants.background_color)  # Ensure the background color remains consistent
+
         if page_index == 1:
             self.image_canvas.create_image(125, 125, image=self.eyes_image_icon)
             self.image_canvas.grid()  # Show the canvas
@@ -189,6 +191,9 @@ class Info_page(tk.Frame):
             self.image_canvas.grid()  # Show the canvas
         else:
             self.image_canvas.grid_remove()  # Hide the canvas if no image is needed
+
+        # Force immediate update to avoid flickering
+        self.image_canvas.update_idletasks()
 
         # Update dynamic button visibility based on the current page
         if page_index == 0:
