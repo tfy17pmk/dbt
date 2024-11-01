@@ -16,6 +16,10 @@ EYES = "assets/eyes.png"
 ARM = "assets/arm.png"
 BRAIN = "assets/brain.png"
 LIGHT_BULB = "assets/light_bulb.png"
+SQUARE = "assets/square.png"
+CIRCLE = "assets/circle.png"
+TRIANGLE = "assets/triangle.png"
+STAR = "assets/star.png"
 
 #Flags
 show_speaker = False

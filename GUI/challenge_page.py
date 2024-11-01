@@ -1,5 +1,6 @@
 import tkinter as tk
 import constants
+import button
 
 class Challenge_page(tk.Frame):
     def __init__(self, parent, controller):
@@ -45,11 +46,27 @@ class Challenge_page(tk.Frame):
         self.page_content_text.insert(tk.END, self.page_texts[0]["heading"] + "\n", ("heading", "center"))
         self.page_content_text.grid(sticky="ne")
 
-
-
-
+        # Go back framne
+        back_btn_frame = tk.Frame(self, 
+                                  bg=constants.background_color, 
+                                  highlightthickness=0, 
+                                  borderwidth=0)
+        back_btn_frame.grid(row=2, column=0, sticky="sw")
 
         self.create_circular_button(self, "Next", self.on_button_click)
+
+        # Lower-left corner button to go back
+        self.back_button = button.RoundedButton(
+            master = back_btn_frame, 
+            text="Bakåt", 
+            radius=20, 
+            width=200, 
+            height=70, 
+            btnbackground=constants.text_color, 
+            btnforeground=constants.background_color, 
+            clicked=lambda: controller.show_frame("Competition_page")
+        )
+        self.back_button.grid(row=2, column=1, padx=10, pady=10, sticky="sw")
 
 
     def create_circular_button(self, frame, text, command):
@@ -61,11 +78,19 @@ class Challenge_page(tk.Frame):
         btn_container.grid(row=2, column=1, sticky="e")  # Place below text widget in grid
 
         # Label above the button with extra vertical padding
-        btn_label = tk.Label(btn_container, text="Starta här!", font=constants.heading, bg=constants.background_color, fg=constants.text_color)
+        btn_label = tk.Label(btn_container, 
+                             text="Starta här!", 
+                             font=constants.heading, 
+                             bg=constants.background_color, 
+                             fg=constants.text_color)
         btn_label.pack(pady=(0, 10))  # Adds 10 pixels of space below the label
 
         # Canvas for circular button, based on calculated button diameter
-        canvas = tk.Canvas(btn_container, width=600+button_diameter, height=200+button_diameter, highlightthickness=0, bg=constants.background_color)
+        canvas = tk.Canvas(btn_container, 
+                           width=600+button_diameter, 
+                           height=200+button_diameter, 
+                           highlightthickness=0, 
+                           bg=constants.background_color)
         canvas.pack(side="top")
 
         # Draw circular button shape with calculated diameter
@@ -79,3 +104,5 @@ class Challenge_page(tk.Frame):
     def on_button_click(self):
         # Define the action for the button click
         print()
+
+    
