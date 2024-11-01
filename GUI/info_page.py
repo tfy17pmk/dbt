@@ -78,23 +78,27 @@ class Info_page(tk.Frame):
         self.page_content_text = tk.Text(
             self, 
             wrap="word", 
-            font=constants.body_text, 
+            font=constants.body_text,  # Default font
             bg=constants.background_color, 
             relief="flat", 
-            height=15, 
+            height=30, 
             width=70, 
             highlightthickness=0,
             pady=100,
             padx=100
         )
+        
         self.page_content_text.grid(row=1, column=1, sticky="ne")
+        
         self.page_content_text.tag_configure("heading", font=constants.heading, foreground=constants.text_color)
+        self.page_content_text.tag_configure("subheading", font=constants.sub_heading, foreground=constants.text_color)
         self.page_content_text.tag_configure("body", font=constants.body_text, foreground=constants.text_color)
+        self.page_content_text.tag_configure("lightButtonText", font=constants.sub_heading, foreground=constants.text_color)
         self.page_content_text.config(state="disabled")
 
         # Frame to hold the button (keeps layout stable)
         self.dynamic_button_frame = tk.Frame(self, bg=constants.background_color)
-        self.dynamic_button_frame.grid(row=1, column=1, pady=200, padx=300, sticky="se")
+        self.dynamic_button_frame.grid(row=1, column=1, padx=60, pady=40, sticky="se")
 
         # Placeholder spacer label to maintain consistent layout when button is hidden
         self.spacer_label = tk.Label(self.dynamic_button_frame, text="", height=2, bg=constants.background_color)
@@ -116,7 +120,7 @@ class Info_page(tk.Frame):
             master=self.dynamic_button_frame,
             text="",  # No text since we're using an icon
             radius=25,
-            width=70,
+            width=160,
             height=70,
             btnbackground=constants.text_color,  # Button background
             btnforeground=constants.background_color,  # Icon/text color
@@ -124,7 +128,7 @@ class Info_page(tk.Frame):
             clicked=lambda: self.page_actions[self.current_page]()  # Action based on page
         )
         self.dynamic_button.grid(row=0, column=0)
-
+        
         # Lower-left corner button to go back
         self.back_button = button.RoundedButton(
             master = button_frame, 
@@ -134,7 +138,7 @@ class Info_page(tk.Frame):
             height=70, 
             btnbackground=constants.text_color, 
             btnforeground=constants.background_color, 
-            clicked=lambda: controller.show_frame("Home_page")
+            clicked=self.go_back_to_home
         )
         self.back_button.grid(row=2, column=1, padx=10, pady=10, sticky="sw")
 
@@ -164,15 +168,23 @@ class Info_page(tk.Frame):
         """Show page at given index by updating content text, dynamic button, and arrow visibility."""
         self.current_page = page_index
 
+        # Adjust the width of the Text widget for the second page
+        if page_index == 1:
+            self.page_content_text.config(width=55)  # Set to a smaller width on the second page
+        else:
+            self.page_content_text.config(width=70)  # Default width for other pages
+
         # Clear and update the Text widget for the current page
         self.page_content_text.config(state="normal")
         self.page_content_text.delete("1.0", tk.END)
 
-        # Set text alignment based on the current page
-        self.page_content_text.tag_configure("left", justify="left")
-        self.page_content_text.insert(tk.END, self.page_texts[page_index]["heading"] + "\n", ("heading", "left"))
-        self.page_content_text.insert(tk.END, self.page_texts[page_index]["body"], ("body", "left"))
-        self.page_content_text.grid(sticky="ne")
+        # Insert heading, subheading, and body with respective tags
+        self.page_content_text.insert(tk.END, self.page_texts[page_index]["heading"] + "\n", "heading")
+        self.page_content_text.insert(tk.END, self.page_texts[page_index].get("subheading", "") + "\n", "subheading")
+        self.page_content_text.insert(tk.END, self.page_texts[page_index]["body"], "body")
+        self.page_content_text.insert(tk.END, self.page_texts[page_index]["lightButtonText"] + "\n", "lightButtonText")
+        self.page_content_text.config(state="disabled")
+
         
         self.page_content_text.config(state="disabled")
 
@@ -180,17 +192,32 @@ class Info_page(tk.Frame):
         self.image_canvas.delete("all")  # Clear any existing image first
         self.image_canvas.config(bg=constants.background_color)  # Ensure the background color remains consistent
 
+        # Display the correct image for each page
         if page_index == 1:
+            # Add the EYES image and display it
             self.image_canvas.create_image(125, 125, image=self.eyes_image_icon)
             self.image_canvas.grid()  # Show the canvas
+
+            # Create and display a white frame below the image
+            self.camera_frame = tk.Canvas(self, width=640, height=480, bg="white", highlightthickness=0)
+            self.camera_frame.grid(row=1, column=1, padx=50, sticky="sw", pady=40)  # Position it below the image with padding
+            self.camera_frame.grid()  # Make sure it appears
         elif page_index == 2:
+            # Add the ARM image and display it
             self.image_canvas.create_image(125, 170, image=self.arm_image_icon)
-            self.image_canvas.grid()  # Show the canvas
+            self.image_canvas.grid()
+            if hasattr(self, "camera_frame"):
+                self.camera_frame.grid_remove()  # Hide the white frame if it's displayed on other pages
         elif page_index == len(self.page_texts) - 1:
+            # Add the BRAIN image and display it
             self.image_canvas.create_image(125, 170, image=self.brain_image_icon)
-            self.image_canvas.grid()  # Show the canvas
+            self.image_canvas.grid()
+            if hasattr(self, "camera_frame"):
+                self.camera_frame.grid_remove()
         else:
             self.image_canvas.grid_remove()  # Hide the canvas if no image is needed
+            if hasattr(self, "camera_frame"):
+                self.camera_frame.grid_remove()  # Hide the white frame if it's displayed on other pages
 
         # Force immediate update to avoid flickering
         self.image_canvas.update_idletasks()
@@ -245,3 +272,9 @@ class Info_page(tk.Frame):
         """Navigate to next page if available."""
         if self.current_page < len(self.page_texts) - 1:
             self.show_page(self.current_page + 1)
+    
+    def go_back_to_home(self):
+            """Go back to the home page and reset to the first info page."""
+            self.current_page = 0
+            self.show_page(0)  # Show the first page when returning
+            self.controller.show_frame("Home_page")
