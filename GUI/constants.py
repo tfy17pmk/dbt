@@ -29,9 +29,5 @@ info_text = [
 
 # Challenge page text
 challenge_text = [
-        {"heading": "Utmana mig i att balansera bollen! \n"},
-        {"heading": "Jag rullar bollen till olika \n"},
-        {"heading": "ställen på bordet, sedan får du \n"},
-        {"heading": "använda spakarna för att ta dig \n"},
-        {"heading": "till samma ställen som mig."},
+        {"heading": " \n\n  Utmana mig i att balansera bollen! \n\n         Jag rullar bollen till olika \n     ställen på bordet, sedan får du \n     använda spakarna för att ta dig \n         till samma ställen som mig."},
 ]
