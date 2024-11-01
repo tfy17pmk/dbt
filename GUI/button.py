@@ -6,7 +6,7 @@ class RoundedButton(tk.Canvas):
 
     def __init__(self, master=None, text:str="", radius=25, btnforeground="#000000", btnbackground=constants.background_color, clicked=None, *args, **kwargs):
         super(RoundedButton, self).__init__(master, *args, **kwargs)
-        self.config(bg=self.master["bg"])
+        self.config(bg=self.master["bg"], border=0, highlightthickness=0)
         self.btnbackground = btnbackground
         self.clicked = clicked
 
