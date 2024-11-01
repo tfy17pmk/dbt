@@ -2,9 +2,11 @@ import tkinter as tk
 import math
 
 class HexagonShape:
-    def __init__(self, canvas):
+    def __init__(self, canvas, fill="#ffffff", outline="#ffffff"):
         self.canvas = canvas
         self.points = []  # Hexagonens hörnpunkter
+        self.fill = fill
+        self.outline = outline
         
         # Bind för att rita hexagonen när storleken ändras
         self.canvas.bind("<Configure>", self.on_resize)
@@ -24,7 +26,7 @@ class HexagonShape:
         height = self.canvas.winfo_height()
         center_x = width // 2
         center_y = height // 2
-        radius = min(width, height) // 3  # Anpassa radien så hexagonen får plats
+        radius = min(width, height) // 2.05  # Anpassa radien så hexagonen får plats
 
         # Beräkna hexagonens hörnpunkter
         self.points = []
@@ -36,7 +38,7 @@ class HexagonShape:
             self.points.append((x, y))
 
         # Skapa hexagonen på canvas
-        self.canvas.create_polygon(self.points, outline="blue", fill="orange", width=2)
+        self.canvas.create_polygon(self.points, outline=self.outline, fill=self.fill, width=2)
 
     def on_resize(self, event):
         # Skala om hexagonen när fönstret ändrar storlek
