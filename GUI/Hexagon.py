@@ -26,7 +26,7 @@ class HexagonShape:
         height = self.canvas.winfo_height()
         center_x = width // 2
         center_y = height // 2
-        radius = min(width, height) // 2.05  # Anpassa radien så hexagonen får plats
+        radius = width // 2.05  # Anpassa radien så hexagonen får plats
 
         # Beräkna hexagonens hörnpunkter
         self.points = []
