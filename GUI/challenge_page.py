@@ -6,82 +6,76 @@ class Challenge_page(tk.Frame):
         super().__init__(parent)
         self.controller = controller
         self.configure(bg=constants.background_color)
+        self.page_texts = constants.challenge_text
 
-        # Screen dimensions
-        screen_width = self.winfo_screenwidth()  # 1440
-        screen_height = self.winfo_screenheight()  # 900
+        # Configure grid layout
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=1)
+        self.grid_rowconfigure(2, weight=1)
+        self.grid_columnconfigure(0, weight=1)  # Left padding
+        self.grid_columnconfigure(1, weight=1) 
 
-        # Configure grid layout to center content both vertically and horizontally
-        self.grid_rowconfigure(0, weight=1)  # Spacer row at the top
-        self.grid_rowconfigure(1, weight=2)  # Main content row
-        self.grid_rowconfigure(2, weight=3)  # Dots and buttons row
 
-        self.grid_columnconfigure(0, weight=1)  # Spacer column on the left
-        self.grid_columnconfigure(1, weight=2)  # Main content column
-        self.grid_columnconfigure(2, weight=9)  # Spacer column on the right
-
-        # Home button
-        button = tk.Button(self, text="Back to Home Page",
-                           command=lambda: controller.show_frame("Home_page"))
-        button.grid(row=0, column=0)  # Place button in the first row
-
-        # Frame to hold right-side text
-        text_frame = tk.Frame(self, bg=constants.background_color)
-        text_frame.grid(row=0, column=3)  # Place text frame in the second row
-
-        # Adding text
-        text_label = tk.Label(text_frame, text="Utmana mig i att balansera bollen!", 
-                              font=constants.heading, bg=constants.background_color, fg=constants.text_color)
-        text_label.pack(pady=10)  # Adjust the padding as needed
-
-        additional_text = tk.Label(text_frame, text="Jag rullar bollen till olika", 
-                                    font=constants.heading, bg=constants.background_color, fg=constants.text_color)
-        additional_text.pack(pady=5)
-
-        additional_text = tk.Label(text_frame, text="ställen på bordet, sedan får du ", 
-                                    font=constants.heading, bg=constants.background_color, fg=constants.text_color)
-        additional_text.pack(pady=5)
-
-        additional_text = tk.Label(text_frame, text="använd spakarna för att röra", 
-                                    font=constants.heading, bg=constants.background_color, fg=constants.text_color)
-        additional_text.pack(pady=5)
-
-        additional_text = tk.Label(text_frame, text="roboten till samma ställen.", 
-                                    font=constants.heading, bg=constants.background_color, fg=constants.text_color)
-        additional_text.pack(pady=5)
-
-        # BUTTON
-        button_diameter = int(screen_width * 0.15)
-
-        # Frame to hold buttons
-        button_frame = tk.Frame(self, bg=constants.background_color)
-        button_frame.grid(row=2, column=10, sticky="se")  # Place button frame in the third row
-
-        def create_circular_button(frame, text, command):
-            btn_label = tk.Label(frame, text=text, font=constants.heading, bg=constants.background_color, fg=constants.text_color)
-            btn_label.pack(pady=(0, 10))  # Adds 10 pixels of space below the label
-
-            # Canvas for circular button, based on calculated button diameter
-            canvas = tk.Canvas(frame, width=button_diameter, height=button_diameter, highlightthickness=0, bg=constants.background_color)
-            canvas.pack()
-
-            # Draw circular button shape with calculated diameter
-            button_circle = canvas.create_oval(
-                1, 1, button_diameter, button_diameter, fill="#B9D9EB"
-            )
-
-            # Button action using a lambda
-            canvas.bind("<Button-1>", lambda e: command())
-
-        # Create the circular buttons with labels above
-        create_circular_button(button_frame, "Starta här!", lambda: start_challenge())
-
-        def start_challenge():
-            print("Utmaning påbörjad!")     
-
-        # VIDEO SQUARE
         vid_frame = tk.Frame(self, bg=constants.background_color)
-        vid_frame.grid(row=1, column=0, rowspan=3, sticky="nw", padx=10, pady=10)  # Place video frame to the right
+        vid_frame.grid(row=1, rowspan=2, column=0, sticky="s", ipadx=100, ipady=100)  # Place below text widget in grid
+        canvas = tk.Canvas(vid_frame, width=640, height=480, highlightthickness=1, bg=constants.background_color)
+        canvas.pack()
 
-        square_canvas = tk.Canvas(vid_frame, width=800, height=600, bg=constants.background_color)
-        square_canvas.pack()
+
+        # Text widget for page content with tagged fonts
+        self.page_content_text = tk.Text(
+            self, 
+            wrap="word", 
+            font=constants.body_text,  # Default font for body text
+            bg=constants.background_color, 
+            fg=constants.text_color,  # Default text color
+            relief="flat", 
+            height=20, 
+            width=75, 
+            highlightthickness=0,
+        )
+
+        # Configure text tags for heading and body text styles. Add it to column 1
+        self.page_content_text.tag_configure("heading", font=constants.heading, foreground=constants.text_color)
+        self.page_content_text.tag_configure("body", font=constants.body_text, foreground=constants.text_color)
+        self.page_content_text.grid(row=1, column=1)
+
+        # Clear any existing text and insert text from challenge_text
+        self.page_content_text.delete("1.0", tk.END)
+        self.page_content_text.insert(tk.END, self.page_texts[0]["heading"] + "\n", ("heading", "center"))
+        self.page_content_text.grid(sticky="ne")
+
+
+
+
+
+        self.create_circular_button(self, "Next", self.on_button_click)
+
+
+    def create_circular_button(self, frame, text, command):
+        # Diameter of the button
+        button_diameter = 100
+
+        # Frame for each button and its label
+        btn_container = tk.Frame(frame, bg=constants.background_color)
+        btn_container.grid(row=2, column=1, sticky="e")  # Place below text widget in grid
+
+        # Label above the button with extra vertical padding
+        btn_label = tk.Label(btn_container, text="Starta här!", font=constants.heading, bg=constants.background_color, fg=constants.text_color)
+        btn_label.pack(pady=(0, 10))  # Adds 10 pixels of space below the label
+
+        # Canvas for circular button, based on calculated button diameter
+        canvas = tk.Canvas(btn_container, width=600+button_diameter, height=200+button_diameter, highlightthickness=0, bg=constants.background_color)
+        canvas.pack(side="top")
+
+        # Draw circular button shape with calculated diameter
+        button_circle = canvas.create_oval(
+            250, 0, 350+button_diameter, 100+button_diameter, fill="#B9D9EB"
+        )
+
+        # Button action using a lambda
+        canvas.bind("<Button-1>", lambda e: command())
+
+    def on_button_click(self):
+        # Define the action for the button click
+        print()
