@@ -12,7 +12,7 @@ class Challenge_page(tk.Frame):
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
         self.grid_rowconfigure(2, weight=1)
-        self.grid_columnconfigure(0, weight=12)  # Left padding
+        self.grid_columnconfigure(0, weight=1)  # Left padding
         self.grid_columnconfigure(1, weight=1) 
 
 
