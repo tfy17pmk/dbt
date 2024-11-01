@@ -95,6 +95,14 @@ class Info_page(tk.Frame):
         self.page_content_text.tag_configure("body", font=constants.body_text, foreground=constants.text_color)
         self.page_content_text.tag_configure("lightButtonText", font=constants.sub_heading, foreground=constants.text_color)
         self.page_content_text.config(state="disabled")
+        # Disable selection bindings
+        self.page_content_text.bind("<Button-1>", lambda e: "break")     # Disable left-click selection
+        self.page_content_text.bind("<B1-Motion>", lambda e: "break")    # Disable mouse drag selection
+        self.page_content_text.bind("<Shift-Left>", lambda e: "break")   # Disable Shift+Left selection
+        self.page_content_text.bind("<Shift-Right>", lambda e: "break")  # Disable Shift+Right selection
+        self.page_content_text.bind("<Shift-Up>", lambda e: "break")     # Disable Shift+Up selection
+        self.page_content_text.bind("<Shift-Down>", lambda e: "break")   # Disable Shift+Down selection
+        self.page_content_text.bind("<Control-a>", lambda e: "break")    # Disable Ctrl+A selection (Select All)
 
         # Frame to hold the button (keeps layout stable)
         self.dynamic_button_frame = tk.Frame(self, bg=constants.background_color)
@@ -185,42 +193,37 @@ class Info_page(tk.Frame):
         self.page_content_text.insert(tk.END, self.page_texts[page_index]["lightButtonText"] + "\n", "lightButtonText")
         self.page_content_text.config(state="disabled")
 
-        
-        self.page_content_text.config(state="disabled")
-
         # Show or hide the appropriate image based on the current page
         self.image_canvas.delete("all")  # Clear any existing image first
         self.image_canvas.config(bg=constants.background_color)  # Ensure the background color remains consistent
 
-        # Display the correct image for each page
+        # Display the correct image and handle camera frame for each page
         if page_index == 1:
-            # Add the EYES image and display it
-            self.image_canvas.create_image(125, 125, image=self.eyes_image_icon)
-            self.image_canvas.grid()  # Show the canvas
+            # Show the EYES image for the second page
+            self.image_canvas.create_image(150, 150, image=self.eyes_image_icon)
+            self.image_canvas.grid()  # Make sure the image canvas is visible
 
-            # Create and display a white frame below the image
-            self.camera_frame = tk.Canvas(self, width=640, height=480, bg="white", highlightthickness=0)
-            self.camera_frame.grid(row=1, column=1, padx=50, sticky="sw", pady=40)  # Position it below the image with padding
-            self.camera_frame.grid()  # Make sure it appears
-        elif page_index == 2:
-            # Add the ARM image and display it
-            self.image_canvas.create_image(125, 170, image=self.arm_image_icon)
-            self.image_canvas.grid()
-            if hasattr(self, "camera_frame"):
-                self.camera_frame.grid_remove()  # Hide the white frame if it's displayed on other pages
-        elif page_index == len(self.page_texts) - 1:
-            # Add the BRAIN image and display it
-            self.image_canvas.create_image(125, 170, image=self.brain_image_icon)
-            self.image_canvas.grid()
+            # Create and display camera_frame below the image, only on the second page
+            if not hasattr(self, "camera_frame"):
+                self.camera_frame = tk.Canvas(self, width=640, height=480, bg="white", highlightthickness=0)
+            self.camera_frame.grid(row=1, column=1, padx=50, sticky="sw", pady=30)
+        else:
+            # Hide camera_frame on pages other than the second
             if hasattr(self, "camera_frame"):
                 self.camera_frame.grid_remove()
-        else:
-            self.image_canvas.grid_remove()  # Hide the canvas if no image is needed
-            if hasattr(self, "camera_frame"):
-                self.camera_frame.grid_remove()  # Hide the white frame if it's displayed on other pages
 
-        # Force immediate update to avoid flickering
-        self.image_canvas.update_idletasks()
+            # Show the ARM image for the third page
+            if page_index == 2:
+                self.image_canvas.create_image(125, 170, image=self.arm_image_icon)
+                self.image_canvas.grid()
+
+            # Show the BRAIN image for the last page
+            elif page_index == len(self.page_texts) - 1:
+                self.image_canvas.create_image(125, 170, image=self.brain_image_icon)
+                self.image_canvas.grid()
+            else:
+                # Hide the canvas if no image is needed
+                self.image_canvas.grid_remove()
 
         # Update dynamic button visibility based on the current page
         if page_index == 0:
@@ -233,6 +236,7 @@ class Info_page(tk.Frame):
 
         # Update the dots to show the current page
         self.update_dots()
+
 
     def update_arrow_visibility(self):
         """Hide left arrow on the first page and right arrow on the last page."""
