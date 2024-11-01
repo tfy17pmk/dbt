@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
 import constants
+import button
 
 class Info_page(tk.Frame):
     def __init__(self, parent, controller):
@@ -27,7 +28,11 @@ class Info_page(tk.Frame):
         self.brain_image_icon = ImageTk.PhotoImage(brain_image_original)
 
         # Load the light icon for the dynamic button
-        self.light_icon = ImageTk.PhotoImage(Image.open(constants.LIGHT_BULB).resize((20, 20)))
+        self.light_icon = ImageTk.PhotoImage(Image.open(constants.LIGHT_BULB).resize((40, 40)))
+
+        button_frame = tk.Frame(self, bg=constants.background_color, highlightthickness=0, borderwidth=0)
+        button_frame.config(borderwidth=0)
+        button_frame.grid(row=2, column=1, sticky="sw")
 
         # Placeholder for each page's unique text and actions
         self.page_texts = constants.info_text
@@ -106,19 +111,32 @@ class Info_page(tk.Frame):
         style.map("RoundedButton.TButton",
                   background=[("active", constants.background_color)])  # Hover color
 
-        # Button with rounded style and light icon
-        self.dynamic_button = ttk.Button(
-            self.dynamic_button_frame,
-            image=self.light_icon,
-            style="RoundedButton.TButton",
-            text="",
-            compound="left"  # Places icon on the left side of the text if needed
+        # Use RoundedButton for the dynamic button with light bulb icon
+        self.dynamic_button = button.RoundedButton(
+            master=self.dynamic_button_frame,
+            text="",  # No text since we're using an icon
+            radius=25,
+            width=70,
+            height=70,
+            btnbackground=constants.text_color,  # Button background
+            btnforeground=constants.background_color,  # Icon/text color
+            image=self.light_icon,  # Set the light bulb icon
+            clicked=lambda: self.page_actions[self.current_page]()  # Action based on page
         )
-        self.dynamic_button.grid(row=0, column=0)  # Button initially in frame
+        self.dynamic_button.grid(row=0, column=0)
 
         # Lower-left corner button to go back
-        self.lower_left_button = ttk.Button(self, text="Tillbaka", command=lambda: controller.show_frame("Home_page"), style="Flat.TButton")
-        self.lower_left_button.grid(row=2, column=1, padx=10, pady=10, sticky="sw")
+        self.back_button = button.RoundedButton(
+            master = button_frame, 
+            text="Bakåt", 
+            radius=25, 
+            width=200, 
+            height=70, 
+            btnbackground=constants.text_color, 
+            btnforeground=constants.background_color, 
+            clicked=lambda: controller.show_frame("Home_page")
+        )
+        self.back_button.grid(row=2, column=1, padx=10, pady=10, sticky="sw")
 
         # Canvas to display images on relevant pages
         self.image_canvas = tk.Canvas(self, width=400, height=300, bg=constants.background_color, highlightthickness=0)
@@ -177,9 +195,6 @@ class Info_page(tk.Frame):
             self.dynamic_button.grid_remove()  # Hide by removing from frame (keeps layout stable)
         else:
             self.dynamic_button.grid()  # Show by adding back to frame
-
-        # Update dynamic button action for the current page
-        self.dynamic_button.config(command=self.page_actions[page_index])
 
         # Update arrow visibility based on the current page
         self.update_arrow_visibility()

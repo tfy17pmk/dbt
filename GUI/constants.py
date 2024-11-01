@@ -3,7 +3,7 @@ background_color = "#00263E" #dark blue
 text_color = "#B9D9EB" #light blue, almost white
 
 #Fonts
-heading = ("Helvetica Neue", 32, "bold")
+heading = ("Helvetica Neue", 42, "bold")
 body_text = ("Helvetica Neue", 20)
 
 #Image paths
@@ -14,7 +14,7 @@ RIGHT_ARROW = "assets/right_arrow.png"
 EYES = "assets/eyes.png"
 ARM = "assets/arm.png"
 BRAIN = "assets/brain.png"
-LIGHT_BULB = "assets/light-bulb.png"
+LIGHT_BULB = "assets/light_bulb.png"
 
 #Flags
 show_speaker = True

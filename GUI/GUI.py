@@ -8,7 +8,7 @@ from pattern_page import Pattern_page
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Multi-Page Application")
+        self.title("BallBot")
         
         # Start in full-screen mode
         self.attributes("-fullscreen", True)
