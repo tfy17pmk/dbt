@@ -24,7 +24,8 @@ class Pattern_page(tk.Frame):
 
         # Button frame for holding buttons, now added to layout
         button_frame = tk.Frame(self, bg=constants.background_color, highlightthickness=0, borderwidth=0)
-        button_frame.grid(row=2, column=3, padx=20, pady=20, sticky="nsew")  # Set grid position for button_frame
+        button_frame.config(borderwidth=0, )
+        button_frame.grid(row=1, column=3, sticky="nsew", rowspan=2, pady=20)  # Set grid position for button_frame
 
         # Pattern Page title
         label = tk.Label(self, text="Skapa ett mönster", font=(constants.heading, 24), fg=constants.text_color, bg=constants.background_color)
@@ -97,6 +98,15 @@ class Pattern_page(tk.Frame):
         # Place the rectangle button using `place_button`
         place_button('Rectangle', draw_square_button, 1, 4, 10, 5)
         '''
-        but = button.RoundedButton(master = button_frame, text="Rectangle", radius=25, width=140, height=50, 
+        but_rec = button.RoundedButton(master = button_frame, text="Rectangle", radius=25, width=200, height=70, 
                                    btnbackground=constants.text_color, btnforeground=constants.background_color, clicked=None)
-        but.grid(row=3, column=4, sticky="nsew")
+        but_circ = button.RoundedButton(master = button_frame, text="Circle", radius=25, width=200, height=70, 
+                                   btnbackground=constants.text_color, btnforeground=constants.background_color, clicked=None)
+        but_tri = button.RoundedButton(master = button_frame, text="Triangle", radius=25, width=200, height=70, 
+                                   btnbackground=constants.text_color, btnforeground=constants.background_color, clicked=None)
+        but_star = button.RoundedButton(master = button_frame, text="Star", radius=25, width=200, height=70, 
+                                   btnbackground=constants.text_color, btnforeground=constants.background_color, clicked=None)
+        but_rec.grid(row=2, column=4, sticky="nsew")
+        but_circ.grid(row=3, column=4, sticky="nsew", pady=30)
+        but_tri.grid(row=4, column=4, sticky="nsew", pady=30)
+        but_star.grid(row=5, column=4, sticky="nsew", pady=30)
