@@ -26,6 +26,9 @@ class Info_page(tk.Frame):
         brain_image_original = Image.open(constants.BRAIN).resize((250, 250))
         self.brain_image_icon = ImageTk.PhotoImage(brain_image_original)
 
+        # Load the light icon for the dynamic button
+        self.light_icon = ImageTk.PhotoImage(Image.open(constants.LIGHT_BULB).resize((20, 20)))
+
         # Placeholder for each page's unique text and actions
         self.page_texts = constants.info_text
 
@@ -73,8 +76,8 @@ class Info_page(tk.Frame):
             font=constants.body_text, 
             bg=constants.background_color, 
             relief="flat", 
-            height=40, 
-            width=90, 
+            height=15, 
+            width=70, 
             highlightthickness=0,
             pady=100,
             padx=100
@@ -86,14 +89,31 @@ class Info_page(tk.Frame):
 
         # Frame to hold the button (keeps layout stable)
         self.dynamic_button_frame = tk.Frame(self, bg=constants.background_color)
-        self.dynamic_button_frame.grid(row=1, column=1, pady=200, padx=300, sticky="e")
+        self.dynamic_button_frame.grid(row=1, column=1, pady=200, padx=300, sticky="se")
 
         # Placeholder spacer label to maintain consistent layout when button is hidden
         self.spacer_label = tk.Label(self.dynamic_button_frame, text="", height=2, bg=constants.background_color)
         self.spacer_label.grid(row=0, column=0)
 
-        # Dynamic action button
-        self.dynamic_button = ttk.Button(self.dynamic_button_frame, text="Dynamic Action")
+        # Define a custom style for the rounded button
+        style = ttk.Style()
+        style.configure("RoundedButton.TButton", 
+                        foreground=constants.text_color,   # Text color
+                        background=constants.background_color,    # Background color
+                        borderwidth=0, 
+                        focuscolor=style.configure(".")["background"])  # Match focus color to background
+        
+        style.map("RoundedButton.TButton",
+                  background=[("active", constants.background_color)])  # Hover color
+
+        # Button with rounded style and light icon
+        self.dynamic_button = ttk.Button(
+            self.dynamic_button_frame,
+            image=self.light_icon,
+            style="RoundedButton.TButton",
+            text="",
+            compound="left"  # Places icon on the left side of the text if needed
+        )
         self.dynamic_button.grid(row=0, column=0)  # Button initially in frame
 
         # Lower-left corner button to go back
@@ -131,17 +151,11 @@ class Info_page(tk.Frame):
         self.page_content_text.delete("1.0", tk.END)
 
         # Set text alignment based on the current page
-        if page_index == 0:
-            self.page_content_text.tag_configure("center", justify="center")
-            self.page_content_text.insert(tk.END, self.page_texts[page_index]["heading"] + "\n", ("heading", "center"))
-            self.page_content_text.insert(tk.END, self.page_texts[page_index]["body"], ("body", "center"))
-            self.page_content_text.grid(sticky="")
-        else:
-            self.page_content_text.tag_configure("left", justify="left")
-            self.page_content_text.insert(tk.END, self.page_texts[page_index]["heading"] + "\n", ("heading", "left"))
-            self.page_content_text.insert(tk.END, self.page_texts[page_index]["body"], ("body", "left"))
-            self.page_content_text.grid(sticky="ne")
-            
+        self.page_content_text.tag_configure("left", justify="left")
+        self.page_content_text.insert(tk.END, self.page_texts[page_index]["heading"] + "\n", ("heading", "left"))
+        self.page_content_text.insert(tk.END, self.page_texts[page_index]["body"], ("body", "left"))
+        self.page_content_text.grid(sticky="ne")
+        
         self.page_content_text.config(state="disabled")
 
         # Show or hide the appropriate image based on the current page
@@ -173,12 +187,8 @@ class Info_page(tk.Frame):
         # Update the dots to show the current page
         self.update_dots()
 
-
-
-
     def update_arrow_visibility(self):
         """Hide left arrow on the first page and right arrow on the last page."""
-        # Hide the left arrow if on the first page, else show it
         if self.current_page == 0:
             self.btn_prev_canvas.itemconfigure(self.left_arrow_id[0], state="hidden")
             self.btn_prev_canvas.itemconfigure(self.left_arrow_id[1], state="hidden")
@@ -186,7 +196,6 @@ class Info_page(tk.Frame):
             self.btn_prev_canvas.itemconfigure(self.left_arrow_id[0], state="normal")
             self.btn_prev_canvas.itemconfigure(self.left_arrow_id[1], state="normal")
 
-        # Hide the right arrow if on the last page, else show it
         if self.current_page == len(self.page_texts) - 1:
             self.btn_next_canvas.itemconfigure(self.right_arrow_id[0], state="hidden")
             self.btn_next_canvas.itemconfigure(self.right_arrow_id[1], state="hidden")
