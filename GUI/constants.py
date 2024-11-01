@@ -25,3 +25,12 @@ info_text = [
     {"heading": "Mina Muskler \nJag har även armar med muskler.\n\n", "body": "Till skillnad från dig är mina armar elektriska motorer. Mina armar består av stegmotorer som när de roterar gör. att bordet åker till bestämda vinklar. Att använda stegmotorer innebär stor noggrannhet i kombinaiton med kraftfull prestanda."},
     {"heading": "Min Hjärna", "body": "Jag har även en hjärna. Till skillnad från dig är min hjärna en liten dator. I den lilla datorn finns ett program som tar information från kameran. Denna information används sedan för att beräkna hur bordet ska luta med hjälp av trigonometriska formler."}
 ]
+
+# Challenge page text
+challenge_text = [
+        {"heading": "Utmana mig i att balansera bollen! \n"},
+        {"heading": "Jag rullar bollen till olika \n"},
+        {"heading": "ställen på bordet, sedan får du \n"},
+        {"heading": "använda spakarna för att ta dig \n"},
+        {"heading": "till samma ställen som mig."},
+]
