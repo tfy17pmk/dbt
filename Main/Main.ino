@@ -16,6 +16,7 @@ const uint8_t START_BYTE = 0x02;
 double theta, phi, height;
 uint8_t states_byte, homing_byte;
 bool homing;
+bool new_angles;
 
 const size_t MESSAGE_LENGTH = 3 * sizeof(double) + 2 * sizeof(uint8_t);
 
@@ -26,6 +27,7 @@ Kinematics kinematics;
 Motors motors;
 std::array<AccelStepper, 3>& stepper = motors.setup_accel();
 std::array<double, 3> motor_angles = {0,0,0};
+std::array<double, 3> prev_motor_angles = {0,0,0};
 
 
 void IRAM_ATTR handleButtonPress1() {
@@ -121,6 +123,7 @@ void receiveData() {
     Serial.print("), homing=");
     Serial.println(homing);
   }
+  return;
 }
 
 void loop() {
@@ -130,56 +133,26 @@ void loop() {
     motors.home();
     homing = false;
   } else {
+    
     motor_angles = kinematics.setPosition(theta*pi/180, phi*pi/180); // input rad; return degree
 
-    // Print the motor angles
-    for (size_t i = 0; i < motor_angles.size(); ++i) {
-      Serial.print("Motor angle ");
-      Serial.print(i);
-      Serial.print(": ");
-      Serial.println(motor_angles[i]);
-    }      
-    //delay(1000);
-
-    motors.set_angle(motor_angles.data());
-    stepper[0].run();
-    stepper[1].run();
-    stepper[2].run();
-
-  }
-/*
-  if (Serial.available()) {
-    char receivedChar = Serial.read();  // Read data from Raspberry Pi
-    Serial.print("Received: ");             // Print debug message
-    Serial.println(receivedChar);           // Show the received character
-
-    if(receivedChar == '0'){
-      motors.home();
-      Serial.println("fick en 0a");
-    }
-
-    if(receivedChar == '2'){
-      Serial.println("Ny position");
-      motor_angles = kinematics.setPosition(19*pi/180, 19*pi/180); // input rad; return degree
-
+    // check for only setting speed acceleration once for each motor angles set
+    if ((motor_angles[0] != prev_motor_angles[0]) && (motor_angles[1] != prev_motor_angles[1]) && (motor_angles[2] != prev_motor_angles[2])){
       // Print the motor angles
       for (size_t i = 0; i < motor_angles.size(); ++i) {
         Serial.print("Motor angle ");
         Serial.print(i);
         Serial.print(": ");
         Serial.println(motor_angles[i]);
+        prev_motor_angles[i] = motor_angles[i];
       }      
-
       motors.set_angle(motor_angles.data());
     }
-  }
-  
-  stepper[0].run();
-  stepper[1].run();
-  stepper[2].run();
 
-  //float goal_angles[3] = {1, 1, 1};
-  //motors.set_angle(goal_angles);
-  */
+    stepper[0].run();
+    stepper[1].run();
+    stepper[2].run();
+
   }
+}
 

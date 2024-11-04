@@ -18,6 +18,7 @@ public:
   std::array<double, 3> inverseKinematics(double *normal_vector, double height);
   std::array<double, 3> setPosition(double theta, double phi);
   double thetas(int leg, double hz, double nx, double ny);
+
 private:
   double _lengths[4] = {0.075, 0.145, 0.15, 0.22}; // {base to servo height, arm 1 length, arm 2 length, platform radius}
   std::array<double, 3> motor_angles = {0, 0, 0};
@@ -41,6 +42,5 @@ private:
   double _angle;     //generic angle for legs A, B, and C
   double nmag, nz;  //magnitude and z component of the normal vector
   double _clamped;
-
 };
 #endif

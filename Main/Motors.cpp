@@ -6,15 +6,10 @@
 Motors::Motors() {
     for (int i = 0; i < 3; i++) {
 
-        pinMode(_MODE[i], OUTPUT);
-        pinMode(_DIR[i], OUTPUT);
-        //pinMode(_STEP[i], OUTPUT);
-        digitalWrite(_STEP[i], LOW); // Initialize step pins to low
-        digitalWrite(_MODE[i], _RESOLUTION[i]);
-
-        // Set the PWM frequency
-        //ledcSetup(i, PWM_frequency, 8); // 8-bit resolution
-        //ledcAttachPin(STEP[i], i); // Attach the step pin to the channel
+      pinMode(_MODE[i], OUTPUT);
+      pinMode(_DIR[i], OUTPUT);
+      digitalWrite(_STEP[i], LOW); // Initialize step pins to low
+      digitalWrite(_MODE[i], _RESOLUTION[i]);
     }
 }
 
@@ -173,35 +168,27 @@ void Motors::home() {
   Serial.println(stepper[1].currentPosition());
   Serial.println(stepper[2].currentPosition());
 
-  move_up();
+  initial_position();
   Serial.println("Homing complete, position set to 0.");
 }
 
-void Motors::move_up() {
+void Motors::initial_position() {
 
   for(int i = 0; i < 3; i++) {
     stepper[i].setMaxSpeed(4000);   // Increase max speed significantly
-    stepper[i].setAcceleration(4000*30);
+    stepper[i].setAcceleration(3000);
     stepper[i].moveTo(3200);   
   }
-
-}
-
-
-void Motors::initial_position() {
-    for (int i = 0; i < 3; i++) {
-        _current_angles[i] = 20.0; // Initialize current angles to 20 degrees
-    }
 }
 
 void Motors::set_angle(double goal_angles[3]) {
     for(int i = 0; i < 3; i++) {
-      _steps = floor(goal_angles[i] * 17.777778); // convert degrees to steps
+      _steps = floor(goal_angles[i] * _inv_degree_per_step); // convert degrees to steps
       //if (stepper[i].distanceToGo() == 0)
 
       //Serial.println(_steps);
       stepper[i].setMaxSpeed(4000);   // Increase max speed significantly
-      stepper[i].setAcceleration(4000*30);
+      stepper[i].setAcceleration(3000);
       stepper[i].moveTo(_steps);
     }
 }

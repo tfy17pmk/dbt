@@ -109,31 +109,27 @@ std::array<double, 3> Kinematics::inverseKinematics(double *normal_vector, doubl
   double C_3 = pow(A_3,2) + 4;
   double D_3 = 2 * A_3 * B_3 + 4 * base_to_servo_length;
   double E_3 = pow(B_3,2) + pow(base_to_servo_length,2) - pow(arm_1_length,2);
-
+  /*
   Serial.println(A_3);
   Serial.println(B_3);
   Serial.println(C_3);
   Serial.println(D_3);
   Serial.println(E_3);
-
+  */
   double arm_3_x_knee = (-D_3 - sqrt(pow(D_3,2) - 4 * C_3 * E_3)) / (2 * C_3); 
   double arm_3_y_knee = sqrt(3) * arm_3_x_knee;
   double arm_3_z_knee = sqrt(pow(arm_1_length,2) - 4 * pow(arm_3_x_knee,2) - 4 * base_to_servo_length * arm_3_x_knee - pow(base_to_servo_length,2));
-
+  /*
   Serial.println(arm_3_x_knee);
   Serial.println(arm_3_y_knee);
   Serial.println(arm_3_z_knee);
-
+  */
   if (arm_3_z_mount < Pmz) {
     arm_3_z_knee = -arm_3_z_knee;
   }
   double arm_3_knee_array[3] = {arm_3_x_knee, arm_3_y_knee, arm_3_z_knee};
 
   double arm_3_theta = pi/2 - atan2(sqrt(pow(arm_3_knee_array[0],2) + pow(arm_3_knee_array[1],2)) - base_to_servo_length, arm_3_knee_array[2]);
-
-  Serial.println(arm_3_theta);
-  
-  //printf("%f\n", arm_3_theta);
 
   //""" ---------------------------------------------------------------------------------------- """
 
@@ -160,7 +156,6 @@ double Kinematics::thetas(int leg, double hz, double nx, double ny) {
       _clamped = (pow(_mag, 2) + pow(_f, 2) - pow(_g, 2)) / (2 * _mag * _f);
       //_clamped = constrain(_clamped, -1, 1);
       _angle = acos(_y / _mag) + acos(_clamped);
-      Serial.println(_angle);
       break;
     case leg2:  //Leg B
       _x = (sqrt(3) / 2) * (_e * (1 - (pow(nx, 2) + sqrt(3) * nx * ny) / (nz + 1)) - _d);
@@ -170,7 +165,6 @@ double Kinematics::thetas(int leg, double hz, double nx, double ny) {
       _clamped = (pow(_mag, 2) + pow(_f, 2) - pow(_g, 2)) / (2 * _mag * _f);
       //_clamped = constrain(_clamped, -1, 1);
       _angle = acos((sqrt(3) * _x + _y) / (-2 * _mag)) + acos(_clamped);
-      Serial.println(_angle);
       break;
     case leg3:  //Leg C
       _x = (sqrt(3) / 2) * (_d - _e * (1 - (pow(nx, 2) - sqrt(3) * nx * ny) / (nz + 1)));
@@ -180,7 +174,6 @@ double Kinematics::thetas(int leg, double hz, double nx, double ny) {
       _clamped = (pow(_mag, 2) + pow(_f, 2) - pow(_g, 2)) / (2 * _mag * _f);
       //_clamped = constrain(_clamped, -1, 1);
       _angle = acos((sqrt(3) * _x - _y) / (2 * _mag)) + acos(_clamped);
-      Serial.println(_angle);
       break;
   }
   return (_angle * (180 / pi));  //converts angle to degrees and returns the value
