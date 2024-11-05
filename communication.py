@@ -3,7 +3,7 @@ import time
 import struct
 
 # Replace with the port your ESP32 is connected to
-serial_port = "/dev/tty.usbserial-0199B457"  # Use 'ls /dev/tty.*' to find the correct port AND you cant have serial monitor on in Arduino IDE!
+serial_port = "/dev/ttyUSB0"  # Use 'ls /dev/tty.*' to find the correct port AND you cant have serial monitor on in Arduino IDE!
 baud_rate = 115200  # Same baud rate as in Arduino IDE
 
 # Open the serial port
@@ -29,7 +29,7 @@ def send_data(value1, value2, height, state1, state2, state3, homing):
 
 try:
     # Example usage
-    send_data(12.34, 56.78, 100.0, 1, 0, 1, True)
+    send_data(10, 10, 15, 1, 0, 1, True)
 except serial.SerialException as e:
     print(f"Serial error: {e}")
 finally:
