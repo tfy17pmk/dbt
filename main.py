@@ -12,9 +12,11 @@ def capture_and_detect(queue, stop_event):
             frame = camera.get_frame()
             if frame is not None:
                 ball_coordinates = camera.get_ball(frame)
-                if ball_coordinates[0] != -1:  # Valid detection
-                    if not queue.full():  # Prevent queue overflow
-                        queue.put(ball_coordinates)
+                if ball_coordinates != [-1, -1, 0]:  # Valid detection
+                    try:
+                        queue.put_nowait(ball_coordinates)
+                    except queue.Full:
+                        pass
                 camera.show_frame(frame)  # Display frame if needed
             else:
                 break
@@ -24,7 +26,7 @@ def capture_and_detect(queue, stop_event):
 def pid_control(queue_in, k_pid, stop_event):
     """Receive ball coordinates from the queue, compute control angles, and send commands."""
     pid_controller = PID_control(k_pid)
-    goal_position = (0, 0)  # Desired position (update as needed)
+    goal_position = (0, 0)  # Desired position (update when we know coordinates for tables middle point)
 
     while not stop_event.is_set():
         if not queue_in.empty():
@@ -36,7 +38,7 @@ def pid_control(queue_in, k_pid, stop_event):
 
 if __name__ == "__main__":
     k_pid = [0.1, 0.5, 0.3, 0.1]
-    ball_coords_queue = Queue(maxsize=20)
+    ball_coords_queue = Queue(maxsize=10)
     stop_event = Event()
 
     # Create processes
