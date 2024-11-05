@@ -13,23 +13,22 @@ class Challenge_page(tk.Frame):
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
         self.grid_rowconfigure(2, weight=1)
-        self.grid_columnconfigure(0, weight=1)  # Left padding
+        self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1) 
 
-
+        # Frame for the video feed
         vid_frame = tk.Frame(self, bg=constants.background_color)
         vid_frame.grid(row=1, rowspan=2, column=0, sticky="s", ipadx=100, ipady=100)  # Place below text widget in grid
         canvas = tk.Canvas(vid_frame, width=640, height=480, highlightthickness=1, bg=constants.background_color)
         canvas.pack()
 
-
         # Text widget for page content with tagged fonts
         self.page_content_text = tk.Text(
             self, 
             wrap="word", 
-            font=constants.body_text,  # Default font for body text
+            font=constants.body_text,
             bg=constants.background_color, 
-            fg=constants.text_color,  # Default text color
+            fg=constants.text_color,
             relief="flat", 
             height=20, 
             width=75, 
@@ -46,7 +45,7 @@ class Challenge_page(tk.Frame):
         self.page_content_text.insert(tk.END, self.page_texts[0]["heading"] + "\n", ("heading", "center"))
         self.page_content_text.grid(sticky="ne")
 
-        # Go back framne
+        # Go back frame
         back_btn_frame = tk.Frame(self, 
                                   bg=constants.background_color, 
                                   highlightthickness=0, 
@@ -103,6 +102,6 @@ class Challenge_page(tk.Frame):
 
     def on_button_click(self):
         # Define the action for the button click
-        print()
+        print('Utmaning startad!')
 
     

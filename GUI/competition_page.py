@@ -14,7 +14,7 @@ class Competition_page(tk.Frame):
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
 
-        # Setup grid pattern with equal weight for each row and column
+        # Setup grid pattern
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=5)
         self.grid_rowconfigure(2, weight=1)
@@ -23,7 +23,7 @@ class Competition_page(tk.Frame):
         self.grid_columnconfigure(1, weight=5)
         self.grid_columnconfigure(2, weight=1)
 
-        # Scale button size relative to screen size (e.g., 10% of the screen width)
+        # Scale button size relative to screen size
         button_diameter = int(screen_width * 0.25)
 
         # Frame to hold buttons and text in a single row, centered
