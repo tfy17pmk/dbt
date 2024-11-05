@@ -8,27 +8,27 @@ class HexagonShape:
         self.fill = fill
         self.outline = outline
         
-        # Bind för att rita hexagonen när storleken ändras
+        # Bind to draw the hexagon in the case of window resize
         self.canvas.bind("<Configure>", self.on_resize)
 
-        # Bind för att hantera klick på hexagonen
+        # Bind to handle clicking on the hexagon
         self.canvas.bind("<Button-1>", self.on_click)
 
-        # Rita hexagon för första gången
+        # Create initial hexagon
         self.create_hexagon()
 
     def create_hexagon(self):
-        # Rensa canvas innan vi ritar om
+        # Clear canvas
         self.canvas.delete("all")
         
-        # Hitta mitten och radien för hexagonen
+        # Find center and radius
         width = self.canvas.winfo_width()
         height = self.canvas.winfo_height()
         center_x = width // 2
         center_y = height // 2
-        radius = width // 2.05  # Anpassa radien så hexagonen får plats
+        radius = width // 2.05  # Making sure hexagon fits on the canvas
 
-        # Beräkna hexagonens hörnpunkter
+        # Finding the corner positions of the hexagon
         self.points = []
         for i in range(6):
             angle_deg = 60 * i
@@ -37,22 +37,22 @@ class HexagonShape:
             y = center_y + radius * math.sin(angle_rad)
             self.points.append((x, y))
 
-        # Skapa hexagonen på canvas
+        # Fill the canvas with the hexagon
         self.canvas.create_polygon(self.points, outline=self.outline, fill=self.fill, width=2)
 
     def on_resize(self, event):
-        # Skala om hexagonen när fönstret ändrar storlek
+        # Rescale the hexagon in case of window size changing
         self.create_hexagon()
 
     def on_click(self, event):
-        # Kontrollera om klicket är inom hexagonen
+        # Check if the click is within the borders
         if self.is_point_inside_hexagon(event.x, event.y):
             print(f"Klick inuti hexagonen vid koordinat: ({event.x}, {event.y})")
         else:
             print("Klick utanför hexagonen")
 
     def is_point_inside_hexagon(self, x, y):
-        # Punkt-inom-polygon-test (Ray-casting algoritm)
+        # Point-within-polygon-test (Ray-casting algorithm)
         n = len(self.points)
         inside = False
         p1x, p1y = self.points[0]
