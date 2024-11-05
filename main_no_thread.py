@@ -1,12 +1,11 @@
-from webcamera import Camera as class_camera
-from pid import PID_control as class_PID
+from webcamera import Camera
+from pid import PID_control
 import time
-import numpy as np
 
 # PID-variabler
 K_PID = [0, 0, 0, 0]
-camera = class_camera.Camera()
-pid = class_PID.PID_control(K_PID)
+camera = Camera()
+pid = PID_control(K_PID)
 
 # Startvärden för koordinater och area
 x = -1
