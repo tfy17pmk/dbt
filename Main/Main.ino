@@ -10,10 +10,12 @@
 
 #define pi 3.1415926535
 
+#define LED 2
+
 const uint8_t START_BYTE = 0x02;  
 
 // Read the complete message (assuming 14 bytes total)
-double theta, phi, height;
+double normal_vector_x, normal_vector_y, height;
 uint8_t states_byte, homing_byte;
 bool homing;
 bool new_angles;
@@ -42,13 +44,15 @@ void IRAM_ATTR handleButtonPress3() {
   motors.buttonPressed[2] = true;  // Set flag when the button is pressed
 }
 
-  HardwareSerial SerialPort(1);   // Use UART1 on ESP32
+//  HardwareSerial SerialPort(1);   // Use UART1 on ESP32
 // Interrupt Service Routine (ISR) for the button
 
 void setup() {
   Serial.begin(115200);
-  SerialPort.begin(115200, SERIAL_8N1, 16, 17);
+  //SerialPort.begin(115200, SERIAL_8N1, 16, 17);
   setCpuFrequencyMhz(160);
+  // Set pin mode
+  pinMode(LED_BUILTIN,OUTPUT);
 
   motors.buttonPressed.fill(false);
   motors.skipPhaseOne.fill(false);
@@ -81,25 +85,24 @@ void setup() {
 
 void receiveData() {
   // Wait for the start byte
-  if ((SerialPort.available() > 0) && SerialPort.read() == START_BYTE) {
+  if ((Serial.available() > 0) && Serial.read() == START_BYTE) {
     unsigned long startTime = millis();
 
     // Wait until the complete message is available or a timeout occurs
-    while (SerialPort.available() < MESSAGE_LENGTH - 1) {
+    while (Serial.available() < MESSAGE_LENGTH - 1) {
       if (millis() - startTime > 1000) { // 1-second timeout
         Serial.println("Timeout! Discarding incomplete message.");
-        SerialPort.flush();
+        Serial.flush();
         return;
       }
     }
 
     // Read and unpack the data
-    
-    SerialPort.readBytes((char*)&theta, sizeof(double));
-    SerialPort.readBytes((char*)&phi, sizeof(double));
-    SerialPort.readBytes((char*)&height, sizeof(double));
-    SerialPort.readBytes((char*)&states_byte, 1);
-    SerialPort.readBytes((char*)&homing_byte, 1);
+    Serial.readBytes((char*)&normal_vector_x, sizeof(double));
+    Serial.readBytes((char*)&normal_vector_y, sizeof(double));
+    Serial.readBytes((char*)&height, sizeof(double));
+    Serial.readBytes((char*)&states_byte, 1);
+    Serial.readBytes((char*)&homing_byte, 1);
 
     // Process the data
     bool state1 = (states_byte & 0b100) >> 2;
@@ -108,10 +111,10 @@ void receiveData() {
     homing = homing_byte == 1;
 
     // Print received values for debugging
-    Serial.print("Received: theta=");
-    Serial.print(theta);
-    Serial.print(", phi=");
-    Serial.print(phi);
+    Serial.print("Received: normal_vector_x=");
+    Serial.print(normal_vector_x);
+    Serial.print(", normal_vector_y=");
+    Serial.print(normal_vector_y);
     Serial.print(", height=");
     Serial.print(height);
     Serial.print(", states=(");
@@ -122,6 +125,25 @@ void receiveData() {
     Serial.print(state3);
     Serial.print("), homing=");
     Serial.println(homing);
+
+    // Trigger action based on received data
+    /*
+    if (theta == 10) {
+      digitalWrite(LED_BUILTIN, HIGH);
+      delay(2000);
+      digitalWrite(LED_BUILTIN, LOW);
+    }
+    */
+
+    // Send back the received data
+    Serial.write(START_BYTE);  // Start byte for the response
+    Serial.write((const char*)&normal_vector_x, sizeof(double));
+    Serial.write((const char*)&normal_vector_y, sizeof(double));
+    Serial.write((const char*)&height, sizeof(double));
+    Serial.write(states_byte);  // Send back the states byte
+    Serial.write(homing_byte);  // Send back the homing byte
+
+    Serial.println("Data echoed back to sender.");
   }
   return;
 }
@@ -134,7 +156,7 @@ void loop() {
     homing = false;
   } else {
     
-    motor_angles = kinematics.setPosition(theta*pi/180, phi*pi/180); // input rad; return degree
+    motor_angles = kinematics.setPosition(normal_vector_x, normal_vector_y); // input rad; return degree
 
     // check for only setting speed acceleration once for each motor angles set
     if ((motor_angles[0] != prev_motor_angles[0]) && (motor_angles[1] != prev_motor_angles[1]) && (motor_angles[2] != prev_motor_angles[2])){

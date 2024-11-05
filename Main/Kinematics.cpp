@@ -178,8 +178,9 @@ double Kinematics::thetas(int leg, double hz, double nx, double ny) {
   }
   return (_angle * (180 / pi));  //converts angle to degrees and returns the value
 }
-std::array<double, 3> Kinematics::setPosition(double theta, double phi) {
+std::array<double, 3> Kinematics::setPosition(double normal_vector_x, double normal_vector_y) {
   // Set boundaries for table angles
+  /*
   if (theta > _maxTheta) {
     theta = _maxTheta;
   }
@@ -193,7 +194,7 @@ std::array<double, 3> Kinematics::setPosition(double theta, double phi) {
   else if (phi < _minPhi) {
     phi = _minPhi;
   }
-
+  
 
   // Calculate x, y, z component of normal from angles theta and phi
   double normal_vector_x = cos(pi/2 - theta);
@@ -205,7 +206,7 @@ std::array<double, 3> Kinematics::setPosition(double theta, double phi) {
   double normal_vector[3] = {normal_vector_x, normal_vector_y, normal_vector_z};
   // motor angles in absolut degrees
   // = inverseKinematics(normal_vector, _initialPosition[2]);
-
+  */
   motor_angles[0] = thetas(leg1, _height, normal_vector_x, normal_vector_y); // return degree
   motor_angles[1] = thetas(leg2, _height, normal_vector_x, normal_vector_y);
   motor_angles[2] = thetas(leg3, _height, normal_vector_x, normal_vector_y);

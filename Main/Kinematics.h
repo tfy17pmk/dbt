@@ -16,7 +16,7 @@ class Kinematics {
 public:
   Kinematics();
   std::array<double, 3> inverseKinematics(double *normal_vector, double height);
-  std::array<double, 3> setPosition(double theta, double phi);
+  std::array<double, 3> setPosition(double normal_vector_x, double normal_vector_y);
   double thetas(int leg, double hz, double nx, double ny);
 
 private:
