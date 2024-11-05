@@ -3,6 +3,7 @@ from PIL import Image, ImageTk  # Import Pillow for image resizing
 import constants
 import button
 import Hexagon
+from Hexagon import HexagonShape
 
 # Page 3: Page Two
 class Pattern_page(tk.Frame):
@@ -48,6 +49,20 @@ class Pattern_page(tk.Frame):
         pattern_frame = tk.Frame(self, bg=constants.background_color, highlightthickness=0, borderwidth=0,
                                   height=screen_height*0.7, width=screen_width*0.4)
         pattern_frame.grid(row=1, column=1, sticky="nsew", pady=0, padx=80, rowspan=2, columnspan=1)
+        
+         # Canvas to draw the line
+        label_line_canvas = tk.Canvas(pattern_frame, width=200, height=2, bg=constants.background_color, highlightthickness=0)
+        label_line_canvas.create_line(0, 0, 200, 0, fill=constants.text_color)
+        
+        label = tk.Label(pattern_frame, text="Skapa ett mönster", font=(constants.heading, 24), 
+                         fg=constants.text_color, bg=constants.background_color, justify="center")
+        
+        # Canvas for creating patterns
+        self.canvas = tk.Canvas(pattern_frame, width=800, height=680, bg=constants.background_color, highlightthickness=0)
+        self.hex = Hexagon.HexagonShape(self.canvas, fill=constants.text_color, outline=constants.text_color)
+        self.canvas.place(relx=0.5, rely=0.47, anchor="center")
+        label.place(relx=0.5, rely=0.05, anchor="center")
+        label_line_canvas.place(relx=0.5, rely=0.08, anchor="center")  # Add padding above and below the line
 
         # in button frame
         btn_rec = button.RoundedButton(master = button_frame, 
@@ -58,7 +73,7 @@ class Pattern_page(tk.Frame):
                                        btnbackground=constants.text_color, 
                                        btnforeground=constants.background_color, 
                                        image=self.square_icon,
-                                       clicked=None)
+                                       clicked=lambda: self.hex.draw_square())
         
         btn_circ = button.RoundedButton(master = button_frame, 
                                         text="", 
@@ -68,7 +83,7 @@ class Pattern_page(tk.Frame):
                                         btnbackground=constants.text_color, 
                                         btnforeground=constants.background_color, 
                                         image=self.circle_icon,
-                                        clicked=None)
+                                        clicked=lambda: self.hex.draw_circle())
         
         btn_tri = button.RoundedButton(master = button_frame, 
                                        text="", 
@@ -77,7 +92,7 @@ class Pattern_page(tk.Frame):
                                        btnbackground=constants.text_color, 
                                        btnforeground=constants.background_color, 
                                        image=self.triangle_icon,
-                                       clicked=None)
+                                       clicked=lambda: self.hex.draw_triangle())
         
         btn_star = button.RoundedButton(master = button_frame, 
                                         text="", 
@@ -87,7 +102,7 @@ class Pattern_page(tk.Frame):
                                         btnbackground=constants.text_color, 
                                         btnforeground=constants.background_color, 
                                         image=self.star_icon,
-                                        clicked=None)
+                                        clicked=lambda: self.hex.draw_star())
         
         btn_label = tk.Label(master=button_frame, 
                              text = "Färdiga mönster", 
@@ -110,11 +125,7 @@ class Pattern_page(tk.Frame):
         # Pattern Page title
         label = tk.Label(pattern_frame, text="Skapa ett mönster", font=(constants.heading, 24), 
                          fg=constants.text_color, bg=constants.background_color, justify="center")
-
-        # Canvas to draw the line
-        label_line_canvas = tk.Canvas(pattern_frame, width=200, height=2, bg=constants.background_color, highlightthickness=0)
-        label_line_canvas.create_line(0, 0, 200, 0, fill=constants.text_color)
-
+        
         btn_undo = button.RoundedButton(
                     master = pattern_frame, 
                     text="Ångra", 
@@ -123,14 +134,8 @@ class Pattern_page(tk.Frame):
                     height=70, 
                     btnbackground=constants.text_color, 
                     btnforeground=constants.background_color, 
-                    clicked=None
+                    clicked=lambda: self.hex.remove_last_line()
                 )
-        # Canvas for creating patterns
-        self.canvas = tk.Canvas(pattern_frame, width=800, height=680, bg=constants.background_color, highlightthickness=0)
-        self.hex = Hexagon.HexagonShape(self.canvas, fill=constants.text_color, outline=constants.text_color)
-        self.canvas.place(relx=0.5, rely=0.47, anchor="center")
-        label.place(relx=0.5, rely=0.05, anchor="center")
-        label_line_canvas.place(relx=0.5, rely=0.08, anchor="center")  # Add padding above and below the line
         btn_undo.place(relx=0.5, rely=0.9, anchor="center")
 
         # Lower-left corner button to go back
@@ -142,6 +147,11 @@ class Pattern_page(tk.Frame):
             height=70, 
             btnbackground=constants.text_color, 
             btnforeground=constants.background_color, 
-            clicked=lambda: controller.show_frame("Home_page")
+            clicked=self.go_back
         )
         self.back_button.grid(row=2, column=1, padx=10, pady=10, sticky="sw")
+        
+    def go_back(self):
+        print("inside go back")
+        self.hex.clear_all()  # Clear all shapes and lines before navigating
+        self.controller.show_frame("Home_page")

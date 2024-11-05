@@ -9,9 +9,6 @@ import constants
 import serial
 import time
 
-# Open the serial port
-esp32 = serial.Serial(constants.serial_port, constants.baud_rate, timeout=1)
-time.sleep(2)  # Wait for the connection to establish
 
 # Main Application Class
 class App(tk.Tk):
