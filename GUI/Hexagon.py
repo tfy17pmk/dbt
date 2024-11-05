@@ -36,6 +36,7 @@ class HexagonShape:
             x = center_x + radius * math.cos(angle_rad)
             y = center_y + radius * math.sin(angle_rad)
             self.points.append((x, y))
+            
 
         # Fill the canvas with the hexagon
         self.canvas.create_polygon(self.points, outline=self.outline, fill=self.fill, width=2)
@@ -48,6 +49,8 @@ class HexagonShape:
         # Check if the click is within the borders
         if self.is_point_inside_hexagon(event.x, event.y):
             print(f"Klick inuti hexagonen vid koordinat: ({event.x}, {event.y})")
+            [x_scaled, y_scaled] = self.rescale_coord(event.x, event.y, 1)
+            print(f"Omskalad koordinat: ({x_scaled}, {y_scaled})")
         else:
             print("Klick utanför hexagonen")
 
@@ -67,3 +70,16 @@ class HexagonShape:
                             inside = not inside
             p1x, p1y = p2x, p2y
         return inside
+
+    def rescale_coord(self, x, y, scaling_factor):
+        p1 = self.points[0]
+        p2 = self.points[3]
+        hexagon_height = 2*p1[1]
+        hexagon_width = p1[0] - p2[0]
+        x_scaled = (x - (hexagon_width/2)) * scaling_factor
+        y_scaled = -(y - (hexagon_height/2)) * scaling_factor
+
+        return x_scaled, y_scaled
+
+
+
