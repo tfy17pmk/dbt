@@ -2,3 +2,4 @@
 /dbt-venv
 
 # Other stuff
+/__pycache__/

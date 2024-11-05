@@ -1,5 +1,6 @@
 import cv2 as cv
 import numpy as np
+import time
 
 class Camera:
     def __init__(self):
@@ -30,6 +31,19 @@ class Camera:
         return frame
 
     def show_frame(self, frame):
+         # Calculate FPS
+        self.frame_count += 1
+        current_time = time.time()
+        if current_time - self.last_time >= 1.0:  # Every second
+            fps = self.frame_count
+            self.frame_count = 0
+            self.last_time = current_time
+        else:
+            fps = self.frame_count  # FPS value in current second
+
+        # Overlay FPS on the frame
+        cv.putText(frame, f'FPS: {fps}', (10, 30), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
         cv.imshow("Display window", frame)
         if cv.waitKey(1) == ord('q'):
             return True

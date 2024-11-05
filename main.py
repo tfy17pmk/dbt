@@ -13,10 +13,11 @@ def capture_and_detect(queue, stop_event):
             if frame is not None:
                 ball_coordinates = camera.get_ball(frame)
                 if ball_coordinates != [-1, -1, 0]:  # Valid detection
-                    try:
-                        queue.put_nowait(ball_coordinates)
-                    except queue.Full:
-                        pass
+                    if not queue.full():
+                        try:
+                            queue.put(ball_coordinates, timeout=0.01)
+                        except e:
+                            print(f"Queue error: {e}")
                 camera.show_frame(frame)  # Display frame if needed
             else:
                 break
@@ -34,7 +35,7 @@ def pid_control(queue_in, k_pid, stop_event):
             control_x, control_y = pid_controller.get_angles(goal_position, current_position)
             print(f"Control angles: X: {control_x}, Y: {control_y}")
             # Send angles to ESP here
-        time.sleep(0.02)  # Control frequency
+        #time.sleep(0.02)  # Control frequency
 
 if __name__ == "__main__":
     k_pid = [0.1, 0.5, 0.3, 0.1]
