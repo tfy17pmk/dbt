@@ -3,6 +3,7 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 import constants
 import button
+import communication
 
 class Info_page(tk.Frame):
     def __init__(self, parent, controller):
@@ -37,15 +38,23 @@ class Info_page(tk.Frame):
         # Placeholder for each page's unique text and actions
         self.page_texts = constants.info_text
 
-        def send_light_data(light):
-            print("turning on light")
-            print(light)
+        def send_light_data(light, state):
+            if light == 1:
+                communication.send_data(0, 0, 0, state, 0, 0, False)
+                print(f"light 1: {'on' if state else 'off'}")
+            elif light == 2:
+                communication.send_data(0, 0, 0, 0, state, 0, False)
+                print(f"light 2: {'on' if state else 'off'}")
+            else:
+                communication.send_data(0, 0, 0, 0, 0, state, False)
+                print(f"light 3: {'on' if state else 'off'}")
+
             
         self.page_actions = [
             lambda: print("Action for Page 1"), 
-            lambda: send_light_data(1),
-            lambda: send_light_data(2),
-            lambda: send_light_data(3)
+            lambda: send_light_data(1, 1),
+            lambda: send_light_data(2, 1),
+            lambda: send_light_data(3, 1)
         ]
 
         # Configure grid layout to center content
@@ -123,7 +132,7 @@ class Info_page(tk.Frame):
         style.map("RoundedButton.TButton",
                   background=[("active", constants.background_color)])  # Hover color
 
-        # Use RoundedButton for the dynamic button with light bulb icon
+        # Create the dynamic button with light bulb icon
         self.dynamic_button = button.RoundedButton(
             master=self.dynamic_button_frame,
             text="",  # No text since we're using an icon
@@ -133,10 +142,15 @@ class Info_page(tk.Frame):
             btnbackground=constants.text_color,  # Button background
             btnforeground=constants.background_color,  # Icon/text color
             image=self.light_icon,  # Set the light bulb icon
-            clicked=lambda: self.page_actions[self.current_page]()  # Action based on page
         )
+
+        # Add the button to the grid
         self.dynamic_button.grid(row=0, column=0)
-        
+
+        # Bind ButtonPress and ButtonRelease events to send the appropriate data
+        self.dynamic_button.bind("<ButtonPress-1>", lambda event: send_light_data(self.current_page, 1))
+        self.dynamic_button.bind("<ButtonRelease-1>", lambda event: send_light_data(self.current_page, 0))
+
         # Lower-left corner button to go back
         self.back_button = button.RoundedButton(
             master = button_frame, 

@@ -21,6 +21,11 @@ CIRCLE = "assets/circle.png"
 TRIANGLE = "assets/triangle.png"
 STAR = "assets/star.png"
 
+#communication
+serial_port = "/dev/tty.usbserial-0199B457"  # Use 'ls /dev/tty.*' to find the correct port AND you cant have serial monitor on in Arduino IDE!
+baud_rate = 115200  # Same baud rate as in Arduino IDE
+
+
 #Flags
 show_speaker = False
 
