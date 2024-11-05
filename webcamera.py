@@ -23,6 +23,10 @@ class Camera:
         self.lower_white = np.array([0, 0, 200])
         self.upper_white = np.array([180, 25, 255])
 
+        # For calculating FPS
+        self.last_time = time.time()
+        self.frame_count = 0
+
     def get_frame(self):
         return_value, frame = self.cam.read()
         if not return_value:
@@ -34,12 +38,10 @@ class Camera:
          # Calculate FPS
         self.frame_count += 1
         current_time = time.time()
-        if current_time - self.last_time >= 1.0:  # Every second
-            fps = self.frame_count
-            self.frame_count = 0
-            self.last_time = current_time
-        else:
-            fps = self.frame_count  # FPS value in current second
+        total_time = current_time - self.last_time
+        fps = int(self.frame_count/total_time)
+        self.frame_count = 0
+        self.last_time = current_time
 
         # Overlay FPS on the frame
         cv.putText(frame, f'FPS: {fps}', (10, 30), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
