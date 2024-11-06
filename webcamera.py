@@ -12,16 +12,16 @@ class Camera:
 		self.cam.set(cv.CAP_PROP_FRAME_WIDTH, 640)
 		self.cam.set(cv.CAP_PROP_FRAME_HEIGHT, 480)
 		self.cam.set(cv.CAP_PROP_FPS, 90)
+		self.cam.set(cv.CAP_PROP_AUTOFOCUS, 0)
 		self.crop_x1 = 190
 		self.crop_y1 = 120
 		self.crop_x2 = 490
 		self.crop_y2 = 395
-
 		if not self.cam.isOpened():
 			print("Error: Cannot open camera. Exiting.")
 			exit()
 
-		# Initialize color thresholds (orange and white)
+        # Initialize color thresholds (orange and white)
 		self.lower_orange = np.array([5, 100, 100]) 
 		self.upper_orange = np.array([15, 255, 255])
 		self.lower_white = np.array([0, 0, 200])
@@ -118,9 +118,9 @@ class Camera:
 						(x, y), radius = cv.minEnclosingCircle(contour)
 						cv.circle(frame, (int(x), int(y)), int(radius), (0, 255, 0), 2)
 
-						# Change coordinate system
+                        # Change coordinate system
 						height, width, _ = frame.shape
-						x -= (width / 2) + 3
+						x -= (width / 2) - 3
 						y -= (height / 2) -2
 						y = -y
 						return int(x), int(y), int(area)

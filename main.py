@@ -68,12 +68,12 @@ def pid_control(queue_in, k_pid, esp_com, stop_event):
             #print(queue_in.size())
             print(f"Control angles: X: {control_x}, Y: {control_y}")
             # Send angles to ESP here
-            esp_com.send_data(-control_x, -control_y, height, state1, state2, state3, homing)
+            esp_com.send_data(-control_x, control_y, height, state1, state2, state3, homing)
         #time.sleep(0.02)  # Control frequency
 
 if __name__ == "__main__":
     #k_pid = [0.0004, 0.000002, 0.007, 0.1]
-    k_pid = [0.002, 0, 0, 0.15]
+    k_pid = [0.005, 0.002, 0.07, 0.1]
     ball_coords_queue = Queue(maxsize=5)
     stop_event = Event()
     esp_com = Commmunication()
