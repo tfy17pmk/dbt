@@ -73,7 +73,7 @@ def pid_control(queue_in, k_pid, esp_com, stop_event):
 
 if __name__ == "__main__":
     #k_pid = [0.0004, 0.000002, 0.007, 0.1]
-    k_pid = [0.005, 0.002, 0.07, 0.1]
+    k_pid = [0.005, 0.022, 0.01, 0.001]
     ball_coords_queue = Queue(maxsize=5)
     stop_event = Event()
     esp_com = Commmunication()

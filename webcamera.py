@@ -134,16 +134,17 @@ class Camera:
 
 
 # Usage example
-"""if __name__ == "__main__":
+if __name__ == "__main__":
     camera = Camera()
     while True:
-        frame = camera.get_frame()
+        frame = camera.get_masked_frame()
+        cropped_frame = camera.crop_frame(frame)
         if frame is not None:
             ball_coordinates = camera.get_ball(frame)
             if ball_coordinates[0] != -1:
                 print(f"Ball detected at coordinates: {ball_coordinates[:2]}, Area: {ball_coordinates[2]}")
-            camera.show_frame(frame)
+            camera.show_frame(cropped_frame)
         else:
             break
 
-    camera.clean_up_cam()"""
+    camera.clean_up_cam()
