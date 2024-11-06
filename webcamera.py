@@ -12,6 +12,10 @@ class Camera:
         self.cam.set(cv.CAP_PROP_FRAME_WIDTH, 640)
         self.cam.set(cv.CAP_PROP_FRAME_HEIGHT, 480)
         self.cam.set(cv.CAP_PROP_FPS, 90)
+        self.crop_x1 = 190
+        self.crop_y1 = 120
+        self.crop_x2 = 490
+        self.crop_y2 = 395
 
         if not self.cam.isOpened():
             print("Error: Cannot open camera. Exiting.")
@@ -33,6 +37,10 @@ class Camera:
             print("Error: Can't receive frame. Exiting.")
             return None
         return frame
+    
+    def crop_frame(self, frame):
+        cropped_frame = frame[self.crop_y1:self.crop_y2, self.crop_x1:self.crop_x2]
+        return cropped_frame
 
     def show_frame(self, frame):
          # Calculate FPS
@@ -90,8 +98,8 @@ class Camera:
 
                         # Change coordinate system
                         height, width, _ = frame.shape
-                        x -= width / 2
-                        y -= height / 2
+                        x -= (width / 2) + 3
+                        y -= (height / 2) -2
                         y = -y
                         return int(x), int(y), int(area)
 

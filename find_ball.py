@@ -6,10 +6,15 @@ class FindBall:
     def __init__(self):
         
         self.videoCapture = cv.VideoCapture(0)
-        self.videoCapture.set(cv.CAP_PROP_FOURCC, cv.VideoWriter.fourcc('H', '2', '6', '4'))
+        self.videoCapture.set(cv.CAP_PROP_FOURCC, cv.VideoWriter.fourcc('M', 'J', 'P', 'G'))
         self.videoCapture.set(cv.CAP_PROP_FRAME_WIDTH, 640)
         self.videoCapture.set(cv.CAP_PROP_FRAME_HEIGHT, 480)
         self.videoCapture.set(cv.CAP_PROP_FPS, 90)
+        self.crop_x1 = 190
+        self.crop_y1 = 120
+        self.crop_x2 = 490
+        self.crop_y2 = 395
+
         print(self.videoCapture.get(cv.CAP_PROP_FPS))
 
         # Initial time for FPS calculation
@@ -19,8 +24,14 @@ class FindBall:
         # Read the frame from the video source
         ret, frame = self.videoCapture.read()
         if not ret:
+            print("none frame")
             return None
         return frame
+
+    def crop_frame(self, frame):
+        cropped_frame = frame[self.crop_y1:self.crop_y2, self.crop_x1:self.crop_x2]
+        return cropped_frame
+
     
     def get_ball(self, frame):
         grayFrame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
@@ -41,7 +52,7 @@ class FindBall:
             # Check if the contour is approximately circular
             if area > 0 and perimeter > 0:
                 circularity = 4 * np.pi * (area / (perimeter ** 2))
-                if 0.85 < circularity <= 1.15 and radius > 10:  # Adjust threshold as needed
+                if 0.75 < circularity <= 1.3 and radius > 3:  # Adjust threshold as needed
                     center = (int(x), int(y))
                     radius = int(radius)
                     cv.circle(frame, center, radius, (0, 255, 0), 2)  # Green circle around detected ball
@@ -62,6 +73,9 @@ class FindBall:
 
         # Display the frame
         cv.imshow("Circles with FPS", frame)
+        if cv.waitKey(1) == ord('q'):
+            return True
+        return False
 
     def clean_up_cam(self):
         # Release resources
@@ -74,11 +88,12 @@ if __name__ == "__main__":
     while True:
         # Read the frame from the video source
         frame = camera.get_frame()
-        if frame is not None:
-            xy_coordinates = camera.get_ball(frame)
+        cropped_frame = camera.crop_frame(frame)
+        if cropped_frame is not None:
+            xy_coordinates = camera.get_ball(cropped_frame)
             if xy_coordinates[0] != -1:
                 print(f"Coordinates: x: {xy_coordinates[0]}, y: {xy_coordinates[1]}")
-            camera.show_frame(frame)
+            camera.show_frame(cropped_frame)
         else:
             camera.clean_up_cam()
             break

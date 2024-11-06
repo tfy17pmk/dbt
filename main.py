@@ -2,6 +2,7 @@ from multiprocessing import Process, Queue, Event
 from webcamera import Camera
 from pid import PID_control
 from communication import Commmunication
+from find_ball import FindBall
 import time
 import sys
 
@@ -11,20 +12,45 @@ def capture_and_detect(queue, stop_event):
     try:
         while not stop_event.is_set():
             frame = camera.get_frame()
-            if frame is not None:
-                ball_coordinates = camera.get_ball(frame)
+            cropped_frame = camera.crop_frame(frame)
+            if cropped_frame is not None:
+                ball_coordinates = camera.get_ball(cropped_frame)
+                if ball_coordinates != (-1, -1, 0):  # Valid detection
+                    if not queue.full():
+                        try:
+                            queue.put(ball_coordinates, timeout=0.01)
+                            print(ball_coordinates)
+                        except e:
+                            print(f"Queue error: {e}")
+                    else:
+                        print("Queue is full!")
+                camera.show_frame(cropped_frame)  # Display frame if needed
+            else:
+                break
+    finally:
+        camera.clean_up_cam()
+
+def capture_and_detect2(queue, stop_event):
+    """Capture frames and detect ball coordinates, placing them in the queue."""
+    camera = FindBall()
+    try:
+        while not stop_event.is_set():
+            frame = camera.get_frame()
+            cropped_frame = camera.crop_frame(frame)
+            if cropped_frame is not None:
+                ball_coordinates = camera.get_ball(cropped_frame)# * 0.0014
                 if ball_coordinates != [-1, -1, 0]:  # Valid detection
                     if not queue.full():
                         try:
                             queue.put(ball_coordinates, timeout=0.01)
                         except e:
                             print(f"Queue error: {e}")
-                camera.show_frame(frame)  # Display frame if needed
+                camera.show_frame(cropped_frame)  # Display frame if needed
             else:
                 break
     finally:
         camera.clean_up_cam()
-
+        
 def pid_control(queue_in, k_pid, esp_com, stop_event):
     """Receive ball coordinates from the queue, compute control angles, and send commands."""
     pid_controller = PID_control(k_pid)
@@ -39,14 +65,16 @@ def pid_control(queue_in, k_pid, esp_com, stop_event):
             state2 = 0
             state3 = 1
             homing = False
+            #print(queue_in.size())
             print(f"Control angles: X: {control_x}, Y: {control_y}")
             # Send angles to ESP here
-            #esp_com.send(control_x, control_y, height, state1, state2, state3, homing)
+            esp_com.send_data(-control_x, -control_y, height, state1, state2, state3, homing)
         #time.sleep(0.02)  # Control frequency
 
 if __name__ == "__main__":
-    k_pid = [0.1, 0.5, 0.3, 0.1]
-    ball_coords_queue = Queue(maxsize=10)
+    #k_pid = [0.0004, 0.000002, 0.007, 0.1]
+    k_pid = [0.002, 0, 0, 0.15]
+    ball_coords_queue = Queue(maxsize=5)
     stop_event = Event()
     esp_com = Commmunication()
 

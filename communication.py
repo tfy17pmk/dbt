@@ -6,7 +6,7 @@ class Commmunication:
     def __init__(self):
         
         # Replace with the port your ESP32 is connected to
-        self.serial_port = "/dev/ttyUSB0"  # Use 'ls /dev/tty.*' to find the correct port
+        self.serial_port = "/dev/ttyUSB1"  # Use 'ls /dev/tty.*' to find the correct port
         self.baud_rate = 115200  # Make sure this matches the Arduino's baud rate
 
         # Open the serial port
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     com = Commmunication()
     try:
         # Example usage
-        com.send_data(0.1, 0.1, 15, 1, 0, 1, False)
+        com.send_data(0, 0, 15, 1, 0, 1, False)
         # Read and unpack the response
         com.receive_response()
     except serial.SerialException as e:
