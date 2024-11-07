@@ -13,10 +13,12 @@ class Camera:
 		self.cam.set(cv.CAP_PROP_FRAME_HEIGHT, 480)
 		self.cam.set(cv.CAP_PROP_FPS, 90)
 		self.cam.set(cv.CAP_PROP_AUTOFOCUS, 0)
-		self.crop_x1 = 190
-		self.crop_y1 = 120
-		self.crop_x2 = 490
-		self.crop_y2 = 395
+		self.crop_x1 = 185
+		self.crop_y1 = 130
+		self.crop_x2 = 505
+		self.crop_y2 = 415
+		self.x_offset = 3
+		self.y_offset = 2
 		if not self.cam.isOpened():
 			print("Error: Cannot open camera. Exiting.")
 			exit()
@@ -64,7 +66,7 @@ class Camera:
 		return mask
 
 
-	def show_frame(self, frame):
+	def show_frame(self, frame, goal_position):
 			# Calculate FPS
 		self.frame_count += 1
 		current_time = time.time()
@@ -75,6 +77,11 @@ class Camera:
 
 		# Overlay FPS on the frame
 		cv.putText(frame, f'FPS: {fps}', (10, 30), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+		height, width, _ = frame.shape
+		x_origin = (width / 2) + goal_position[0]
+		y_origin = (height / 2) + goal_position[1]
+
+		cv.circle(frame, (int(x_origin), int(y_origin)), 1, (0, 255, 0), 2)
 
 		cv.imshow("Display window", frame)
 		if cv.waitKey(1) == ord('q'):
@@ -110,7 +117,7 @@ class Camera:
 				perimeter = cv.arcLength(contour, True)
 
 				# Skip small areas to reduce noise
-				if area > 200 and perimeter > 0:
+				if area > 150 and perimeter > 0:
 					# Calculate circularity
 					circularity = 4 * np.pi * area / (perimeter * perimeter)
 					if 0.7 < circularity <= 1.0:  # Can try to adjust
@@ -120,8 +127,8 @@ class Camera:
 
                         # Change coordinate system
 						height, width, _ = frame.shape
-						x -= (width / 2) - 3
-						y -= (height / 2) -2
+						x -= (width / 2)
+						y -= (height / 2)
 						y = -y
 						return int(x), int(y), int(area)
 
@@ -134,7 +141,7 @@ class Camera:
 
 
 # Usage example
-if __name__ == "__main__":
+'''if __name__ == "__main__":
     camera = Camera()
     while True:
         frame = camera.get_masked_frame()
@@ -147,4 +154,4 @@ if __name__ == "__main__":
         else:
             break
 
-    camera.clean_up_cam()
+    camera.clean_up_cam()'''
