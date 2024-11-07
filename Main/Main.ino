@@ -15,22 +15,20 @@
 const uint8_t START_BYTE = 0x02;  
 
 // Read the complete message (assuming 14 bytes total)
-double normal_vector_x, normal_vector_y, height;
+double normal_vector_x, normal_vector_y;
+double height = 15;
 uint8_t states_byte, homing_byte;
 bool homing;
 bool new_angles;
 
 const size_t MESSAGE_LENGTH = 3 * sizeof(double) + 2 * sizeof(uint8_t);
 
-
-
+double update_time;
 
 Kinematics kinematics;
 Motors motors;
 std::array<AccelStepper, 3>& stepper = motors.setup_accel();
 std::array<double, 3> motor_angles = {0,0,0};
-std::array<double, 3> prev_motor_angles = {0,0,0};
-
 
 void IRAM_ATTR handleButtonPress1() {
   motors.buttonPressed[0] = true;  // Set flag when the button is pressed
@@ -91,7 +89,7 @@ void receiveData() {
     // Wait until the complete message is available or a timeout occurs
     while (Serial.available() < MESSAGE_LENGTH - 1) {
       if (millis() - startTime > 1000) { // 1-second timeout
-        Serial.println("Timeout! Discarding incomplete message.");
+        //Serial.println("Timeout! Discarding incomplete message.");
         Serial.flush();
         return;
       }
@@ -111,6 +109,7 @@ void receiveData() {
     homing = homing_byte == 1;
 
     // Print received values for debugging
+    /*
     Serial.print("Received: normal_vector_x=");
     Serial.print(normal_vector_x);
     Serial.print(", normal_vector_y=");
@@ -125,7 +124,7 @@ void receiveData() {
     Serial.print(state3);
     Serial.print("), homing=");
     Serial.println(homing);
-
+    */ 
     // Trigger action based on received data
     /*
     if (theta == 10) {
@@ -134,16 +133,6 @@ void receiveData() {
       digitalWrite(LED_BUILTIN, LOW);
     }
     */
-
-    // Send back the received data
-    Serial.write(START_BYTE);  // Start byte for the response
-    Serial.write((const char*)&normal_vector_x, sizeof(double));
-    Serial.write((const char*)&normal_vector_y, sizeof(double));
-    Serial.write((const char*)&height, sizeof(double));
-    Serial.write(states_byte);  // Send back the states byte
-    Serial.write(homing_byte);  // Send back the homing byte
-
-    Serial.println("Data echoed back to sender.");
   }
   return;
 }
@@ -155,26 +144,21 @@ void loop() {
     motors.home();
     homing = false;
   } else {
-    
-    motor_angles = kinematics.setPosition(normal_vector_x, normal_vector_y); // input rad; return degree
 
-    // check for only setting speed acceleration once for each motor angles set
-    if ((motor_angles[0] != prev_motor_angles[0]) && (motor_angles[1] != prev_motor_angles[1]) && (motor_angles[2] != prev_motor_angles[2])){
-      // Print the motor angles
-      for (size_t i = 0; i < motor_angles.size(); ++i) {
-        Serial.print("Motor angle ");
-        Serial.print(i);
-        Serial.print(": ");
-        Serial.println(motor_angles[i]);
-        prev_motor_angles[i] = motor_angles[i];
-      }      
-      motors.set_angle(motor_angles.data());
+    motor_angles = kinematics.setPosition(normal_vector_x, normal_vector_y, height); // input rad; return degree
+
+    motors.set_angle(motor_angles.data());
+    /*
+    update_time = millis();
+    while (millis() - update_time < 20){
+      stepper[0].run();
+      stepper[1].run();
+      stepper[2].run();
     }
-
+    */
     stepper[0].run();
     stepper[1].run();
     stepper[2].run();
-
   }
 }
 

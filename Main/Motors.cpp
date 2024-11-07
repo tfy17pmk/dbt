@@ -181,16 +181,56 @@ void Motors::initial_position() {
   }
 }
 
-void Motors::set_angle(double goal_angles[3]) {
-    for(int i = 0; i < 3; i++) {
-      _steps = floor(goal_angles[i] * _inv_degree_per_step); // convert degrees to steps
-      //if (stepper[i].distanceToGo() == 0)
-
-      //Serial.println(_steps);
-      stepper[i].setMaxSpeed(4000);   // Increase max speed significantly
-      stepper[i].setAcceleration(3000);
-      stepper[i].moveTo(_steps);
+void Motors::set_speed(double motor_angles[3], double prev_motor_angles) {
+  /*
+  float speed = abs(motor_angle - prev_motor_angle) * _cs;
+  speed = constrain(speed, 0, _max_speed);
+  return speed;
+  */
+  for (int i = 0; i < 3; i++) {
+      speedPrev[i] = speed[i];                                                                                                           //sets previous speed
+      speed[i] = (i == 0) * stepper[0].currentPosition() + (i == 1) * stepper[1].currentPosition() + (i == 2) * stepper[2].currentPosition();  //sets current position
+      speed[i] = abs(speed[i] - motor_angles[i]) * _cs;                                                                                            //calculates the error in the current position and target position
+      speed[i] = constrain(speed[i], speedPrev[i] - 200, speedPrev[i] + 200);                                                            //filters speed by preventing it from beign over 100 away from last speed
+      speed[i] = constrain(speed[i], 0, _max_speed);                                                                                           //constrains sped from 0 to 1000
     }
+}
+
+void Motors::set_angle(double motor_angles[3]) {
+
+  //float speed = 4000;
+  set_speed(motor_angles, prev_motor_angles[0]);
+
+  if (motor_angles[0] != prev_motor_angles[0]){
+    _steps = floor(motor_angles[0] * _inv_degree_per_step); // convert degrees to steps
+    //Serial.println(_steps);
+    
+    stepper[0].setMaxSpeed(speed[0]);   // Increase max speed significantly
+    stepper[0].setAcceleration(speed[0]*_acc_multiplier);
+    stepper[0].moveTo(_steps);
+    prev_motor_angles[0] = motor_angles[0];
+  }
+
+  if (motor_angles[1] != prev_motor_angles[1]){
+    _steps = floor(motor_angles[1] * _inv_degree_per_step); // convert degrees to steps
+    //Serial.println(_steps);
+    //float speed = set_speed(motor_angles, prev_motor_angles[1]);
+    stepper[1].setMaxSpeed(speed[1]);   // Increase max speed significantly
+    stepper[1].setAcceleration(speed[1]*30);
+    stepper[1].moveTo(_steps);
+    prev_motor_angles[1] = motor_angles[1];
+
+  }
+
+  if (motor_angles[2] != prev_motor_angles[2]){
+    _steps = floor(motor_angles[2] * _inv_degree_per_step); // convert degrees to steps
+    //Serial.println(_steps);
+    //float speed = set_speed(motor_angles, prev_motor_angles[2]);
+    stepper[2].setMaxSpeed(speed[2]);   // Increase max speed significantly
+    stepper[2].setAcceleration(speed[2]*30);
+    stepper[2].moveTo(_steps);
+    prev_motor_angles[2] = motor_angles[2];
+  }
 }
 
 void Motors::clean_up() {

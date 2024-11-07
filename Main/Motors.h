@@ -9,10 +9,9 @@ class Motors {
 public:
     // Constructor to initialize motors with mode, direction, and step pins
     Motors();
-    
     void initial_position();
     std::array<AccelStepper, 3>& setup_accel();
-    void set_angle(double goal_angles[3]);
+    void set_angle(double motor_angles[3]);
     void clean_up();
     void home();
     void IRAM_ATTR handleButtonPress1();
@@ -40,6 +39,13 @@ private:
     int _RESOLUTION[3] = {1,0,1}; // Resolution for 1/32 microstepping 
     float _inv_degree_per_step = 17.777778; // Set inverse degree per step 1/(1.8/32);
     int _steps = 0;
+    std::array<double, 3> prev_motor_angles = {0,0,0};
+    float _max_speed = 2000;
+    void set_speed(double motor_angles[3], double prev_motor_angle);
+    float _cs = 10;
+    double _acc_multiplier = 1;
+    double speed[3] = {0,0,0};
+    double speedPrev[3];
 
     void phase1();
     void phase2(int motor, bool first_time);
