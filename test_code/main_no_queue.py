@@ -1,9 +1,7 @@
 from multiprocessing import Process, Event, Array
-from webcamera import Camera
-from pid import PID_control
-from communication import Commmunication
-from find_ball import FindBall
-import time
+from Image_processing.webcamera import Camera
+from PID.pid import PID_control
+from communication.communication import Commmunication
 import sys
 
 def capture_and_detect(array, stop_event):

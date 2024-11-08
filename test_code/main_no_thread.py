@@ -1,5 +1,5 @@
-from webcamera import Camera
-from pid import PID_control
+from Image_processing.webcamera import Camera
+from PID.pid import PID_control
 import time
 
 # PID-variabler

@@ -5,13 +5,12 @@ import struct
 class Commmunication:
     def __init__(self):
         
-        # Replace with the port your ESP32 is connected to
         self.serial_ports = [f"/dev/ttyUSB{i}" for i in range(5)]  # Use 'ls /dev/tty.*' to find the correct port
-        self.baud_rate = 115200  # Make sure this matches the Arduino's baud rate
+        self.baud_rate = 115200
 
         # Open the serial port
         self.esp32 = None
-        self.connect()#serial.Serial(self.serial_port, self.baud_rate, timeout=1)
+        self.connect()
         time.sleep(1)  # Wait for the connection to establish
 
     def connect(self):
@@ -21,13 +20,11 @@ class Commmunication:
                 print(f"Connected to USB{port}.")
             except serial.SerialException:
                 pass
-        time.sleep(1)
     
         if self.esp32 is None:
             print("Could not connect to ESP.")
             exit(1)
         
-
 
     def send_data(self, value1, value2, height, state1, state2, state3, homing):
         start_byte = b'\x02'
