@@ -1,16 +1,12 @@
 #include "Arduino.h"
 #include "Kinematics.h"
-#include "InverseKinematics.h" // not ours
 #include "Motors.h"
 #include <AccelStepper.h>
 #include <array>  // Include array library
 #include <esp32-hal-cpu.h>
 #include <HardwareSerial.h>
 
-
 #define pi 3.1415926535
-
-#define LED 2
 
 const uint8_t START_BYTE = 0x02;  
 
@@ -49,8 +45,6 @@ void setup() {
   Serial.begin(115200);
   //SerialPort.begin(115200, SERIAL_8N1, 16, 17);
   setCpuFrequencyMhz(160);
-  // Set pin mode
-  pinMode(LED_BUILTIN,OUTPUT);
 
   motors.buttonPressed.fill(false);
   motors.skipPhaseOne.fill(false);
@@ -76,9 +70,7 @@ void setup() {
       Serial.print(": ");
       Serial.println(motor_angles[i]);
   }
-
   Serial.println("setup done!");
-
 }
 
 void receiveData() {
@@ -107,32 +99,6 @@ void receiveData() {
     bool state2 = (states_byte & 0b010) >> 1;
     bool state3 = (states_byte & 0b001);
     homing = homing_byte == 1;
-
-    // Print received values for debugging
-    /*
-    Serial.print("Received: normal_vector_x=");
-    Serial.print(normal_vector_x);
-    Serial.print(", normal_vector_y=");
-    Serial.print(normal_vector_y);
-    Serial.print(", height=");
-    Serial.print(height);
-    Serial.print(", states=(");
-    Serial.print(state1);
-    Serial.print(", ");
-    Serial.print(state2);
-    Serial.print(", ");
-    Serial.print(state3);
-    Serial.print("), homing=");
-    Serial.println(homing);
-    */ 
-    // Trigger action based on received data
-    /*
-    if (theta == 10) {
-      digitalWrite(LED_BUILTIN, HIGH);
-      delay(2000);
-      digitalWrite(LED_BUILTIN, LOW);
-    }
-    */
   }
   return;
 }
@@ -141,12 +107,15 @@ void loop() {
 
   receiveData();
   if (homing == true){
+    // home and find position
     motors.home();
     homing = false;
   } else {
 
-    motor_angles = kinematics.setPosition(normal_vector_x, normal_vector_y, height); // input rad; return degree
+    // calculate motor angles
+    motor_angles = kinematics.setPosition(normal_vector_x, normal_vector_y, height); 
 
+    // set motor angles
     motors.set_angle(motor_angles.data());
     /*
     update_time = millis();
