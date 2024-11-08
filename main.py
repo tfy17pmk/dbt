@@ -3,6 +3,7 @@ from webcamera import Camera
 from pid import PID_control
 from communication import Commmunication
 from find_ball import FindBall
+from class_PID import PID
 import time
 import sys
 
@@ -63,13 +64,15 @@ def capture_and_detect2(queue, stop_event):
         
 def pid_control(queue_in, k_pid, esp_com, goal_position, stop_event):
     """Receive ball coordinates from the queue, compute control angles, and send commands."""
-    pid_controller = PID_control(k_pid)
-    goal_position = (0, 0)  # Desired position (update when we know coordinates for tables middle point)
+    #pid_controller = PID_control(k_pid)
+    pid_controller = PID(k_pid, 1, 1)
+    #goal_position = (0, 0)  # Desired position (update when we know coordinates for tables middle point)
 
     while not stop_event.is_set():
         if not queue_in.empty():
             current_position = queue_in.get()
-            control_x, control_y = pid_controller.get_angles(goal_position, current_position)
+            #control_x, control_y = pid_controller.get_angles(goal_position, current_position)
+            control_x, control_y = pid_controller.compute(goal_position, current_position)
             height = 13
             state1 = 1
             state2 = 0
@@ -85,7 +88,9 @@ if __name__ == "__main__":
     #k_pid = [0.0004, 0.000002, 0.007, 0.1]
     #k_pid = [0.00065, 0, 0.005, 0.1]
     #k_pid = [0.0005, 0, 0.0005, 0.1]
-    k_pid = [0.00055, 0, 0.0005, 0.1]
+    #k_pid = [0.00055, 0, 0.0005, 0.1] # working with adv pid
+    k_pid = [0.00055, 0.0004, 0.0005, 0.1]
+
     goal_position = (0,0)
     ball_coords_queue = Queue(maxsize=5)
     stop_event = Event()
