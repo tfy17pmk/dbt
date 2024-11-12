@@ -153,8 +153,7 @@ class HexagonShape:
         mapped_x = x * (target_width / canvas_width)
         mapped_y = y * (target_height / canvas_height)
             
-        return mapped_x, mapped_y
-            
+        return int(mapped_x), int(mapped_y) 
 
     def stop_drawing(self, event):
         # Connect the last point to the first to close the shape, if close enough
