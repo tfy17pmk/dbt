@@ -4,7 +4,7 @@ import struct
 import constants
 
 # Open the serial port
-esp32 = serial.Serial(constants.serial_port, constants.baud_rate, timeout=1)
+#esp32 = serial.Serial(constants.serial_port, constants.baud_rate, timeout=1)
 time.sleep(2)  # Wait for the connection to establish
 
 #value1: is the x angle of the plate, Double
@@ -27,5 +27,5 @@ def send_data(value1, value2, height, state1, state2, state3, homing):
     # Prepend the start byte to the message
     message = start_byte + message_body
     # Send the message
-    esp32.write(message)
+    #esp32.write(message)
     print(f"Sent: value1={value1}, value2={value2}, height={height}, states=({state1}, {state2}, {state3}), homing={homing}")
