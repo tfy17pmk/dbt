@@ -79,7 +79,7 @@ class Camera:
 		cv.putText(frame, f'FPS: {fps}', (10, 30), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 		height, width, _ = frame.shape
 		x_origin = (width / 2) + goal_position[0]
-		y_origin = (height / 2) + goal_position[1]
+		y_origin = (height / 2) - goal_position[1]
 
 		cv.circle(frame, (int(x_origin), int(y_origin)), 1, (0, 255, 0), 2)
 
