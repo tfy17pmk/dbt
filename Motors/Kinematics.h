@@ -23,13 +23,19 @@ private:
   double _maxHeight = 0.27;
   double _height = 15;
   double _minHeight = 0.1;
+  
   double _max_normal_x = 0.15;
   double _min_normal_x = -0.15;
   double _max_normal_y = 0.15;
   double _min_normal_y = -0.15;
-
-  double _d = 7.5;  //distance from the center of the base to any of its corners
-  double _e = 22;  //22distance from the center of the platform to any of its corners
+  /*
+  double _max_normal_x = 1;
+  double _min_normal_x = -1;
+  double _max_normal_y = 1;
+  double _min_normal_y = -1;
+  */
+  double _d = 7.75;  //distance from the center of the base to any of its corners
+  double _e = 21.75;  //22distance from the center of the platform to any of its corners
   double _f = 9;  //length of link #1
   double _g = 15;  //length of link #2
 

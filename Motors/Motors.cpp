@@ -179,14 +179,14 @@ void Motors::initial_position() {
     stepper[i].setAcceleration(3000);
     stepper[i].moveTo(3200);   
   }
+  while((stepper[0].currentPosition() != 3200) || (stepper[1].currentPosition() != 3200) || (stepper[2].currentPosition() != 3200)){
+    stepper[0].run();
+    stepper[1].run();
+    stepper[2].run();
+  }
 }
 
 void Motors::set_speed(double motor_angles[3], double prev_motor_angles) {
-  /*
-  float speed = abs(motor_angle - prev_motor_angle) * _cs;
-  speed = constrain(speed, 0, _max_speed);
-  return speed;
-  */
   for (int i = 0; i < 3; i++) {
       speedPrev[i] = speed[i];                                                                                                           //sets previous speed
       speed[i] = (i == 0) * stepper[0].currentPosition() + (i == 1) * stepper[1].currentPosition() + (i == 2) * stepper[2].currentPosition();  //sets current position
@@ -216,7 +216,7 @@ void Motors::set_angle(double motor_angles[3]) {
     //Serial.println(_steps);
     //float speed = set_speed(motor_angles, prev_motor_angles[1]);
     stepper[1].setMaxSpeed(speed[1]);   // Increase max speed significantly
-    stepper[1].setAcceleration(speed[1]*30);
+    stepper[1].setAcceleration(speed[1]*_acc_multiplier);
     stepper[1].moveTo(_steps);
     prev_motor_angles[1] = motor_angles[1];
 
@@ -227,7 +227,7 @@ void Motors::set_angle(double motor_angles[3]) {
     //Serial.println(_steps);
     //float speed = set_speed(motor_angles, prev_motor_angles[2]);
     stepper[2].setMaxSpeed(speed[2]);   // Increase max speed significantly
-    stepper[2].setAcceleration(speed[2]*30);
+    stepper[2].setAcceleration(speed[2]*_acc_multiplier);
     stepper[2].moveTo(_steps);
     prev_motor_angles[2] = motor_angles[2];
   }

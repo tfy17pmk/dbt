@@ -40,10 +40,10 @@ private:
     float _inv_degree_per_step = 17.777778; // Set inverse degree per step 1/(1.8/32);
     int _steps = 0;
     std::array<double, 3> prev_motor_angles = {0,0,0};
-    float _max_speed = 2000;
+    float _max_speed = 1000;
     void set_speed(double motor_angles[3], double prev_motor_angle);
-    float _cs = 10;
-    double _acc_multiplier = 1;
+    float _cs = 30;
+    double _acc_multiplier = 10;
     double speed[3] = {0,0,0};
     double speedPrev[3];
 
