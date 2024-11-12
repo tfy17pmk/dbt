@@ -145,6 +145,16 @@ class HexagonShape:
                     line_id = self.canvas.create_line(last_x, last_y, event.x, event.y, fill="black")
                     self.current_line_ids.append(line_id)
                     self.drawing_points.append((event.x, event.y))
+					
+	def map_coordinates(self, x, y, target_width, target_height):
+        canvas_width = self.canvas.winfo_width()
+        canvas_height = self.canvas.winfo_height()
+        
+		mapped_x = x * (target_width / canvas_width)
+        mapped_y = y * (target_height / canvas_height)
+            
+        return mapped_x, mapped_y
+            
 
     def stop_drawing(self, event):
         # Connect the last point to the first to close the shape, if close enough
@@ -161,6 +171,10 @@ class HexagonShape:
             self.current_line_ids = []  # Reset for next line
 
         print("Final drawing points:", self.drawing_points)
+        target_width = 320
+        target_height = 285
+        mapped_points = [self.map_coordinates(x, y, target_width, target_height) for x, y in self.drawing_points]
+        print("Mapped drawing points", mapped_points)
 
     def remove_last_line(self):
         # Remove the last drawn line or shape
