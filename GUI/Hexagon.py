@@ -146,11 +146,11 @@ class HexagonShape:
                     self.current_line_ids.append(line_id)
                     self.drawing_points.append((event.x, event.y))
 					
-	def map_coordinates(self, x, y, target_width, target_height):
+    def map_coordinates(self, x, y, target_width, target_height):
         canvas_width = self.canvas.winfo_width()
         canvas_height = self.canvas.winfo_height()
         
-		mapped_x = x * (target_width / canvas_width)
+        mapped_x = x * (target_width / canvas_width)
         mapped_y = y * (target_height / canvas_height)
             
         return mapped_x, mapped_y
