@@ -124,7 +124,8 @@ class HexagonShape:
         self.redraw_points()  # Redraw points on resize
 
     def start_drawing(self, event):
-        # Start drawing if inside hexagon
+        self.clear_all()
+		# Start drawing if inside hexagon
         if self.is_point_inside_hexagon(event.x, event.y):
             self.clear_shapes_if_present()
             self.drawing_points = []  # Reset points when starting a new drawing
