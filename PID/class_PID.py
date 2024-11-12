@@ -44,5 +44,16 @@ class PID:
         self.last_output_x = output_x
         self.last_output_y = output_y
         self.last_time = current_time
+        print(f"In PID x: {output_x} y: {output_y}" )
 
         return output_x, output_y
+
+    def reset(self):
+        # Reset integrals, last errors, and outputs to clear controller state
+        self.last_output_x = 0
+        self.last_output_y = 0
+        self.last_error_x = 0
+        self.integral_x = 0
+        self.last_error_y = 0
+        self.integral_y = 0
+        self.last_time = None
