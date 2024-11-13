@@ -33,6 +33,7 @@ class HexagonShape:
         self.canvas.delete("shape")
         
         print("Cleared all lines and shapes")
+        print("Funkade najs (interupt grej)!!")
         
     def draw_square(self):
         # Clear existing shapes and draw a centered square in the hexagon
@@ -179,12 +180,14 @@ class HexagonShape:
         mapped_points = [self.map_coordinates(x, y, target_width, target_height) for x, y in self.drawing_points]
         print("Mapped drawing points", mapped_points)
 
-    def remove_last_line(self):
+    #Tog bort den här koden för den behövs tyderligrn inte, använder clear_all() istället
+    #def remove_last_line(self):
         # Remove the last drawn line or shape
-        if self.line_ids:
-            last_item = self.line_ids.pop()
-            for item_id in last_item:
-                self.canvas.delete(item_id)
+       # if self.line_ids:
+       #     last_item = self.line_ids.pop()
+        #    print("Funkade najs (interupt grej)!!")
+         #   for item_id in last_item:
+          #      self.canvas.delete(item_id)
 
     def redraw_points(self):
         # Redraw the stored lines between points
