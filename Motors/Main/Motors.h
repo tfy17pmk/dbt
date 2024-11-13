@@ -12,7 +12,6 @@ public:
     void initial_position();
     std::array<AccelStepper, 3>& setup_accel();
     void set_angle(double motor_angles[3]);
-    void clean_up();
     void home();
     void IRAM_ATTR handleButtonPress1();
     void IRAM_ATTR handleButtonPress2();
@@ -38,12 +37,13 @@ private:
 
     int _RESOLUTION[3] = {1,0,1}; // Resolution for 1/32 microstepping 
     float _inv_degree_per_step = 17.777778; // Set inverse degree per step 1/(1.8/32);
-    int _steps = 0;
-    std::array<double, 3> prev_motor_angles = {0,0,0};
-    float _max_speed = 1000;
-    void set_speed(double motor_angles[3], double prev_motor_angle);
-    float _cs = 30;
+    std::array<double, 3> _steps = {0,0,0};
+    std::array<double, 3> prev_steps = {0,0,0};
+    void set_speed(double steps[3]);
+    float _max_speed = 2000;
+    float _cs = 60;
     double _acc_multiplier = 10;
+    double _speed_diff = 200;
     double speed[3] = {0,0,0};
     double speedPrev[3];
 
