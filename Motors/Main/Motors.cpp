@@ -205,7 +205,6 @@ void Motors::set_angle(double motor_angles[3]) {
   set_speed(_steps.data());
 
   if (_steps[0] != prev_steps[0]){
-    //_steps = floor(motor_angles[0] * _inv_degree_per_step); // convert degrees to steps
     stepper[0].setMaxSpeed(speed[0]);   // Increase max speed significantly
     stepper[0].setAcceleration(speed[0]*_acc_multiplier);
     stepper[0].moveTo(_steps[0]);
@@ -213,7 +212,6 @@ void Motors::set_angle(double motor_angles[3]) {
   }
 
   if (_steps[1] != prev_steps[1]){
-    //_steps = floor(motor_angles[1] * _inv_degree_per_step); // convert degrees to steps
     stepper[1].setMaxSpeed(speed[1]);   // Increase max speed significantly
     stepper[1].setAcceleration(speed[1]*_acc_multiplier);
     stepper[1].moveTo(_steps[1]);
@@ -222,7 +220,6 @@ void Motors::set_angle(double motor_angles[3]) {
   }
 
   if (_steps[2] != prev_steps[2]){
-    //_steps = floor(motor_angles[2] * _inv_degree_per_step); // convert degrees to steps
     stepper[2].setMaxSpeed(speed[2]);   // Increase max speed significantly
     stepper[2].setAcceleration(speed[2]*_acc_multiplier);
     stepper[2].moveTo(_steps[2]);
