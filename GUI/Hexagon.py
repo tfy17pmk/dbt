@@ -150,10 +150,12 @@ class HexagonShape:
         canvas_width = self.canvas.winfo_width()
         canvas_height = self.canvas.winfo_height()
         
+        # Remap coordinates with a linear scale factor
         mapped_x = x * (target_width / canvas_width)
         mapped_y = y * (target_height / canvas_height)
-            
-        return int(mapped_x), int(mapped_y) 
+
+        # Return remapped coordinates with redefined origin in the middle    
+        return int(mapped_x-target_width/2), -int(mapped_y-target_height/2) 
 
     def stop_drawing(self, event):
         # Connect the last point to the first to close the shape, if close enough
@@ -170,6 +172,8 @@ class HexagonShape:
             self.current_line_ids = []  # Reset for next line
 
         print("Final drawing points:", self.drawing_points)
+
+        # Remap coordinates into cropped camera picture
         target_width = 320
         target_height = 285
         mapped_points = [self.map_coordinates(x, y, target_width, target_height) for x, y in self.drawing_points]
