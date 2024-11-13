@@ -67,7 +67,7 @@ class HexagonShape:
         height = self.canvas.winfo_height()
         center_x = width / 2
         center_y = height / 2
-        radius = min(width, height) / 2  # Radius for the hexagon to fit within canvas
+        radius = min(width, height) / 2.5  # Radius for the hexagon to fit within canvas
 
         # Calculate the six vertices of the hexagon
         points = []

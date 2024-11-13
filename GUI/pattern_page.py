@@ -1,9 +1,10 @@
 import tkinter as tk
-from PIL import Image, ImageTk  # Import Pillow for image resizing
+from PIL import Image, ImageDraw, ImageTk  # Import Pillow for image resizing
 import constants
 import button
 import Hexagon
 from Hexagon import HexagonShape
+import math
 
 # Page 3: Page Two
 class Pattern_page(tk.Frame):
@@ -14,7 +15,7 @@ class Pattern_page(tk.Frame):
 
         # Load the light icon for the dynamic buttons
         self.square_icon = ImageTk.PhotoImage(Image.open(constants.SQUARE).resize((40, 40)))
-        self.circle_icon = ImageTk.PhotoImage(Image.open(constants.CIRCLE).resize((40, 40)))
+        self.hexagon_icon = self.create_hexagon_icon(40, outline_color="black")
         self.triangle_icon = ImageTk.PhotoImage(Image.open(constants.TRIANGLE).resize((40, 40)))
         self.star_icon = ImageTk.PhotoImage(Image.open(constants.STAR).resize((40, 40)))
 
@@ -75,29 +76,20 @@ class Pattern_page(tk.Frame):
                                        image=self.square_icon,
                                        clicked=lambda: self.hex.draw_square())
         
-        '''btn_circ = button.RoundedButton(master = button_frame, 
+        btn_hexa = button.RoundedButton(master = button_frame, 
                                         text="", 
                                         radius=25, 
                                         width=200, 
                                         height=70, 
                                         btnbackground=constants.text_color, 
                                         btnforeground=constants.background_color, 
-                                        image=self.circle_icon,
-                                        clicked=lambda: self.hex.draw_circle())'''
-        
-        btn_circ = button.RoundedButton(master = button_frame, 
-                                        text="", 
-                                        radius=25, 
-                                        width=200, 
-                                        height=70, 
-                                        btnbackground=constants.text_color, 
-                                        btnforeground=constants.background_color, 
-                                        image=self.circle_icon,
+                                        image=self.hexagon_icon,
                                         clicked=lambda: self.hex.draw_hexagon())
         
         btn_tri = button.RoundedButton(master = button_frame, 
                                        text="", 
-                                       radius=25, width=200, 
+                                       radius=25, 
+                                       width=200, 
                                        height=70, 
                                        btnbackground=constants.text_color, 
                                        btnforeground=constants.background_color, 
@@ -127,7 +119,7 @@ class Pattern_page(tk.Frame):
         btn_label.grid(row=0, column=4, sticky="nsew", pady=5)
         btn_line_canvas.grid(row=1, column=4)  # Add padding above and below the line
         btn_rec.grid(row=2, column=4, sticky="nsew", pady=20)
-        btn_circ.grid(row=3, column=4, sticky="nsew", pady=20)
+        btn_hexa.grid(row=3, column=4, sticky="nsew", pady=20)
         btn_tri.grid(row=4, column=4, sticky="nsew", pady=20)
         btn_star.grid(row=5, column=4, sticky="nsew", pady=20)
 
@@ -161,6 +153,41 @@ class Pattern_page(tk.Frame):
         )
         self.back_button.grid(row=2, column=1, padx=10, pady=10, sticky="sw")
         
+    def create_hexagon_icon(self, size, outline_color="#000000"):
+        """
+        Creates a hexagon-shaped icon as an image.
+        
+        Parameters:
+            size (int): Size of the image (width and height) to contain the hexagon.
+            outline_color (str): Outline color for the hexagon.
+        
+        Returns:
+            ImageTk.PhotoImage: The generated hexagon icon image.
+        """
+        # Create a transparent image
+        img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(img)
+
+        # Calculate the radius and center for the hexagon
+        radius = size / 2
+        center_x = size / 2
+        center_y = size / 2
+
+        # Calculate hexagon points
+        points = []
+        for i in range(6):
+            angle_deg = 60 * i
+            angle_rad = math.radians(angle_deg)
+            x = center_x + radius * math.cos(angle_rad)
+            y = center_y + radius * math.sin(angle_rad)
+            points.append((x, y))
+        
+        # Draw hexagon on the image
+        draw.polygon(points, fill=None, outline=outline_color)
+        
+        # Convert to a Tkinter-compatible image
+        return ImageTk.PhotoImage(img)
+    
     def go_back(self):
         print("inside go back")
         self.hex.clear_all()  # Clear all shapes and lines before navigating
