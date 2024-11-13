@@ -75,6 +75,16 @@ class Pattern_page(tk.Frame):
                                        image=self.square_icon,
                                        clicked=lambda: self.hex.draw_square())
         
+        '''btn_circ = button.RoundedButton(master = button_frame, 
+                                        text="", 
+                                        radius=25, 
+                                        width=200, 
+                                        height=70, 
+                                        btnbackground=constants.text_color, 
+                                        btnforeground=constants.background_color, 
+                                        image=self.circle_icon,
+                                        clicked=lambda: self.hex.draw_circle())'''
+        
         btn_circ = button.RoundedButton(master = button_frame, 
                                         text="", 
                                         radius=25, 
@@ -83,7 +93,7 @@ class Pattern_page(tk.Frame):
                                         btnbackground=constants.text_color, 
                                         btnforeground=constants.background_color, 
                                         image=self.circle_icon,
-                                        clicked=lambda: self.hex.draw_circle())
+                                        clicked=lambda: self.hex.draw_hexagon())
         
         btn_tri = button.RoundedButton(master = button_frame, 
                                        text="", 
