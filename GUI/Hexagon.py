@@ -10,6 +10,7 @@ class HexagonShape:
         self.drawing_points = []  # Store drawing points
         self.line_ids = []  # Store IDs for each complete drawn line
         self.current_line_ids = []  # Track segment IDs for current line
+        self.is_freehand = False  # Track if drawing is freehand
 
         # Bind to draw the hexagon in the case of window resize
         self.canvas.bind("<Configure>", self.on_resize)
@@ -18,7 +19,7 @@ class HexagonShape:
         self.canvas.bind("<Button-1>", self.start_drawing)
         self.canvas.bind("<B1-Motion>", self.draw)
         self.canvas.bind("<ButtonRelease-1>", self.stop_drawing)
-        
+
         # Create initial hexagon
         self.create_hexagon()
         
@@ -35,8 +36,18 @@ class HexagonShape:
         print("Cleared all lines and shapes")
         print("Funkade najs (interupt grej)!!")
         
+    def log_shape_coordinates(self, points):
+        # Calculate and print the coordinates
+        print("Shape coordinates:", points)
+
+        # Example of mapping coordinates (optional)
+        target_width = 320
+        target_height = 285
+        mapped_points = [self.map_coordinates(x, y, target_width, target_height) for x, y in points]
+        print("Mapped shape coordinates:", mapped_points)
+
     def draw_square(self):
-        # Clear existing shapes and draw a centered square in the hexagon
+        self.is_freehand = False
         self.clear_all()
         width = self.canvas.winfo_width()
         height = self.canvas.winfo_height()
@@ -45,20 +56,38 @@ class HexagonShape:
         x1, y1 = (width + size) / 2, (height + size) / 2
         shape_id = self.canvas.create_rectangle(x0, y0, x1, y1, outline="black", tags="shape")
         self.line_ids.append([shape_id])
+        # Log the coordinates of the square
+        self.log_shape_coordinates([(x0, y0), (x1, y0), (x1, y1), (x0, y1)])
 
-    def draw_circle(self):
-        # Draw a centered circle in the hexagon
+    def draw_hexagon(self):
+        self.is_freehand = False
         self.clear_all()
+
+        # Calculate the width, height, and center of the canvas
         width = self.canvas.winfo_width()
         height = self.canvas.winfo_height()
-        radius = min(width, height) // 2
-        x0, y0 = (width - radius) / 2, (height - radius) / 2
-        x1, y1 = (width + radius) / 2, (height + radius) / 2
-        shape_id = self.canvas.create_oval(x0, y0, x1, y1, outline="black", tags="shape")
+        center_x = width / 2
+        center_y = height / 2
+        radius = min(width, height) / 2.5  # Radius for the hexagon to fit within canvas
+
+        # Calculate the six vertices of the hexagon
+        points = []
+        for i in range(6):
+            angle_deg = 60 * i
+            angle_rad = math.radians(angle_deg)
+            x = center_x + radius * math.cos(angle_rad)
+            y = center_y + radius * math.sin(angle_rad)
+            points.append((x, y))
+
+        # Draw the hexagon on the canvas
+        shape_id = self.canvas.create_polygon(points, outline="black", fill="", tags="shape")
         self.line_ids.append([shape_id])
-        
+
+        # Log the coordinates of the hexagon vertices
+        self.log_shape_coordinates(points)
+
     def draw_triangle(self):
-        # Draw a centered triangle in the hexagon
+        self.is_freehand = False
         self.clear_all()
         width = self.canvas.winfo_width()
         height = self.canvas.winfo_height()
@@ -70,9 +99,12 @@ class HexagonShape:
         ]
         shape_id = self.canvas.create_polygon(points, outline="black", fill="", tags="shape")
         self.line_ids.append([shape_id])
+        # Log the coordinates of the triangle vertices
+        self.log_shape_coordinates(points)
+
 
     def draw_star(self):
-        # Draw a centered star in the hexagon
+        self.is_freehand = False
         self.clear_all()
         width = self.canvas.winfo_width()
         height = self.canvas.winfo_height()
@@ -87,6 +119,8 @@ class HexagonShape:
             points.append((x, y))
         shape_id = self.canvas.create_polygon(points, outline="black", fill="", tags="shape")
         self.line_ids.append([shape_id])
+        # Log the coordinates of the star points
+        self.log_shape_coordinates(points)
     
     def clear_shapes_if_present(self):
         # Check if any shapes are in line_ids and remove them
@@ -212,3 +246,17 @@ class HexagonShape:
                             inside = not inside
             p1x, p1y = p2x, p2y
         return inside
+
+
+'''def draw_circle(self):
+        self.is_freehand = False
+        self.clear_all()
+        width = self.canvas.winfo_width()
+        height = self.canvas.winfo_height()
+        radius = min(width, height) // 2
+        x0, y0 = (width - radius) / 2, (height - radius) / 2
+        x1, y1 = (width + radius) / 2, (height + radius) / 2
+        shape_id = self.canvas.create_oval(x0, y0, x1, y1, outline="black", tags="shape")
+        self.line_ids.append([shape_id])
+        # Log the bounding box coordinates for the circle
+        self.log_shape_coordinates([(x0, y0), (x1, y1)])'''
