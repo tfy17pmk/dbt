@@ -35,10 +35,12 @@ class HexagonShape:
         
         print("Cleared all lines and shapes")
         print("Funkade najs (interupt grej)!!")
+        mapped_points = [0,0]
+        print("Mapped shape coordinates:", mapped_points)
         
     def log_shape_coordinates(self, points):
         # Calculate and print the coordinates
-        #print("Shape coordinates:", points)
+        print("Shape coordinates:", points)
 
         # Example of mapping coordinates (optional)
         target_width = 320
@@ -139,7 +141,7 @@ class HexagonShape:
         height = self.canvas.winfo_height()
         center_x = width // 2
         center_y = height // 2
-        radius = width // 2.05  # Making sure hexagon fits on the canvas, the 2.05 factor is from testing
+        radius = width // 2.05  # Making sure hexagon fits on the canvas
 
         # Finding the corner positions of the hexagon
         self.points = []
@@ -206,7 +208,7 @@ class HexagonShape:
             self.line_ids.append(self.current_line_ids)
             self.current_line_ids = []  # Reset for next line
 
-        #print("Final drawing points:", self.drawing_points)
+        print("Final drawing points:", self.drawing_points)
 
         # Remap coordinates into cropped camera picture
         target_width = 320
@@ -246,3 +248,17 @@ class HexagonShape:
                             inside = not inside
             p1x, p1y = p2x, p2y
         return inside
+
+
+'''def draw_circle(self):
+        self.is_freehand = False
+        self.clear_all()
+        width = self.canvas.winfo_width()
+        height = self.canvas.winfo_height()
+        radius = min(width, height) // 2
+        x0, y0 = (width - radius) / 2, (height - radius) / 2
+        x1, y1 = (width + radius) / 2, (height + radius) / 2
+        shape_id = self.canvas.create_oval(x0, y0, x1, y1, outline="black", tags="shape")
+        self.line_ids.append([shape_id])
+        # Log the bounding box coordinates for the circle
+        self.log_shape_coordinates([(x0, y0), (x1, y1)])'''
