@@ -45,7 +45,7 @@ class Commmunication:
         print(f"Sent: value1={value1}, value2={value2}, height={height}, states=({state1}, {state2}, {state3}), homing={homing}")
         
 
-    '''def receive_response(self):
+    def receive_response(self):
         try:
             # Wait to receive the start byte
             while True:
@@ -68,7 +68,7 @@ class Commmunication:
                         print(f"states=({state1}, {state2}, {state3}), homing={homing}")
                         break
         except struct.error as e:
-            print(f"Unpacking error: {e}")'''
+            print(f"Unpacking error: {e}")
 '''
 if __name__ == "__main__":
     com = Commmunication()

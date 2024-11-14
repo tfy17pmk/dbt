@@ -20,7 +20,6 @@ def capture_and_detect(queue, goal_position, stop_event):
                     if not queue.full():
                         try:
                             queue.put(ball_coordinates, timeout=0.01)
-                            print(ball_coordinates)
                         except e:
                             print(f"Queue error: {e}")
                     else:
@@ -87,6 +86,7 @@ def pid_control(queue_in, k_pid, esp_com, goal_position, stop_event):
             print(f"Control angles: X: {control_x}, Y: {control_y}")
             # Send angles to ESP here
             esp_com.send_data(-control_x, control_y, height, state1, state2, state3, homing)
+            esp_com.receive_response()
 
         # Check if 3 seconds have passed since the last update
         if time.perf_counter() - last_received_time > 3:
