@@ -7,7 +7,7 @@ import GUI.communication
 from multiprocessing import Lock
 
 class Info_page(tk.Frame):
-    def __init__(self, parent, controller, send_frames_to_gui, gui_frame_queue):
+    def __init__(self, parent, controller, update_send_frames_to_gui_callback, gui_frame_queue):
         super().__init__(parent)
         self.controller = controller
         self.current_page = 0
@@ -16,7 +16,7 @@ class Info_page(tk.Frame):
         # temporary using another communication file
         self.communication = GUI.communication
 
-        self.get_frames = send_frames_to_gui
+        self.update_send_frames_to_gui_callback = update_send_frames_to_gui_callback
         self.gui_frame_queue = gui_frame_queue
 
         self.configure(bg=self.constants.background_color)
@@ -221,7 +221,7 @@ class Info_page(tk.Frame):
 
         # Display the correct image and handle camera frame for each page
         if page_index == 1:
-            self.get_frames = True
+            self.update_send_frames_to_gui(True)
             # Show the EYES image for the second page
             self.image_canvas.create_image(150, 150, image=self.eyes_image_icon)
             self.image_canvas.grid()  # Make sure the image canvas is visible
@@ -231,7 +231,7 @@ class Info_page(tk.Frame):
                 self.camera_frame = tk.Canvas(self, width=640, height=480, bg="white", highlightthickness=0)
             self.camera_frame.grid(row=1, column=1, padx=50, sticky="sw", pady=30)
         else:
-            self.get_frames = False
+            self.update_send_frames_to_gui(False)
             # Hide camera_frame on pages other than the second
             if hasattr(self, "camera_frame"):
                 self.camera_frame.grid_remove()
@@ -306,3 +306,7 @@ class Info_page(tk.Frame):
             self.current_page = 0
             self.show_page(0)  # Show the first page when returning
             self.controller.show_frame("Home_page")
+
+    def update_send_frames_to_gui(self, value):
+        self.update_send_frames_to_gui_callback(value)
+        print(f"Updated send_frames_to_gui in info_page to {value}")

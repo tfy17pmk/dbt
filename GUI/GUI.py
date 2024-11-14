@@ -8,10 +8,10 @@ from .challenge_page import Challenge_page
 
 # Main Application Class
 class App(tk.Tk):
-    def __init__(self, send_frames_to_gui, gui_frame_queue):
+    def __init__(self, update_send_frames_to_gui_callback, gui_frame_queue):
         super().__init__()
         self.title("BallBot")
-        self.send_frames_to_gui = send_frames_to_gui
+        self.update_send_frames_to_gui_callback = update_send_frames_to_gui_callback
         self.gui_frame_queue = gui_frame_queue
 
         # Start in full-screen mode
@@ -33,7 +33,7 @@ class App(tk.Tk):
             page_name = Page.__name__
             
             if Page is Info_page:
-                frame = Page(parent=container, controller=self, send_frames_to_gui=self.send_frames_to_gui, gui_frame_queue=self.gui_frame_queue)
+                frame = Page(parent=container, controller=self, update_send_frames_to_gui_callback=self.update_send_frames_to_gui_callback, gui_frame_queue=self.gui_frame_queue)
             else:
                 frame = Page(parent=container, controller=self)
 

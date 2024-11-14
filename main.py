@@ -7,13 +7,21 @@ from GUI.GUI import App
 import sys
 import time
 
+send_frames_to_gui = False
+
+def update_send_frames_to_gui(value):
+    print(f"Received updated value: {value}")
+    # You can update your variable or handle the change here
+    global send_frames_to_gui
+    send_frames_to_gui = value
+
 def capture_and_detect(queue, gui_queue, send_frames_to_gui, goal_position, stop_event):
     """Capture frames and detect ball coordinates, placing them in the queue."""
-    camera = Camera()
-    camera_gui = Camera()
+    #camera = Camera()
+    #camera_gui = Camera()
     try:
         while not stop_event.is_set():
-            frame = camera.get_frame()
+            """frame = camera.get_frame()
             cropped_frame = camera.crop_frame(frame)
             if cropped_frame is not None:
                 ball_coordinates = camera.get_ball(cropped_frame)
@@ -25,19 +33,22 @@ def capture_and_detect(queue, gui_queue, send_frames_to_gui, goal_position, stop
                         except e:
                             print(f"Queue error: {e}")
                     else:
-                        print("Queue is full!")
+                        print("Queue is full!")"""
 
-                if send_frames_to_gui:
-                    if not gui_frame_queue.full():
-                        gui_queue.put(cropped_frame)
-                        # for debugging
-                        camera_gui.show_frame(cropped_frame, goal_position)
+            if send_frames_to_gui:
+                print("Putting things to queue")
+                #if not gui_frame_queue.full():
+                    #gui_queue.put(cropped_frame)
+                    # for debugging
+                    
+                    #camera_gui.show_frame(cropped_frame, goal_position)
 
-                camera.show_frame(cropped_frame, goal_position)  # Display frame if needed
+                #camera.show_frame(cropped_frame, goal_position)  # Display frame if needed
             else:
                 break
     finally:
-        camera.clean_up_cam()
+        #camera.clean_up_cam()
+        pass
 
 
 def pid_control(queue_in, k_pid, esp_com, goal_position, stop_event):
@@ -64,12 +75,12 @@ def pid_control(queue_in, k_pid, esp_com, goal_position, stop_event):
             #print(queue_in.size())
             print(f"Control angles: X: {control_x}, Y: {control_y}")
             # Send angles to ESP here
-            esp_com.send_data(-control_x, control_y, height, state1, state2, state3, homing)
+            #esp_com.send_data(-control_x, control_y, height, state1, state2, state3, homing)
 
         # Check if 3 seconds have passed since the last update
         if time.perf_counter() - last_received_time > 3:
             pid_controller.reset()  # Reset the PID controllers
-            esp_com.send_data(0, 0, height, state1, state2, state3, homing)
+            #esp_com.send_data(0, 0, height, state1, state2, state3, homing)
             last_received_time = time.perf_counter()  # Reset timer to avoid continuous reset
 
 
@@ -86,8 +97,7 @@ if __name__ == "__main__":
     ball_coords_queue = Queue(maxsize=5)
     gui_frame_queue = Queue(maxsize=5)
     stop_event = Event()
-    esp_com = Commmunication()
-    send_frames_to_gui = False
+    esp_com = 0#Commmunication()
 
     # Create processes
     capture_process = Process(target=capture_and_detect, args=(ball_coords_queue, gui_frame_queue, send_frames_to_gui, goal_position, stop_event), daemon=True)
@@ -98,7 +108,7 @@ if __name__ == "__main__":
     pid_process.start()
 
     try:
-        app = App(send_frames_to_gui, gui_frame_queue)
+        app = App(update_send_frames_to_gui_callback=update_send_frames_to_gui, gui_frame_queue=gui_frame_queue)
         app.mainloop()
 
         # Main loop
