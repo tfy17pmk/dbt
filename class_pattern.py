@@ -11,13 +11,13 @@ class Pattern:
         self.index = self.index % goal.shape(0) 
 
         # Distance between ball and set_position
-        distance = math.sqrt((current(0)-goal[self.index, 0])^2 + (current(1)-goal[self.index, 1])^2)
+        distance = math.sqrt((current(0)-goal[self.index, 0])**2 + (current(1)-goal[self.index, 1])**2)
 
         if(distance > self.goal_rad):
             return goal[self.index, :]
         else:
             # Loops through set_points matrices rows with index
-            self.index = (self.index + 1)
+            self.index = (self.index + 1) % goal.shape(0)
             return goal[self.index, :]
 
     '''def pattern4(self, start_time):
