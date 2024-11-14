@@ -1,52 +1,60 @@
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
-import constants
-import button
-import communication
+import GUI.constants
+import GUI.button
+import GUI.communication
+from multiprocessing import Lock
 
 class Info_page(tk.Frame):
-    def __init__(self, parent, controller):
+    def __init__(self, parent, controller, send_frames_to_gui, gui_frame_queue):
         super().__init__(parent)
         self.controller = controller
         self.current_page = 0
+        self.constants = GUI.constants
+        self.button = GUI.button
+        # temporary using another communication file
+        self.communication = GUI.communication
 
-        self.configure(bg=constants.background_color)
+        self.get_frames = send_frames_to_gui
+        self.gui_frame_queue = gui_frame_queue
+
+        self.configure(bg=self.constants.background_color)
 
         # Load the arrow icon and create rotated version for left button
-        original_arrow = Image.open(constants.RIGHT_ARROW).resize((40, 40))
+        original_arrow = Image.open(self.constants.RIGHT_ARROW).resize((40, 40))
         self.right_arrow_icon = ImageTk.PhotoImage(original_arrow)
         self.left_arrow_icon = ImageTk.PhotoImage(original_arrow.rotate(180))
 
         # Load images for each page (eyes, arm, and brain images)
-        eyes_image_original = Image.open(constants.EYES).resize((300, 300))
+        eyes_image_original = Image.open(self.constants.EYES).resize((300, 300))
         self.eyes_image_icon = ImageTk.PhotoImage(eyes_image_original)
 
-        arm_image_original = Image.open(constants.ARM).resize((250, 250))
+        arm_image_original = Image.open(self.constants.ARM).resize((250, 250))
         self.arm_image_icon = ImageTk.PhotoImage(arm_image_original)
 
-        brain_image_original = Image.open(constants.BRAIN).resize((250, 250))
+        brain_image_original = Image.open(self.constants.BRAIN).resize((250, 250))
         self.brain_image_icon = ImageTk.PhotoImage(brain_image_original)
 
         # Load the light icon for the dynamic button
-        self.light_icon = ImageTk.PhotoImage(Image.open(constants.LIGHT_BULB).resize((40, 40)))
+        self.light_icon = ImageTk.PhotoImage(Image.open(self.constants.LIGHT_BULB).resize((40, 40)))
 
-        button_frame = tk.Frame(self, bg=constants.background_color, highlightthickness=0, borderwidth=0)
+        button_frame = tk.Frame(self, bg=self.constants.background_color, highlightthickness=0, borderwidth=0)
         button_frame.config(borderwidth=0)
         button_frame.grid(row=2, column=1, sticky="sw")
         
         # Placeholder for each page's unique text and actions
-        self.page_texts = constants.info_text
+        self.page_texts = self.constants.info_text
 
         def send_light_data(light, state):
             if light == 1:
-                communication.send_data(0, 0, 0, state, 0, 0, False)
+                self.communication.send_data(0, 0, 0, state, 0, 0, False)
                 print(f"light 1: {'on' if state else 'off'}")
             elif light == 2:
-                communication.send_data(0, 0, 0, 0, state, 0, False)
+                self.communication.send_data(0, 0, 0, 0, state, 0, False)
                 print(f"light 2: {'on' if state else 'off'}")
             else:
-                communication.send_data(0, 0, 0, 0, 0, state, False)
+                self.communication.send_data(0, 0, 0, 0, 0, state, False)
                 print(f"light 3: {'on' if state else 'off'}")
 
             
@@ -69,14 +77,14 @@ class Info_page(tk.Frame):
         self.grid_propagate(False)
 
         # Dots canvas for page indicators
-        self.dots = tk.Canvas(self, height=40, bg=constants.background_color, highlightthickness=0)
+        self.dots = tk.Canvas(self, height=40, bg=self.constants.background_color, highlightthickness=0)
         self.dots.grid(row=2, column=1, pady=30, sticky="n")
 
         # Create canvases for navigation buttons
-        self.btn_prev_canvas = tk.Canvas(self, width=80, height=80, bg=constants.background_color, highlightthickness=0)
+        self.btn_prev_canvas = tk.Canvas(self, width=80, height=80, bg=self.constants.background_color, highlightthickness=0)
         self.btn_prev_canvas.grid(row=2, column=1, sticky="nw", padx=535, pady=5)
         
-        self.btn_next_canvas = tk.Canvas(self, width=80, height=80, bg=constants.background_color, highlightthickness=0)
+        self.btn_next_canvas = tk.Canvas(self, width=80, height=80, bg=self.constants.background_color, highlightthickness=0)
         self.btn_next_canvas.grid(row=2, column=1, sticky="ne", padx=550, pady=5)
 
         # Draw circular buttons with arrow icons, and store IDs
@@ -87,8 +95,8 @@ class Info_page(tk.Frame):
         self.page_content_text = tk.Text(
             self, 
             wrap="word", 
-            font=constants.body_text,  # Default font
-            bg=constants.background_color, 
+            font=self.constants.body_text,  # Default font
+            bg=self.constants.background_color, 
             relief="flat", 
             height=30, 
             width=70, 
@@ -99,10 +107,10 @@ class Info_page(tk.Frame):
         
         self.page_content_text.grid(row=1, column=1, sticky="ne")
         
-        self.page_content_text.tag_configure("heading", font=constants.heading, foreground=constants.text_color)
-        self.page_content_text.tag_configure("subheading", font=constants.sub_heading, foreground=constants.text_color)
-        self.page_content_text.tag_configure("body", font=constants.body_text, foreground=constants.text_color)
-        self.page_content_text.tag_configure("lightButtonText", font=constants.sub_heading, foreground=constants.text_color)
+        self.page_content_text.tag_configure("heading", font=self.constants.heading, foreground=self.constants.text_color)
+        self.page_content_text.tag_configure("subheading", font=self.constants.sub_heading, foreground=self.constants.text_color)
+        self.page_content_text.tag_configure("body", font=self.constants.body_text, foreground=self.constants.text_color)
+        self.page_content_text.tag_configure("lightButtonText", font=self.constants.sub_heading, foreground=self.constants.text_color)
         self.page_content_text.config(state="disabled")
         # Disable selection bindings
         self.page_content_text.bind("<Button-1>", lambda e: "break")     # Disable left-click selection
@@ -114,33 +122,33 @@ class Info_page(tk.Frame):
         self.page_content_text.bind("<Control-a>", lambda e: "break")    # Disable Ctrl+A selection (Select All)
 
         # Frame to hold the button (keeps layout stable)
-        self.dynamic_button_frame = tk.Frame(self, bg=constants.background_color)
+        self.dynamic_button_frame = tk.Frame(self, bg=self.constants.background_color)
         self.dynamic_button_frame.grid(row=1, column=1, padx=60, pady=40, sticky="se")
 
         # Placeholder spacer label to maintain consistent layout when button is hidden
-        self.spacer_label = tk.Label(self.dynamic_button_frame, text="", height=2, bg=constants.background_color)
+        self.spacer_label = tk.Label(self.dynamic_button_frame, text="", height=2, bg=self.constants.background_color)
         self.spacer_label.grid(row=0, column=0)
 
         # Define a custom style for the rounded button
         style = ttk.Style()
         style.configure("RoundedButton.TButton", 
-                        foreground=constants.text_color,   # Text color
-                        background=constants.background_color,    # Background color
+                        foreground=self.constants.text_color,   # Text color
+                        background=self.constants.background_color,    # Background color
                         borderwidth=0, 
                         focuscolor=style.configure(".")["background"])  # Match focus color to background
         
         style.map("RoundedButton.TButton",
-                  background=[("active", constants.background_color)])  # Hover color
+                  background=[("active", self.constants.background_color)])  # Hover color
 
         # Create the dynamic button with light bulb icon
-        self.dynamic_button = button.RoundedButton(
+        self.dynamic_button = self.button.RoundedButton(
             master=self.dynamic_button_frame,
             text="",  # No text since we're using an icon
             radius=25,
             width=160,
             height=70,
-            btnbackground=constants.text_color,  # Button background
-            btnforeground=constants.background_color,  # Icon/text color
+            btnbackground=self.constants.text_color,  # Button background
+            btnforeground=self.constants.background_color,  # Icon/text color
             image=self.light_icon,  # Set the light bulb icon
         )
 
@@ -152,20 +160,20 @@ class Info_page(tk.Frame):
         self.dynamic_button.bind("<ButtonRelease-1>", lambda event: send_light_data(self.current_page, 0))
 
         # Lower-left corner button to go back
-        self.back_button = button.RoundedButton(
+        self.back_button = self.button.RoundedButton(
             master = button_frame, 
             text="Bakåt", 
             radius=25, 
             width=200, 
             height=70, 
-            btnbackground=constants.text_color, 
-            btnforeground=constants.background_color, 
+            btnbackground=self.constants.text_color, 
+            btnforeground=self.constants.background_color, 
             clicked=self.go_back_to_home
         )
         self.back_button.grid(row=2, column=1, padx=10, pady=10, sticky="sw")
 
         # Canvas to display images on relevant pages
-        self.image_canvas = tk.Canvas(self, width=400, height=300, bg=constants.background_color, highlightthickness=0)
+        self.image_canvas = tk.Canvas(self, width=400, height=300, bg=self.constants.background_color, highlightthickness=0)
         self.image_canvas.grid(row=1, column=1, padx=50, sticky="nw")
         self.image_canvas.grid_remove()  # Initially hidden
 
@@ -177,7 +185,7 @@ class Info_page(tk.Frame):
 
     def create_circle_button(self, canvas, x, y, radius, icon, command):
         """Draw a circular button with an icon inside it on the canvas and bind it to a command."""
-        circle_id = canvas.create_oval(x - radius, y - radius, x + radius, y + radius, fill=constants.text_color, outline="")
+        circle_id = canvas.create_oval(x - radius, y - radius, x + radius, y + radius, fill=self.constants.text_color, outline="")
         image_id = canvas.create_image(x, y, image=icon)
         
         # Bind click events to both the circle and image
@@ -209,10 +217,11 @@ class Info_page(tk.Frame):
 
         # Show or hide the appropriate image based on the current page
         self.image_canvas.delete("all")  # Clear any existing image first
-        self.image_canvas.config(bg=constants.background_color)  # Ensure the background color remains consistent
+        self.image_canvas.config(bg=self.constants.background_color)  # Ensure the background color remains consistent
 
         # Display the correct image and handle camera frame for each page
         if page_index == 1:
+            self.get_frames = True
             # Show the EYES image for the second page
             self.image_canvas.create_image(150, 150, image=self.eyes_image_icon)
             self.image_canvas.grid()  # Make sure the image canvas is visible
@@ -222,6 +231,7 @@ class Info_page(tk.Frame):
                 self.camera_frame = tk.Canvas(self, width=640, height=480, bg="white", highlightthickness=0)
             self.camera_frame.grid(row=1, column=1, padx=50, sticky="sw", pady=30)
         else:
+            self.get_frames = False
             # Hide camera_frame on pages other than the second
             if hasattr(self, "camera_frame"):
                 self.camera_frame.grid_remove()
@@ -277,7 +287,7 @@ class Info_page(tk.Frame):
         
         for i in range(len(self.page_texts)):
             x = center_x + i * dot_spacing
-            color = constants.text_color if i == self.current_page else constants.background_color
+            color = self.constants.text_color if i == self.current_page else self.constants.background_color
             dot = self.dots.create_oval(x, 10, x + 2 * dot_radius, 10 + 2 * dot_radius, fill=color)
             self.dots.tag_bind(dot, "<Button-1>", lambda event, index=i: self.show_page(index))
 

@@ -1,15 +1,16 @@
-from multiprocessing import Process, Queue, Event
+from multiprocessing import Process, Queue, Event, Lock
 from Image_processing.webcamera import Camera
 from PID.pid import PID_control
 from communication.communication import Commmunication
-from test_code.find_ball import FindBall
 from PID.class_PID import PID
+from GUI.GUI import App
 import sys
 import time
 
-def capture_and_detect(queue, goal_position, stop_event):
+def capture_and_detect(queue, gui_queue, send_frames_to_gui, goal_position, stop_event):
     """Capture frames and detect ball coordinates, placing them in the queue."""
     camera = Camera()
+    camera_gui = Camera()
     try:
         while not stop_event.is_set():
             frame = camera.get_frame()
@@ -25,15 +26,12 @@ def capture_and_detect(queue, goal_position, stop_event):
                             print(f"Queue error: {e}")
                     else:
                         print("Queue is full!")
-                '''else:
-                    if not queue.full():
-                        try:
-                            queue.put((0, 0, 0), timeout=0.01)
-                            print("no ball detected")
-                        except e:
-                            print(f"Queue error: {e}")
-                    else:
-                        print("Queue is full!")'''
+
+                if send_frames_to_gui:
+                    if not gui_frame_queue.full():
+                        gui_queue.put(cropped_frame)
+                        # for debugging
+                        camera_gui.show_frame(cropped_frame, goal_position)
 
                 camera.show_frame(cropped_frame, goal_position)  # Display frame if needed
             else:
@@ -41,27 +39,7 @@ def capture_and_detect(queue, goal_position, stop_event):
     finally:
         camera.clean_up_cam()
 
-def capture_and_detect2(queue, stop_event):
-    """Capture frames and detect ball coordinates, placing them in the queue."""
-    camera = FindBall()
-    try:
-        while not stop_event.is_set():
-            frame = camera.get_frame()
-            cropped_frame = camera.crop_frame(frame)
-            if cropped_frame is not None:
-                ball_coordinates = camera.get_ball(cropped_frame)# * 0.0014
-                if ball_coordinates != [-1, -1, 0]:  # Valid detection
-                    if not queue.full():
-                        try:
-                            queue.put(ball_coordinates, timeout=0.01)
-                        except e:
-                            print(f"Queue error: {e}")
-                camera.show_frame(cropped_frame)  # Display frame if needed
-            else:
-                break
-    finally:
-        camera.clean_up_cam()
-        
+
 def pid_control(queue_in, k_pid, esp_com, goal_position, stop_event):
     """Receive ball coordinates from the queue, compute control angles, and send commands."""
     #pid_controller = PID_control(k_pid)
@@ -106,11 +84,13 @@ if __name__ == "__main__":
 
     goal_position = (0,0)
     ball_coords_queue = Queue(maxsize=5)
+    gui_frame_queue = Queue(maxsize=5)
     stop_event = Event()
     esp_com = Commmunication()
+    send_frames_to_gui = False
 
     # Create processes
-    capture_process = Process(target=capture_and_detect, args=(ball_coords_queue, goal_position, stop_event), daemon=True)
+    capture_process = Process(target=capture_and_detect, args=(ball_coords_queue, gui_frame_queue, send_frames_to_gui, goal_position, stop_event), daemon=True)
     pid_process = Process(target=pid_control, args=(ball_coords_queue, k_pid, esp_com, goal_position, stop_event), daemon=True)
 
     # Start processes
@@ -118,6 +98,9 @@ if __name__ == "__main__":
     pid_process.start()
 
     try:
+        app = App(send_frames_to_gui, gui_frame_queue)
+        app.mainloop()
+
         # Main loop
         while True:
             pass
@@ -137,3 +120,5 @@ if __name__ == "__main__":
             capture_process.terminate()
         if pid_process.is_alive():
             pid_process.terminate()
+
+    

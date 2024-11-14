@@ -1,13 +1,15 @@
 import tkinter as tk
-import constants
-import button
+import GUI.constants
+import GUI.button
 
 class Challenge_page(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
-        self.configure(bg=constants.background_color)
-        self.page_texts = constants.challenge_text
+        self.constants = GUI.constants
+        self.button = GUI.button
+        self.configure(bg=self.constants.background_color)
+        self.page_texts = self.constants.challenge_text
 
         # Configure grid layout
         self.grid_rowconfigure(0, weight=1)
@@ -17,18 +19,18 @@ class Challenge_page(tk.Frame):
         self.grid_columnconfigure(1, weight=1) 
 
         # Frame for the video feed
-        vid_frame = tk.Frame(self, bg=constants.background_color)
+        vid_frame = tk.Frame(self, bg=self.constants.background_color)
         vid_frame.grid(row=1, rowspan=2, column=0, sticky="s", ipadx=100, ipady=100)  # Place below text widget in grid
-        canvas = tk.Canvas(vid_frame, width=640, height=480, highlightthickness=1, bg=constants.background_color)
+        canvas = tk.Canvas(vid_frame, width=640, height=480, highlightthickness=1, bg=self.constants.background_color)
         canvas.pack()
 
         # Text widget for page content with tagged fonts
         self.page_content_text = tk.Text(
             self, 
             wrap="word", 
-            font=constants.body_text,
-            bg=constants.background_color, 
-            fg=constants.text_color,
+            font=self.constants.body_text,
+            bg=self.constants.background_color, 
+            fg=self.constants.text_color,
             relief="flat", 
             height=20, 
             width=75, 
@@ -36,8 +38,8 @@ class Challenge_page(tk.Frame):
         )
 
         # Configure text tags for heading and body text styles. Add it to column 1
-        self.page_content_text.tag_configure("heading", font=constants.heading, foreground=constants.text_color)
-        self.page_content_text.tag_configure("body", font=constants.body_text, foreground=constants.text_color)
+        self.page_content_text.tag_configure("heading", font=self.constants.heading, foreground=self.constants.text_color)
+        self.page_content_text.tag_configure("body", font=self.constants.body_text, foreground=self.constants.text_color)
         self.page_content_text.grid(row=1, column=1)
 
         # Clear any existing text and insert text from challenge_text
@@ -47,7 +49,7 @@ class Challenge_page(tk.Frame):
 
         # Go back frame
         back_btn_frame = tk.Frame(self, 
-                                  bg=constants.background_color, 
+                                  bg=self.constants.background_color, 
                                   highlightthickness=0, 
                                   borderwidth=0)
         back_btn_frame.grid(row=2, column=0, sticky="sw")
@@ -55,14 +57,14 @@ class Challenge_page(tk.Frame):
         self.create_circular_button(self, "Next", self.on_button_click)
 
         # Lower-left corner button to go back
-        self.back_button = button.RoundedButton(
+        self.back_button = self.button.RoundedButton(
             master = back_btn_frame, 
             text="Bakåt", 
             radius=20, 
             width=200, 
             height=70, 
-            btnbackground=constants.text_color, 
-            btnforeground=constants.background_color, 
+            btnbackground=self.constants.text_color, 
+            btnforeground=self.constants.background_color, 
             clicked=lambda: controller.show_frame("Competition_page")
         )
         self.back_button.grid(row=2, column=1, padx=10, pady=10, sticky="sw")
@@ -73,15 +75,15 @@ class Challenge_page(tk.Frame):
         button_diameter = 100
 
         # Frame for each button and its label
-        btn_container = tk.Frame(frame, bg=constants.background_color)
+        btn_container = tk.Frame(frame, bg=self.constants.background_color)
         btn_container.grid(row=2, column=1, sticky="e")  # Place below text widget in grid
 
         # Label above the button with extra vertical padding
         btn_label = tk.Label(btn_container, 
                              text="Starta här!", 
-                             font=constants.heading, 
-                             bg=constants.background_color, 
-                             fg=constants.text_color)
+                             font=self.constants.heading, 
+                             bg=self.constants.background_color, 
+                             fg=self.constants.text_color)
         btn_label.pack(pady=(0, 10))  # Adds 10 pixels of space below the label
 
         # Canvas for circular button, based on calculated button diameter
@@ -89,7 +91,7 @@ class Challenge_page(tk.Frame):
                            width=600+button_diameter, 
                            height=200+button_diameter, 
                            highlightthickness=0, 
-                           bg=constants.background_color)
+                           bg=self.constants.background_color)
         canvas.pack(side="top")
 
         # Draw circular button shape with calculated diameter

@@ -1,22 +1,23 @@
 import tkinter as tk
-import constants
+import GUI.constants
 
 class RoundedButton(tk.Canvas):
     def __init__(self, master=None, text: str = "", image=None, radius=25, btnforeground="#000000",
-                 btnbackground=constants.background_color, clicked=None, *args, **kwargs):
+                 btnbackground=GUI.constants.background_color, clicked=None, *args, **kwargs):
         super(RoundedButton, self).__init__(master, *args, **kwargs)
         self.config(bg=self.master["bg"], border=0, highlightthickness=0)
         self.btnbackground = btnbackground
         self.clicked = clicked
         self.radius = radius
         self.image = image  # Store the image
+        self.constants = GUI.constants
 
         # Create the rounded rectangle background
         self.rect = self.round_rectangle(0, 0, 0, 0, tags="button", radius=radius, fill=btnbackground)
 
         # Create the text and image if provided
         self.text_id = self.create_text(0, 0, text=text, tags="button", fill=btnforeground,
-                                        font=(constants.heading, 25), justify="center")
+                                        font=(self.constants.heading, 25), justify="center")
         if self.image:
             self.image_id = self.create_image(0, 0, image=self.image, tags="button")
 
@@ -81,7 +82,7 @@ class RoundedButton(tk.Canvas):
 
     def border(self, event):
         if event.type == "4":
-            self.itemconfig(self.rect, fill=constants.background_color)
+            self.itemconfig(self.rect, fill=self.constants.background_color)
             if self.clicked:
                 self.clicked()
         else:

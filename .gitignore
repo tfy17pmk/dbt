@@ -3,3 +3,8 @@
 
 # Other stuff
 /__pycache__/
+GUI/__pycache__/
+Image_processing/__pycache__/
+PID/__pycache__/
+communication/__pycache__/
+test_code/__pycache__/
