@@ -8,18 +8,18 @@ sub_heading = ("Helvetica Neue", 32, "bold")
 body_text = ("Helvetica Neue", 20)
 
 #Image paths
-INFO_IMAGE = "assets/info.png"
-COMPETITION_IMAGE = "assets/competition.png"
-PATTERN_IMAGE = "assets/pattern.png"
-RIGHT_ARROW = "assets/right_arrow.png"
-EYES = "assets/eyes.png"
-ARM = "assets/arm.png"
-BRAIN = "assets/brain.png"
-LIGHT_BULB = "assets/light_bulb.png"
-SQUARE = "assets/square.png"
-CIRCLE = "assets/circle.png"
-TRIANGLE = "assets/triangle.png"
-STAR = "assets/star.png"
+INFO_IMAGE = "GUI/assets/info.png"
+COMPETITION_IMAGE = "GUI/assets/competition.png"
+PATTERN_IMAGE = "GUI/assets/pattern.png"
+RIGHT_ARROW = "GUI/assets/right_arrow.png"
+EYES = "GUI/assets/eyes.png"
+ARM = "GUI/assets/arm.png"
+BRAIN = "GUI/assets/brain.png"
+LIGHT_BULB = "GUI/assets/light_bulb.png"
+SQUARE = "GUI/assets/square.png"
+CIRCLE = "GUI/assets/circle.png"
+TRIANGLE = "GUI/assets/triangle.png"
+STAR = "GUI/assets/star.png"
 
 #communication
 serial_port = "/dev/tty.usbserial-0199B457"  # Use 'ls /dev/tty.*' to find the correct port AND you cant have serial monitor on in Arduino IDE!
