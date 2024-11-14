@@ -8,9 +8,12 @@ class HexagonShape:
         self.fill = fill
         self.outline = outline
         self.drawing_points = []  # Store drawing points
+        self.mapped_points = [] # Store remapped points
         self.line_ids = []  # Store IDs for each complete drawn line
         self.current_line_ids = []  # Track segment IDs for current line
         self.is_freehand = False  # Track if drawing is freehand
+        self.target_width = 320
+        self.target_height = 285
 
         # Bind to draw the hexagon in the case of window resize
         self.canvas.bind("<Configure>", self.on_resize)
@@ -24,6 +27,8 @@ class HexagonShape:
         self.create_hexagon()
         
     def clear_all(self):
+        # Function to overwrite previous goal points
+
         # Clear all lines
         while self.line_ids:
             last_line = self.line_ids.pop()
@@ -32,21 +37,38 @@ class HexagonShape:
         
         # Clear any shapes by deleting all items with the "shape" tag
         self.canvas.delete("shape")
+
+    def reset_mapped_points(self):
+        # Function for reseting position to [0, 0] when reseting pattern or going back to prev GUI slide
+
+        # Clear all lines
+        while self.line_ids:
+            last_line = self.line_ids.pop()
+            for line_id in last_line:
+                self.canvas.delete(line_id)
         
-        print("Cleared all lines and shapes")
-        print("Funkade najs (interupt grej)!!")
-        mapped_points = [0,0]
-        print("Mapped shape coordinates:", mapped_points)
+        # Clear any shapes by deleting all items with the "shape" tag
+        self.canvas.delete("shape")
+
+        # Resets ball position to origin
+        self.mapped_points = [[0, 0]]
+        print("Mapped points reset to:", self.mapped_points)
+
+    def map_coordinates(self, x, y):
+        canvas_width = self.canvas.winfo_width()
+        canvas_height = self.canvas.winfo_height()
+
+        # Remap coordinates with a linear scale factor
+        mapped_x = x * (self.target_width / canvas_width)
+        mapped_y = y * (self.target_height / canvas_height)
+
+        # Return remapped coordinates with redefined origin in the middle    
+        return int(mapped_x-self.target_width/2), -int(mapped_y-self.target_height/2) 
         
     def log_shape_coordinates(self, points):
-        # Calculate and print the coordinates
-        print("Shape coordinates:", points)
-
         # Example of mapping coordinates (optional)
-        target_width = 320
-        target_height = 285
-        mapped_points = [self.map_coordinates(x, y, target_width, target_height) for x, y in points]
-        print("Mapped shape coordinates:", mapped_points)
+        self.mapped_points = [self.map_coordinates(x, y) for x, y in points]
+        print("Mapped shape coordinates:", self.mapped_points)
 
     def draw_square(self):
         self.is_freehand = False
@@ -103,7 +125,6 @@ class HexagonShape:
         self.line_ids.append([shape_id])
         # Log the coordinates of the triangle vertices
         self.log_shape_coordinates(points)
-
 
     def draw_star(self):
         self.is_freehand = False
@@ -182,17 +203,6 @@ class HexagonShape:
                     line_id = self.canvas.create_line(last_x, last_y, event.x, event.y, fill="black")
                     self.current_line_ids.append(line_id)
                     self.drawing_points.append((event.x, event.y))
-					
-    def map_coordinates(self, x, y, target_width, target_height):
-        canvas_width = self.canvas.winfo_width()
-        canvas_height = self.canvas.winfo_height()
-        
-        # Remap coordinates with a linear scale factor
-        mapped_x = x * (target_width / canvas_width)
-        mapped_y = y * (target_height / canvas_height)
-
-        # Return remapped coordinates with redefined origin in the middle    
-        return int(mapped_x-target_width/2), -int(mapped_y-target_height/2) 
 
     def stop_drawing(self, event):
         # Connect the last point to the first to close the shape, if close enough
@@ -208,22 +218,9 @@ class HexagonShape:
             self.line_ids.append(self.current_line_ids)
             self.current_line_ids = []  # Reset for next line
 
-        print("Final drawing points:", self.drawing_points)
-
         # Remap coordinates into cropped camera picture
-        target_width = 320
-        target_height = 285
-        mapped_points = [self.map_coordinates(x, y, target_width, target_height) for x, y in self.drawing_points]
-        print("Mapped drawing points", mapped_points)
-
-    #Tog bort den här koden för den behövs tyderligrn inte, använder clear_all() istället
-    #def remove_last_line(self):
-        # Remove the last drawn line or shape
-       # if self.line_ids:
-       #     last_item = self.line_ids.pop()
-        #    print("Funkade najs (interupt grej)!!")
-         #   for item_id in last_item:
-          #      self.canvas.delete(item_id)
+        self.mapped_points = [self.map_coordinates(x, y, self.target_width, self.target_height) for x, y in self.drawing_points]
+        print("Mapped drawing points", self.mapped_points)
 
     def redraw_points(self):
         # Redraw the stored lines between points
@@ -248,17 +245,11 @@ class HexagonShape:
                             inside = not inside
             p1x, p1y = p2x, p2y
         return inside
-
-
-'''def draw_circle(self):
-        self.is_freehand = False
-        self.clear_all()
-        width = self.canvas.winfo_width()
-        height = self.canvas.winfo_height()
-        radius = min(width, height) // 2
-        x0, y0 = (width - radius) / 2, (height - radius) / 2
-        x1, y1 = (width + radius) / 2, (height + radius) / 2
-        shape_id = self.canvas.create_oval(x0, y0, x1, y1, outline="black", tags="shape")
-        self.line_ids.append([shape_id])
-        # Log the bounding box coordinates for the circle
-        self.log_shape_coordinates([(x0, y0), (x1, y1)])'''
+    
+    '''def remove_last_line(self):
+        # Remove the last drawn line or shape
+        if self.line_ids:
+            last_item = self.line_ids.pop()
+            print("Funkade najs (interupt grej)!!")
+            for item_id in last_item:
+                self.canvas.delete(item_id)'''

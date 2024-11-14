@@ -136,7 +136,7 @@ class Pattern_page(tk.Frame):
                     height=70, 
                     btnbackground=constants.text_color, 
                     btnforeground=constants.background_color, 
-                    clicked=lambda: self.hex.clear_all() #self.hex.remove_last_line(), använder clear_all() istället
+                    clicked=lambda: self.hex.reset_mapped_points() #self.hex.remove_last_line(), använder clear_all() istället
                 )
         btn_undo.place(relx=0.5, rely=0.9, anchor="center")
 
@@ -149,7 +149,7 @@ class Pattern_page(tk.Frame):
             height=70, 
             btnbackground=constants.text_color, 
             btnforeground=constants.background_color, 
-            clicked=self.go_back
+            clicked=lambda: (self.go_back(), self.hex.reset_mapped_points())
         )
         self.back_button.grid(row=2, column=1, padx=10, pady=10, sticky="sw")
         
