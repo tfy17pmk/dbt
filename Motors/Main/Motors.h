@@ -40,12 +40,15 @@ private:
     std::array<double, 3> _steps = {0,0,0};
     std::array<double, 3> prev_steps = {0,0,0};
     void set_speed(double steps[3]);
-    float _max_speed = 2000;
-    float _cs = 40;
-    double _acc_multiplier = 10;
-    double _speed_diff = 200;
+    float _max_speed = 2000;//2000
+    float _cs = 50;//50
+    double _acc_multiplier = 5;//5
+    double _speed_diff = 100;//100
+    double _diff = 0;
     double speed[3] = {0,0,0};
+    double position[3] = {0,0,0};
     double speedPrev[3];
+    double prev_rec_time = 0;
 
     void phase1();
     void phase2(int motor, bool first_time);

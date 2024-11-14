@@ -117,17 +117,35 @@ void loop() {
 
     // set motor angles
     motors.set_angle(motor_angles.data());
-    /*
+    
     update_time = millis();
-    while (millis() - update_time < 20){
+    while (millis() - update_time < 2){
       stepper[0].run();
       stepper[1].run();
       stepper[2].run();
     }
-    */
+
+    // Example data to send
+    double a1 = stepper[0].;
+    double a2 = motor_angles.data()[1];
+    double a3 = motor_angles.data()[2];
+    uint8_t states_byte = 0b101;   // Example bitwise states (state1=1, state2=0, state3=1)
+    uint8_t homing_byte = 1;       // 1 for homing active, 0 for inactive
+    // Send start byte
+    Serial.write(0x02);
+
+
+    // Send structured data
+    Serial.write((uint8_t*)&a1, sizeof(a1));
+    Serial.write((uint8_t*)&a2, sizeof(a2));
+    Serial.write((uint8_t*)&a3, sizeof(a3));
+    Serial.write(states_byte);
+    Serial.write(homing_byte);
+    /*
     stepper[0].run();
     stepper[1].run();
     stepper[2].run();
+    */
   }
 }
 
