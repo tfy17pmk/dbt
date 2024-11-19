@@ -31,8 +31,13 @@ class Challenges:
             y = frame_height/2 + size/1.5 * math.sin(angle_rad)
             hexagon[i, :] = [x, y]
 
-        self.patterns = {"square": square, "hexagon": hexagon}
-        self.tags = ["square", "hexagon"]
+        # Triangle
+        triangle = np.array([[frame_width/2, (frame_height-size)/2], 
+                             [(frame_width - size)/2, (frame_height + size)/2],
+                             [(frame_width + size)/2, (frame_height + size)/2]])
+
+        self.patterns = {"square": square, "hexagon": hexagon, "triangle": triangle}
+        self.tags = ["square", "hexagon", "triangle"]
 
     def start_challenge(self):
         self.isFinished = False
