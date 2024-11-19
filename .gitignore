@@ -1,5 +1,6 @@
 # Environment
 /dbt-venv
+GUI/dbt-venv
 
 # Other stuff
 /__pycache__/
@@ -8,3 +9,6 @@
 /PID/__pycache__/
 /test_code/__pycache__/
 .vscode/
+GUI/__pycache__/
+.DS_Store
+__pycache__/
