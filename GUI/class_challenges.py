@@ -4,12 +4,35 @@ import cv2 as cv
 import numpy as np
 import random
 import time
+import math
 
 class Challenges:
-    def __init__(self):
-        self.patterns = {"square": np.array([[50,50], [200, 50], [200, 200], [50, 200]])}
-        self.tags = ["square"]
+    def __init__(self, frame):
+        self.create_patterns(frame)
         self.dot_radius = 10
+
+    def create_patterns(self, frame):
+        frame_height, frame_width, _ = frame.shape
+        size = min(frame_width, frame_height)/2
+
+        # Square
+        x0 = (frame_width - size)/2
+        y0 = (frame_height - size)/2
+        x1 = (frame_width + size)/2
+        y1 = (frame_height + size)/2
+        square = np.array([[x0, y0], [x1, y0], [x1, y1], [x0, y1]])
+
+        # Hexagon
+        hexagon = np.zeros((6, 2))
+        for i in range(6):
+            angle_deg = 60 * i
+            angle_rad = math.radians(angle_deg)
+            x = frame_width/2 + size/1.5 * math.cos(angle_rad)
+            y = frame_height/2 + size/1.5 * math.sin(angle_rad)
+            hexagon[i, :] = [x, y]
+
+        self.patterns = {"square": square, "hexagon": hexagon}
+        self.tags = ["square", "hexagon"]
 
     def start_challenge(self):
         self.isFinished = False

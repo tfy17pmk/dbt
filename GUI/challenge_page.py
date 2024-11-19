@@ -117,7 +117,12 @@ class Challenge_page(tk.Frame):
     def on_button_click(self):
         # Define the action for the button_test click
         print('Utmaning startad!')
-        self.challenge = Challenges()
+        for widget in self.result_frame.winfo_children():
+            widget.destroy()
+        self.result_canvas = tk.Canvas(self.result_frame, bg=constants.background_color, height=2, width=35, highlightthickness=1)
+        frame = self.camera.get_frame()
+        frame = self.camera.crop_frame(frame)
+        self.challenge = Challenges(frame)
         self.challenge.start_challenge()
         self.challenge_isRunning = True
 
