@@ -1,4 +1,5 @@
 import tkinter as tk
+from PIL import Image, ImageTk
 from home_page import Home_page
 from info_page import Info_page
 from competition_page import Competition_page
