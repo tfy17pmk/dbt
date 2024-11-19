@@ -32,7 +32,7 @@ class App(tk.Tk):
         for Page in (Home_page, Info_page, Pattern_page, Competition_page, Challenge_page, Freeplay_page):
             page_name = Page.__name__
             
-            if Page is Info_page:
+            if Page is Info_page or Page is Challenge_page:
                 frame = Page(parent=container, controller=self, send_frames_to_gui=self.send_frames_to_gui, gui_frame_queue=self.gui_frame_queue)
             else:
                 frame = Page(parent=container, controller=self)
