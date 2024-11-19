@@ -18,6 +18,8 @@ class Info_page(tk.Frame):
 
         self.send_frames_to_gui = send_frames_to_gui
         self.gui_frame_queue = gui_frame_queue
+        self.current_frame = None
+        self.stop_event = threading.Event()
 
         self.configure(bg=self.constants.background_color)
 
@@ -228,11 +230,15 @@ class Info_page(tk.Frame):
 
             # Create and display camera_frame below the image, only on the second page
             if not hasattr(self, "camera_frame"):
-                self.camera_frame = tk.Canvas(self, width=640, height=480, bg="transparent", highlightthickness=0)
+                self.camera_frame = tk.Label(self)
+                #self.camera_frame = tk.Canvas(self, width=640, height=480, bg="transparent", highlightthickness=0)
             self.camera_frame.grid(row=1, column=1, padx=50, sticky="sw", pady=30)
+            self.start_frame_thread()  # Start the frame fetching thread
             self.update_frame()  # Update the frame content
         else:
             self.send_frames_to_gui.value = False
+            self.current_frame = None  # Clear the current frame
+            self.stop_event.set()  # Stop the frame fetching thread
             # Hide camera_frame on pages other than the second
             if hasattr(self, "camera_frame"):
                 self.camera_frame.grid_remove()
@@ -262,20 +268,30 @@ class Info_page(tk.Frame):
         # Update the dots to show the current page
         self.update_dots()
 
-    def update_frame(self):
-        """Fetch frames from the queue and update the camera_frame."""
-        if self.send_frames_to_gui.value:
+    def start_frame_thread(self):
+        """Start a separate thread to fetch frames from the queue."""
+        self.stop_event.clear()
+        self.frame_thread = threading.Thread(target=self.fetch_frames)
+        self.frame_thread.start()
+
+    def fetch_frames(self):
+        """Fetch frames from the queue in a separate thread."""
+        while not self.stop_event.is_set():
             try:
-                print("updating frames in gui")
-                frame = self.gui_frame_queue.get_nowait()
-                image = Image.fromarray(frame)
-                image = ImageTk.PhotoImage(image)
-                '''self.camera_frame.config(image=image)
-                self.camera_frame.image = image'''
-                self.camera_frame.create_image(640,480,image=image)
+                if not gui_frame_queue.empty():
+                    print("Set frame in fetch_frames.")
+                    frame = self.gui_frame_queue.get_nowait()
+                    self.current_frame = ImageTk.PhotoImage(Image.fromarray(frame))
             except Exception as e:
                 pass
-            self.after(1, self.update_frame)  # Schedule the next frame update
+
+    def update_frame(self):
+        """Update the camera_frame with the latest frame."""
+        if self.send_frames_to_gui.value and self.current_frame:
+            self.camera_frame.config(image=self.current_frame)
+            self.camera_frame.image = self.current_frame
+            print("Updated camera_frame with a new frame")
+        self.after(1, self.update_frame)  # Schedule the next frame update with a 1-millisecond interval
 
     def update_arrow_visibility(self):
         """Hide left arrow on the first page and right arrow on the last page."""
