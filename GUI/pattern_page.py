@@ -1,5 +1,5 @@
 import tkinter as tk
-from PIL import Image, ImageDraw, ImageTk  # Import Pillow for image resizing
+from PIL import Image, ImageDraw, ImageTk, ImageEnhance  # Import Pillow for image resizing
 import constants
 import button
 import Hexagon
@@ -13,10 +13,18 @@ class Pattern_page(tk.Frame):
         self.controller = controller
         self.configure(bg=constants.background_color)
 
+        #the squere image fot the patterns page
+        image = Image.open(constants.SQUARE).resize((40, 40))
+        # make the png darker due to not being able to find a better png
+        enhancer = ImageEnhance.Brightness(image)
+        darker_image = enhancer.enhance(0.9)
+
         # Load the light icon for the dynamic buttons
-        self.square_icon = ImageTk.PhotoImage(Image.open(constants.SQUARE).resize((40, 40)))
-        self.hexagon_icon = self.create_hexagon_icon(40, outline_color="black")
-        self.triangle_icon = ImageTk.PhotoImage(Image.open(constants.TRIANGLE).resize((40, 40)))
+        self.square_icon = ImageTk.PhotoImage(darker_image)
+        self.hexagon_icon = ImageTk.PhotoImage(
+            Image.open(constants.HEXAGON).resize((40, 45)).rotate(90, expand=True)
+        )
+        self.triangle_icon = ImageTk.PhotoImage(Image.open(constants.TRIANGLE).resize((50, 50)))
         self.star_icon = ImageTk.PhotoImage(Image.open(constants.STAR).resize((40, 40)))
 
         # Get screen dimensions
