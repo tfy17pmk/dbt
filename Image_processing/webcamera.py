@@ -13,10 +13,10 @@ class Camera:
 		self.cam.set(cv.CAP_PROP_FRAME_HEIGHT, 480)
 		self.cam.set(cv.CAP_PROP_FPS, 90)
 		self.cam.set(cv.CAP_PROP_AUTOFOCUS, 0)
-		self.crop_x1 = 185
-		self.crop_y1 = 130
-		self.crop_x2 = 505
-		self.crop_y2 = 415
+		self.crop_x1 = 180
+		self.crop_y1 = 120
+		self.crop_x2 = 500
+		self.crop_y2 = 410
 		self.x_offset = 3
 		self.y_offset = 2
 		if not self.cam.isOpened():
