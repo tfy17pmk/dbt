@@ -42,7 +42,7 @@ class Commmunication:
         # Send the message
         self.esp32.write(message)
         #esp32.flush()
-        print(f"Sent: value1={value1}, value2={value2}, height={height}, states=({state1}, {state2}, {state3}), homing={homing}")
+        #print(f"Sent: value1={value1}, value2={value2}, height={height}, states=({state1}, {state2}, {state3}), homing={homing}")
         
 
     def receive_response(self):
@@ -63,9 +63,9 @@ class Commmunication:
                         homing = bool(homing_byte)
                         
                         # Print the received values
-                        print("Received:")
-                        print(f"theta={theta}, phi={phi}, height={height}")
-                        print(f"states=({state1}, {state2}, {state3}), homing={homing}")
+                        #print("Received:")
+                        #print(f"theta={theta}, phi={phi}, height={height}")
+                        #print(f"states=({state1}, {state2}, {state3}), homing={homing}")
                         break
         except struct.error as e:
             print(f"Unpacking error: {e}")
