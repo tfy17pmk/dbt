@@ -1,4 +1,4 @@
-from multiprocessing import Process, Queue, Event, Lock
+from multiprocessing import Process, Queue, Event, Value
 from Image_processing.webcamera import Camera
 from PID.pid import PID_control
 from communication.communication import Commmunication
@@ -6,50 +6,44 @@ from PID.class_PID import PID
 from GUI.GUI import App
 import sys
 import time
+import signal
 
-send_frames_to_gui = False
-
-def update_send_frames_to_gui(value):
-    print(f"Received updated value: {value}")
-    # You can update your variable or handle the change here
-    global send_frames_to_gui
-    send_frames_to_gui = value
+def put_value_in_shared_queue(value, shared_queue):
+    """Put a value in the shared queue if it is not full."""
+    if not shared_queue.full():
+        try:
+            shared_queue.put(value, timeout=0.01)
+        except Exception as e:
+            print(f"Queue error: {e}")
+    else:
+        print("Queue is full!")
 
 def capture_and_detect(queue, gui_queue, send_frames_to_gui, goal_position, stop_event):
     """Capture frames and detect ball coordinates, placing them in the queue."""
-    #camera = Camera()
-    #camera_gui = Camera()
+    camera = Camera()
+    camera_gui = Camera()
     try:
         while not stop_event.is_set():
-            """frame = camera.get_frame()
+            frame = camera.get_frame()
             cropped_frame = camera.crop_frame(frame)
+
+            # Detect ball coordinates and put them in the queue
             if cropped_frame is not None:
                 ball_coordinates = camera.get_ball(cropped_frame)
                 if ball_coordinates != (-1, -1, 0):  # Valid detection
-                    if not queue.full():
-                        try:
-                            queue.put(ball_coordinates, timeout=0.01)
-                            print(ball_coordinates)
-                        except e:
-                            print(f"Queue error: {e}")
-                    else:
-                        print("Queue is full!")"""
+                    put_value_in_shared_queue(ball_coordinates, queue)
 
-            if send_frames_to_gui:
-                print("Putting things to queue")
-                #if not gui_frame_queue.full():
-                    #gui_queue.put(cropped_frame)
-                    # for debugging
-                    
-                    #camera_gui.show_frame(cropped_frame, goal_position)
+                # If in info-page, send frame to GUI
+                if send_frames_to_gui.value:
+                    print("Sending frame to GUI")
+                    put_value_in_shared_queue(cropped_frame, gui_queue)
 
-                #camera.show_frame(cropped_frame, goal_position)  # Display frame if needed
+                camera.show_frame(cropped_frame, goal_position)  # Display frame if needed
             else:
                 break
     finally:
         #camera.clean_up_cam()
         pass
-
 
 def pid_control(queue_in, k_pid, esp_com, goal_position, stop_event):
     """Receive ball coordinates from the queue, compute control angles, and send commands."""
@@ -83,7 +77,10 @@ def pid_control(queue_in, k_pid, esp_com, goal_position, stop_event):
             #esp_com.send_data(0, 0, height, state1, state2, state3, homing)
             last_received_time = time.perf_counter()  # Reset timer to avoid continuous reset
 
-
+def handle_keyboard_interrupt(signum, frame):
+    """Handle keyboard interrupt by setting the stop event."""
+    print("Keyboard interrupt received. Exiting...")
+    stop_event.set()  # Signal processes to stop
 
 if __name__ == "__main__":
     #k_pid = [0.0004, 0.000002, 0.007, 0.1]
@@ -97,6 +94,7 @@ if __name__ == "__main__":
     ball_coords_queue = Queue(maxsize=5)
     gui_frame_queue = Queue(maxsize=5)
     stop_event = Event()
+    send_frames_to_gui = Value('b', False)
     esp_com = 0#Commmunication()
 
     # Create processes
@@ -107,28 +105,23 @@ if __name__ == "__main__":
     capture_process.start()
     pid_process.start()
 
-    try:
-        app = App(update_send_frames_to_gui_callback=update_send_frames_to_gui, gui_frame_queue=gui_frame_queue)
-        app.mainloop()
+    # Register signal handler for KeyboardInterrupt
+    signal.signal(signal.SIGINT, handle_keyboard_interrupt)
 
-        # Main loop
-        while True:
-            pass
-    except KeyboardInterrupt:
-        print("Keyboard interrupt received. Exiting...")
-        stop_event.set()  # Signal processes to stop
+    try:
+        app = App(send_frames_to_gui=send_frames_to_gui, gui_frame_queue=gui_frame_queue)
+        app.mainloop()
     except Exception as e:
         print(f"An error occurred: {e}", file=sys.stderr)
         stop_event.set()
     finally:
-        # Ensure all processes are terminated
-        capture_process.join(timeout=1)
-        pid_process.join(timeout=1)
-
+        # Stop processes
+        stop_event.set()
+        capture_process.join(timeout=5)
+        pid_process.join(timeout=5)
+       
         # Force terminate if still alive
         if capture_process.is_alive():
             capture_process.terminate()
         if pid_process.is_alive():
             pid_process.terminate()
-
-    
