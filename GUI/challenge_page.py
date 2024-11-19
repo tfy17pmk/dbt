@@ -15,8 +15,8 @@ class Challenge_page(tk.Frame):
         self.camera = Camera()
             
         # Output frame size
-        self.cam_width = 500
-        self.cam_height = 500
+        self.cam_width = 600
+        self.cam_height = 600
 
         # Frame for the video feed
         self.cam_frame = tk.Frame(self, bg=constants.background_color, highlightthickness=1)
@@ -139,7 +139,7 @@ class Challenge_page(tk.Frame):
                     self.challenge_isRunning = False
                     self.challenge_isFinished = False
             frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
-            resized_frame = cv.resize(frame, (self.cam_height*2, self.cam_width*2))
+            resized_frame = cv.resize(frame, (self.cam_height, self.cam_width))
             photo = ImageTk.PhotoImage(image = Image.fromarray(resized_frame))
             self.cam_canvas.create_image(0, 0, image = photo, anchor = tk.NW)
 
