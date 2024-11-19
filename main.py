@@ -21,7 +21,6 @@ def put_value_in_shared_queue(value, shared_queue):
 def capture_and_detect(queue, gui_queue, send_frames_to_gui, goal_position, stop_event):
     """Capture frames and detect ball coordinates, placing them in the queue."""
     camera = Camera()
-    camera_gui = Camera()
     try:
         while not stop_event.is_set():
             frame = camera.get_frame()

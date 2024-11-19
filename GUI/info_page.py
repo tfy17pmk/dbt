@@ -230,6 +230,7 @@ class Info_page(tk.Frame):
             if not hasattr(self, "camera_frame"):
                 self.camera_frame = tk.Canvas(self, width=640, height=480, bg="white", highlightthickness=0)
             self.camera_frame.grid(row=1, column=1, padx=50, sticky="sw", pady=30)
+            self.update_frame()  # Update the frame content
         else:
             self.send_frames_to_gui.value = False
             # Hide camera_frame on pages other than the second
@@ -261,6 +262,20 @@ class Info_page(tk.Frame):
         # Update the dots to show the current page
         self.update_dots()
 
+    def update_frame(self):
+        """Fetch frames from the queue and update the camera_frame."""
+        if self.send_frames_to_gui.value:
+            try:
+                frame = self.gui_frame_queue.get_nowait()
+                image = Image.fromarray(frame)
+                image = ImageTk.PhotoImage(image)
+                self.camera_frame.config(image=image)
+                self.camera_frame.image = image
+            except Exception as e:
+                pass
+            self.after(1, self.update_frame)  # Schedule the next frame update
+        else:
+            self.camera_frame.config(image='')  # Clear the camera frame
 
     def update_arrow_visibility(self):
         """Hide left arrow on the first page and right arrow on the last page."""
@@ -306,7 +321,3 @@ class Info_page(tk.Frame):
             self.current_page = 0
             self.show_page(0)  # Show the first page when returning
             self.controller.show_frame("Home_page")
-
-    def update_send_frames_to_gui(self, value):
-        self.update_send_frames_to_gui_callback(value)
-        print(f"Updated send_frames_to_gui in info_page to {value}")
