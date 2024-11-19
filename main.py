@@ -83,10 +83,10 @@ def pid_control(queue_in, k_pid, esp_com, goal_position, stop_event):
             control_x, control_y = pid_controller.compute(goal_position, current_position)
             
             #print(queue_in.size())
-            print(f"Control angles: X: {control_x}, Y: {control_y}")
+            #print(f"Control angles: X: {control_x}, Y: {control_y}")
             # Send angles to ESP here
             esp_com.send_data(-control_x, control_y, height, state1, state2, state3, homing)
-            esp_com.receive_response()
+            #esp_com.receive_response()
 
         # Check if 3 seconds have passed since the last update
         if time.perf_counter() - last_received_time > 3:
@@ -102,7 +102,9 @@ if __name__ == "__main__":
     #k_pid = [0.0005, 0, 0.0005, 0.1]
     #k_pid = [0.00055, 0, 0.0005, 0.1] # working with adv pid
     #k_pid = [0.00055, 0.0004, 0.0005, 0.1] # working with new pid
-    k_pid = [0.00055, 0.0007, 0.0007]
+    #k_pid = [0.00055, 0.0007, 0.0007] 
+    #k_pid = [0.00055, 0.0007, 0.0007] # with cs =50
+    k_pid = [0.0007, 0.0006, 0.00055] # with cs =50
 
     goal_position = (0,0)
     ball_coords_queue = Queue(maxsize=5)
