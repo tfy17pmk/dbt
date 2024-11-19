@@ -5,6 +5,7 @@ import GUI.constants
 import GUI.button
 import GUI.communication
 from multiprocessing import Lock
+import threading
 
 class Info_page(tk.Frame):
     def __init__(self, parent, controller, send_frames_to_gui, gui_frame_queue):
@@ -278,8 +279,7 @@ class Info_page(tk.Frame):
         """Fetch frames from the queue in a separate thread."""
         while not self.stop_event.is_set():
             try:
-                if not gui_frame_queue.empty():
-                    print("Set frame in fetch_frames.")
+                if not self.gui_frame_queue.empty():
                     frame = self.gui_frame_queue.get_nowait()
                     self.current_frame = ImageTk.PhotoImage(Image.fromarray(frame))
             except Exception as e:
@@ -290,7 +290,6 @@ class Info_page(tk.Frame):
         if self.send_frames_to_gui.value and self.current_frame:
             self.camera_frame.config(image=self.current_frame)
             self.camera_frame.image = self.current_frame
-            print("Updated camera_frame with a new frame")
         self.after(1, self.update_frame)  # Schedule the next frame update with a 1-millisecond interval
 
     def update_arrow_visibility(self):

@@ -8,7 +8,7 @@ import sys
 import time
 import signal
 
-def put_value_in_shared_queue(value, shared_queue):
+def put_value_in_shared_queue(value, shared_queue, variant):
     """Put a value in the shared queue if it is not full."""
     if not shared_queue.full():
         try:
@@ -16,7 +16,7 @@ def put_value_in_shared_queue(value, shared_queue):
         except Exception as e:
             print(f"Queue error: {e}")
     else:
-        print("Queue is full!")
+        print(f"Queue {variant} is full!")
 
 def capture_and_detect(queue, gui_queue, send_frames_to_gui, goal_position, stop_event):
     """Capture frames and detect ball coordinates, placing them in the queue."""
@@ -30,18 +30,18 @@ def capture_and_detect(queue, gui_queue, send_frames_to_gui, goal_position, stop
             if cropped_frame is not None:
                 ball_coordinates = camera.get_ball(cropped_frame)
                 if ball_coordinates != (-1, -1, 0):  # Valid detection
-                    put_value_in_shared_queue(ball_coordinates, queue)
+                    put_value_in_shared_queue(ball_coordinates, queue, 1)
 
                 # If in info-page, send frame to GUI
                 if send_frames_to_gui.value:
                     #print("Sending frame to GUI")
-                    put_value_in_shared_queue(cropped_frame, gui_queue)
+                    put_value_in_shared_queue(cropped_frame, gui_queue, 2)
 
                 #camera.show_frame(cropped_frame, goal_position)  # Display frame if needed
             else:
                 break
     finally:
-        #camera.clean_up_cam()
+        camera.clean_up_cam()
         pass
 
 def pid_control(queue_in, k_pid, esp_com, goal_position, stop_event):
@@ -68,12 +68,12 @@ def pid_control(queue_in, k_pid, esp_com, goal_position, stop_event):
             #print(queue_in.size())
             #print(f"Control angles: X: {control_x}, Y: {control_y}")
             # Send angles to ESP here
-            #esp_com.send_data(-control_x, control_y, height, state1, state2, state3, homing)
+            esp_com.send_data(-control_x, control_y, height, state1, state2, state3, homing)
 
         # Check if 3 seconds have passed since the last update
         if time.perf_counter() - last_received_time > 3:
             pid_controller.reset()  # Reset the PID controllers
-            #esp_com.send_data(0, 0, height, state1, state2, state3, homing)
+            esp_com.send_data(0, 0, height, state1, state2, state3, homing)
             last_received_time = time.perf_counter()  # Reset timer to avoid continuous reset
 
 def handle_keyboard_interrupt(signum, frame):
@@ -94,7 +94,7 @@ if __name__ == "__main__":
     gui_frame_queue = Queue(maxsize=5)
     stop_event = Event()
     send_frames_to_gui = Value('b', False)
-    esp_com = 0#Commmunication()
+    esp_com = Commmunication()
 
     # Create processes
     capture_process = Process(target=capture_and_detect, args=(ball_coords_queue, gui_frame_queue, send_frames_to_gui, goal_position, stop_event), daemon=True)

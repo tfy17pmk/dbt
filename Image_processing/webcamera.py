@@ -117,7 +117,7 @@ class Camera:
 				perimeter = cv.arcLength(contour, True)
 
 				# Skip small areas to reduce noise
-				if area > 150 and perimeter > 0:
+				if area > 400 and perimeter > 0:
 					# Calculate circularity
 					circularity = 4 * np.pi * area / (perimeter * perimeter)
 					if 0.7 < circularity <= 1.0:  # Can try to adjust
