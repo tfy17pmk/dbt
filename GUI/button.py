@@ -81,7 +81,7 @@ class RoundedButton(tk.Canvas):
 
     def border(self, event):
         if event.type == "4":
-            self.itemconfig(self.rect, fill=constants.background_color)
+            self.itemconfig(self.rect)
             if self.clicked:
                 self.clicked()
         else:
