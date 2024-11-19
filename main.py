@@ -34,10 +34,10 @@ def capture_and_detect(queue, gui_queue, send_frames_to_gui, goal_position, stop
 
                 # If in info-page, send frame to GUI
                 if send_frames_to_gui.value:
-                    print("Sending frame to GUI")
+                    #print("Sending frame to GUI")
                     put_value_in_shared_queue(cropped_frame, gui_queue)
 
-                camera.show_frame(cropped_frame, goal_position)  # Display frame if needed
+                #camera.show_frame(cropped_frame, goal_position)  # Display frame if needed
             else:
                 break
     finally:
@@ -66,7 +66,7 @@ def pid_control(queue_in, k_pid, esp_com, goal_position, stop_event):
             control_x, control_y = pid_controller.compute(goal_position, current_position)
             
             #print(queue_in.size())
-            print(f"Control angles: X: {control_x}, Y: {control_y}")
+            #print(f"Control angles: X: {control_x}, Y: {control_y}")
             # Send angles to ESP here
             #esp_com.send_data(-control_x, control_y, height, state1, state2, state3, homing)
 
