@@ -93,6 +93,7 @@ void receiveData() {
     Serial.readBytes((char*)&height, sizeof(double));
     Serial.readBytes((char*)&states_byte, 1);
     Serial.readBytes((char*)&homing_byte, 1);
+    Serial.flush();
 
     // Process the data
     bool state1 = (states_byte & 0b100) >> 2;
@@ -124,11 +125,11 @@ void loop() {
       stepper[1].run();
       stepper[2].run();
     }
-
+    /*
     // Example data to send
-    double a1 = stepper[0].;
-    double a2 = motor_angles.data()[1];
-    double a3 = motor_angles.data()[2];
+    double a1 = stepper[0].speed();
+    double a2 = stepper[1].speed();
+    double a3 = stepper[2].speed();
     uint8_t states_byte = 0b101;   // Example bitwise states (state1=1, state2=0, state3=1)
     uint8_t homing_byte = 1;       // 1 for homing active, 0 for inactive
     // Send start byte
@@ -141,10 +142,11 @@ void loop() {
     Serial.write((uint8_t*)&a3, sizeof(a3));
     Serial.write(states_byte);
     Serial.write(homing_byte);
-    /*
+    
     stepper[0].run();
     stepper[1].run();
     stepper[2].run();
+    
     */
   }
 }

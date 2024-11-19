@@ -107,7 +107,7 @@ void Motors::phase3() {
     if(!buttonPressed[0]) {
       stepper[0].runSpeed();
     }else {
-      stepper[0].setCurrentPosition(3700); // stright out 500, vertical 2100
+      stepper[0].setCurrentPosition(3700); 
       saved_pos[0] = true;
     }
 
@@ -188,13 +188,19 @@ void Motors::initial_position() {
 
 void Motors::set_speed(double steps[3]) {
   for (int i = 0; i < 3; i++) {
-      speedPrev[i] = speed[i];                                                                                                           //sets previous speed
-      position[i] = stepper[i].currentPosition();                      //sets current position
-      //speed[i] = pow(abs(speed[i] - steps[i]),2) * _cs;   
-      _diff =  abs(position[i] - steps[i]);
-      speed[i] = _diff * _diff * _cs;                                                                               //calculates the error in the current position and target position
-      speed[i] = constrain(speed[i], speedPrev[i] - _speed_diff, speedPrev[i] + _speed_diff);                                                            //filters speed by preventing it from beign over 100 away from last speed
-      speed[i] = constrain(speed[i], 0, _max_speed);                                                                                           //constrains sped from 0 to 1000
+    speedPrev[i] = speed3[i];                                                                                                           //sets previous speed
+    position[i] = stepper[i].currentPosition();                      //sets current position
+    //speed[i] = pow(abs(speed[i] - steps[i]),2) * _cs;   
+    _diff[i] =  abs(position[i] - steps[i]);
+    speed1[i] = _diff[i] * _diff[i] * _cs;                                                                               //calculates the error in the current position and target position
+    speed2[i] = constrain(speed1[i], speedPrev[i] - _speed_diff, speedPrev[i] + _speed_diff);                                                            //filters speed by preventing it from beign over 100 away from last speed
+    speed3[i] = constrain(speed2[i], 0, _max_speed);    
+    /*
+    if (isnan(stepper[i].speed())) {
+      speed3[i] = speedPrev[i];
+    }  
+    */
+    speed[i] = speed3[i];                                                                                   //constrains sped from 0 to 1000
     }
 }
 
@@ -207,6 +213,10 @@ void Motors::set_angle(double motor_angles[3]) {
   set_speed(_steps.data());
 
   if ((millis() - prev_rec_time) > 3000){
+    for(int i = 0; i < 3; i++) {
+      stepper[i].setMaxSpeed(4000);   // Increase max speed significantly
+      stepper[i].setAcceleration(3000);
+    }
     prev_steps = {0,0,0};
   }
 
@@ -215,6 +225,10 @@ void Motors::set_angle(double motor_angles[3]) {
     stepper[0].setAcceleration(speed[0]*_acc_multiplier);
     stepper[0].moveTo(_steps[0]);
     prev_steps[0] = _steps[0];
+    if (isnan(stepper[0].speed())) {
+      stepper[0].setSpeed(speedPrev[0]);
+      initial_position();
+    }  
   }
 
   if (_steps[1] != prev_steps[1]){
@@ -222,7 +236,10 @@ void Motors::set_angle(double motor_angles[3]) {
     stepper[1].setAcceleration(speed[1]*_acc_multiplier);
     stepper[1].moveTo(_steps[1]);
     prev_steps[1] = _steps[1];
-
+    if (isnan(stepper[1].speed())) {
+      stepper[1].setSpeed(speedPrev[1]);
+      initial_position();
+    }  
   }
 
   if (_steps[2] != prev_steps[2]){
@@ -230,6 +247,10 @@ void Motors::set_angle(double motor_angles[3]) {
     stepper[2].setAcceleration(speed[2]*_acc_multiplier);
     stepper[2].moveTo(_steps[2]);
     prev_steps[2] = _steps[2];
+    if (isnan(stepper[2].speed())) {
+      stepper[2].setSpeed(speedPrev[2]);
+      initial_position();
+    }  
   }
   prev_rec_time = millis();
 }
