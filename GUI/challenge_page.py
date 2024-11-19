@@ -13,6 +13,7 @@ class Challenge_page(tk.Frame):
         self.configure(bg=constants.background_color)
         self.page_texts = constants.challenge_text
         self.camera = Camera()
+        self.button_diameter = 100
             
         # Output frame size
         self.cam_width = 600
@@ -52,35 +53,26 @@ class Challenge_page(tk.Frame):
         self.btn_frame.grid(row=1, column=2, sticky="new", ipadx=10, ipady=10)
 
         # Label above the button_test with extra vertical padding
-        self.btn_label = tk.Label(self.btn_frame, 
+        self.btn_frame_label = tk.Label(self.btn_frame, 
                              text="Starta utmaning!", 
                              font=constants.heading, 
                              bg=constants.background_color, 
                              fg=constants.text_color,
                              anchor="center")
-        self.btn_label.pack(pady=(0, 10))  # Adds 10 pixels of space below the label
+        self.btn_frame_label.pack(pady=(0, 10))  # Adds 10 pixels of space below the label
 
-        # Canvas for circular button_test, based on calculated button_test diameter
-        self.btn_canvas = tk.Canvas(self.btn_frame, 
-                           width=100, 
-                           height=100, 
-                           highlightthickness=1, 
-                           bg=constants.background_color)
-        self.btn_canvas.pack(side="top")
+        self.btn_container = tk.Frame(self.btn_frame, bg=constants.background_color)
+        self.btn_container.pack(side="left")
 
-        # Draw circular button_test shape with calculated diameter
-        button_circle = self.btn_canvas.create_oval(
-            0, 0, 100, 100, fill="#B9D9EB"
-        )
-
-        # Button action using a lambda
-        self.btn_canvas.bind("<Button-1>", lambda e: self.on_button_click())
+        self.create_button(self.btn_container, "Lätt")
+        self.create_button(self.btn_container, "Medel")
+        self.create_button(self.btn_container, "Svår")
 
         self.result_frame = tk.Frame(self, bg=constants.background_color, highlightthickness=1)
         self.result_frame.grid(row=2, column=2, sticky="new")
         self.result_canvas = tk.Canvas(self.result_frame, bg=constants.background_color, height=2, width=35, highlightthickness=1)
 
-                # Go back frame
+        # Go back frame
         back_btn_frame = tk.Frame(self, 
                                   bg=constants.background_color, 
                                   highlightthickness=1, 
@@ -114,16 +106,37 @@ class Challenge_page(tk.Frame):
         self.delay = 1
         self.update_camera()
 
-    def on_button_click(self):
+    def create_button(self, btn_frame, text):
+        # Canvas for circular button_test, based on calculated button_test diameter
+        self.btn_canvas = tk.Canvas(btn_frame, 
+                           width=self.button_diameter, 
+                           height=self.button_diameter, 
+                           highlightthickness=1, 
+                           bg=constants.background_color)
+        self.btn_canvas.pack(side="left", padx=50)
+
+        # Draw circular button_test shape with calculated diameter
+        button_circle = self.btn_canvas.create_oval(
+            0, 0, self.button_diameter, self.button_diameter, fill="#B9D9EB"
+        )
+
+        text_id = self.btn_canvas.create_text(self.button_diameter/2, self.button_diameter/2, 
+                                                    text=text, tags="button", fill=constants.background_color,
+                                                    font=(constants.heading, 25), justify="center")
+
+        # Button action using a lambda
+        self.btn_canvas.bind("<Button-1>", lambda e: self.on_button_click(text))
+
+
+    def on_button_click(self, nivå):
         # Define the action for the button_test click
-        print('Utmaning startad!')
         for widget in self.result_frame.winfo_children():
             widget.destroy()
         self.result_canvas = tk.Canvas(self.result_frame, bg=constants.background_color, height=2, width=35, highlightthickness=1)
         frame = self.camera.get_frame()
         frame = self.camera.crop_frame(frame)
         self.challenge = Challenges(frame)
-        self.challenge.start_challenge()
+        self.challenge.start_challenge(nivå)
         self.challenge_isRunning = True
 
     def update_camera(self):
@@ -135,7 +148,7 @@ class Challenge_page(tk.Frame):
                 self.challenge_isFinished, result_time = self.challenge.create_dots(frame, x, y)
                 if self.challenge_isFinished:
                     btn_label = tk.Label(self.result_frame, 
-                             text="Du klarade det!\nDin tid var " + str(result_time) + " sekunder", 
+                             text="Du klarade det!\nDin tid var " + str(round(result_time, 2)) + " sekunder", 
                              font=constants.body_text, 
                              bg=constants.background_color, 
                              fg=constants.text_color)

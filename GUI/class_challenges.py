@@ -36,13 +36,11 @@ class Challenges:
                              [(frame_width - size)/2, (frame_height + size)/2],
                              [(frame_width + size)/2, (frame_height + size)/2]])
 
-        self.patterns = {"square": square, "hexagon": hexagon, "triangle": triangle}
-        self.tags = ["square", "hexagon", "triangle"]
+        self.patterns = {"Medel": square, "Svår": hexagon, "Lätt": triangle}
 
-    def start_challenge(self):
+    def start_challenge(self, nivå):
         self.isFinished = False
-        tag = self.tags[random.randint(0, len(self.patterns)-1)]
-        self.array = self.patterns[tag]
+        self.array = self.patterns[nivå]
         self.circle_colors = np.zeros((len(self.array[:,0]), 3))
         for i in range(len(self.circle_colors[:,1])):
             self.circle_colors[i, :] = [0,0,255]
@@ -59,7 +57,6 @@ class Challenges:
         if [ball_x, ball_y] != [-1, -1]:
             for i in range(len(self.array[:,0])):
                 if abs(ball_x-rescaled_x[i]) <= self.dot_radius and abs(ball_y-rescaled_y[i]) <= self.dot_radius and self.goals_hit[i] != 1:
-                    print("Hi!")
                     self.circle_colors[i, :] = [255,0,0]
                     self.goals_hit[i] = 1
         
