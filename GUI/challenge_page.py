@@ -13,16 +13,19 @@ class Challenge_page(tk.Frame):
         self.configure(bg=constants.background_color)
         self.page_texts = constants.challenge_text
         self.camera = Camera()
-        self.button_diameter = 100
+        self.button_diameter = 200
             
         # Output frame size
-        self.cam_width = 600
-        self.cam_height = 600
+        frame = self.camera.get_frame()
+        frame = self.camera.crop_frame(frame)
+        frame_height, frame_width, _ = frame.shape
+        self.cam_width = frame_width*3
+        self.cam_height = frame_height*3
 
         # Frame for the video feed
-        self.cam_frame = tk.Frame(self, bg=constants.background_color, highlightthickness=1)
-        self.cam_frame.grid(row=0, column=0, rowspan=2, columnspan=2, sticky="new", padx=(30,50), pady=(20,0))  # Place below text widget in grid
-        self.cam_canvas = tk.Canvas(self.cam_frame, width=self.cam_width, height=self.cam_height, highlightthickness=1, bg=constants.background_color)
+        self.cam_frame = tk.Frame(self, bg=constants.background_color, highlightthickness=0)
+        self.cam_frame.grid(row=0, column=0, rowspan=3, columnspan=2, sticky="new", padx=(50,0), pady=(50,0))  # Place below text widget in grid
+        self.cam_canvas = tk.Canvas(self.cam_frame, width=self.cam_width, height=self.cam_height, highlightthickness=0, bg=constants.background_color)
         self.cam_canvas.pack()
 
         self.page_content_text = tk.Text(
@@ -33,15 +36,15 @@ class Challenge_page(tk.Frame):
             fg=constants.text_color,
             relief="flat", 
             height=8, 
-            width=35, 
-            highlightthickness=1,
-            padx=10,
-            pady=20
+            width=40, 
+            highlightthickness=0,
+            padx=0,
+            pady=50
         )
 
         # Configure text tags for heading and body text styles. Add it to column 1
-        self.page_content_text.tag_configure("heading", font=constants.heading, foreground=constants.text_color)
-        self.page_content_text.tag_configure("body", font=constants.body_text, foreground=constants.text_color)
+        self.page_content_text.tag_configure("heading", font=constants.heading, foreground=constants.text_color, justify="center")
+        self.page_content_text.tag_configure("body", font=constants.body_text, foreground=constants.text_color, justify="center")
 
         # Clear any existing text and insert text from challenge_text
         self.page_content_text.delete("1.0", tk.END)
@@ -49,8 +52,8 @@ class Challenge_page(tk.Frame):
         self.page_content_text.insert(tk.END, self.page_texts[0]["body"] + "\n", ("body", "center"))
         self.page_content_text.grid(row=0, column=2, sticky="new")
 
-        self.btn_frame = tk.Frame(self, bg=constants.background_color, highlightthickness=1)
-        self.btn_frame.grid(row=1, column=2, sticky="new", ipadx=10, ipady=10)
+        self.btn_frame = tk.Frame(self, bg=constants.background_color, highlightthickness=0)
+        self.btn_frame.grid(row=1, column=2, sticky="new", ipadx=0, ipady=50)
 
         # Label above the button_test with extra vertical padding
         self.btn_frame_label = tk.Label(self.btn_frame, 
@@ -59,7 +62,7 @@ class Challenge_page(tk.Frame):
                              bg=constants.background_color, 
                              fg=constants.text_color,
                              anchor="center")
-        self.btn_frame_label.pack(pady=(0, 10))  # Adds 10 pixels of space below the label
+        self.btn_frame_label.pack()  # Adds 10 pixels of space below the label
 
         self.btn_container = tk.Frame(self.btn_frame, bg=constants.background_color)
         self.btn_container.pack(side="left")
@@ -68,16 +71,16 @@ class Challenge_page(tk.Frame):
         self.create_button(self.btn_container, "Medel")
         self.create_button(self.btn_container, "Svår")
 
-        self.result_frame = tk.Frame(self, bg=constants.background_color, highlightthickness=1)
-        self.result_frame.grid(row=2, column=2, sticky="new")
-        self.result_canvas = tk.Canvas(self.result_frame, bg=constants.background_color, height=2, width=35, highlightthickness=1)
+        self.result_frame = tk.Frame(self, bg=constants.background_color, highlightthickness=0)
+        self.result_frame.grid(row=2, column=2, sticky="new", ipadx=0, ipady=0)
+        self.result_canvas = tk.Canvas(self.result_frame, bg=constants.background_color, height=2, width=50, highlightthickness=0)
 
         # Go back frame
         back_btn_frame = tk.Frame(self, 
                                   bg=constants.background_color, 
-                                  highlightthickness=1, 
+                                  highlightthickness=0, 
                                   borderwidth=0)
-        back_btn_frame.grid(row=2, column=0, sticky="sw")
+        back_btn_frame.grid(row=3, column=0, sticky="sw")
 
         # Lower-left corner button to go back
         self.back_button = button.RoundedButton(
@@ -90,15 +93,16 @@ class Challenge_page(tk.Frame):
                                 btnforeground=constants.background_color, 
                                 clicked=lambda: controller.show_frame("Competition_page")
         )
-        self.back_button.grid(row=2, column=0, padx=10, pady=10, sticky="sw")
+        self.back_button.grid(row=3, column=0, padx=10, pady=10, sticky="sw")
 
         # Configure grid layout
         self.grid_columnconfigure(0, weight=0)
         self.grid_columnconfigure(1, weight=0)
-        self.grid_columnconfigure(2, weight=0)
+        self.grid_columnconfigure(2, weight=2)
         self.grid_rowconfigure(0, weight=0)
         self.grid_rowconfigure(1, weight=1)
         self.grid_rowconfigure(2, weight=1)
+        self.grid_rowconfigure(3, weight=1)
 
         self.challenge_isRunning = False
         self.challenge_isFinished = False
@@ -111,7 +115,7 @@ class Challenge_page(tk.Frame):
         self.btn_canvas = tk.Canvas(btn_frame, 
                            width=self.button_diameter, 
                            height=self.button_diameter, 
-                           highlightthickness=1, 
+                           highlightthickness=0, 
                            bg=constants.background_color)
         self.btn_canvas.pack(side="left", padx=50)
 
@@ -132,7 +136,7 @@ class Challenge_page(tk.Frame):
         # Define the action for the button_test click
         for widget in self.result_frame.winfo_children():
             widget.destroy()
-        self.result_canvas = tk.Canvas(self.result_frame, bg=constants.background_color, height=2, width=35, highlightthickness=1)
+        self.result_canvas = tk.Canvas(self.result_frame, bg=constants.background_color, height=2, width=35, highlightthickness=0)
         frame = self.camera.get_frame()
         frame = self.camera.crop_frame(frame)
         self.challenge = Challenges(frame)
