@@ -8,6 +8,10 @@ class Home_page(tk.Frame):
         super().__init__(parent)
         self.controller = controller
         
+        bg_img = tk.PhotoImage(file = "orange.png")
+        label = tk.Label( self, image = bg_img) 
+        label.place(x = 0, y = 0) 
+
         self.configure(bg=constants.background_color)
 
         # Get screen dimensions
