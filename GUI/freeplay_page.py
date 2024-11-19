@@ -1,6 +1,7 @@
 import tkinter as tk
 import constants
 import button
+from math import atan2, cos, sin, sqrt
 
 
 class Freeplay_page(tk.Frame):
@@ -45,8 +46,31 @@ class Freeplay_page(tk.Frame):
                                     fg=constants.text_color)
         additional_text.grid(row=1, column=0, sticky="nsew")
 
+        # Joystick area
+        joystick_frame = tk.Frame(self, bg=constants.background_color)
+        joystick_frame.grid(row=1, column=2, sticky="e", padx=20)
 
-        # Go back framne
+        # Create a canvas for the joystick
+        joystick_size = 150
+        self.joystick_canvas = tk.Canvas(joystick_frame, width=joystick_size, height=joystick_size, bg=constants.background_color, highlightthickness=0)
+        self.joystick_canvas.pack()
+
+        # Draw the joystick handle
+        self.handle_radius = 15
+        self.joystick_center = joystick_size // 2
+        self.handle = self.joystick_canvas.create_oval(
+            self.joystick_center - self.handle_radius, 
+            self.joystick_center - self.handle_radius,
+            self.joystick_center + self.handle_radius, 
+            self.joystick_center + self.handle_radius,
+            fill="blue"
+        )
+
+        # Bind mouse events for joystick control
+        self.joystick_canvas.bind("<B1-Motion>", self.move_handle)
+        self.joystick_canvas.bind("<ButtonRelease-1>", self.reset_handle)
+
+        # Back button frame
         back_btn_frame = tk.Frame(self, 
                                   bg=constants.background_color, 
                                   highlightthickness=0, 
@@ -66,4 +90,38 @@ class Freeplay_page(tk.Frame):
         )
         self.back_button.grid(row=2, column=1, padx=10, pady=10, sticky="sw")
 
-             
+    def move_handle(self, event):
+        # Calculate the distance and angle from the center
+        dx = event.x - self.joystick_center
+        dy = event.y - self.joystick_center
+        distance = sqrt(dx**2 + dy**2)
+
+        # Limit the movement within joystick bounds
+        if distance > self.joystick_center - self.handle_radius:
+            # Restrict position to the edge of the larger circle
+            angle = atan2(dy, dx)
+            dx = cos(angle) * (self.joystick_center - self.handle_radius)
+            dy = sin(angle) * (self.joystick_center - self.handle_radius)
+
+        # Move the handle
+        self.joystick_canvas.coords(
+            self.handle,
+            self.joystick_center + dx - self.handle_radius,
+            self.joystick_center + dy - self.handle_radius,
+            self.joystick_center + dx + self.handle_radius,
+            self.joystick_center + dy + self.handle_radius
+        )
+
+        # Print the joystick's position relative to the center
+        print(f"Joystick position: x={dx:.2f}, y={dy:.2f}")
+
+    def reset_handle(self, event):
+        # Reset the handle to the center
+        self.joystick_canvas.coords(
+            self.handle,
+            self.joystick_center - self.handle_radius,
+            self.joystick_center - self.handle_radius,
+            self.joystick_center + self.handle_radius,
+            self.joystick_center + self.handle_radius
+        )
+        print("Joystick position: x=0, y=0")  # Print center position when reset
