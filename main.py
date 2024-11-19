@@ -1,4 +1,4 @@
-from multiprocessing import Process, Queue, Event, Value
+from multiprocessing import Process, Queue, Event, Value, Lock
 from Image_processing.webcamera import Camera
 from PID.pid import PID_control
 from communication.communication import Commmunication
@@ -18,6 +18,12 @@ def put_value_in_shared_queue(value, shared_queue, variant):
     else:
         print(f"Queue {variant} is full!")
 
+def empty_queue(queue):
+    """Empty all items from the queue."""
+    with lock:
+        while not queue.empty():
+            queue.get()
+
 def capture_and_detect(queue, gui_queue, send_frames_to_gui, goal_position, stop_event):
     """Capture frames and detect ball coordinates, placing them in the queue."""
     camera = Camera()
@@ -36,6 +42,9 @@ def capture_and_detect(queue, gui_queue, send_frames_to_gui, goal_position, stop
                 if send_frames_to_gui.value:
                     #print("Sending frame to GUI")
                     put_value_in_shared_queue(cropped_frame, gui_queue, 2)
+                else:
+                    if not gui_queue.empty():
+                        empty_queue(gui_queue)  # Clear the queue if not empty
 
                 #camera.show_frame(cropped_frame, goal_position)  # Display frame if needed
             else:
@@ -91,7 +100,7 @@ if __name__ == "__main__":
 
     goal_position = (0,0)
     ball_coords_queue = Queue(maxsize=5)
-    gui_frame_queue = Queue(maxsize=5)
+    gui_frame_queue = Queue(maxsize=10)
     stop_event = Event()
     send_frames_to_gui = Value('b', False)
     esp_com = Commmunication()
