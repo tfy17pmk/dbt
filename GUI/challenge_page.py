@@ -1,10 +1,10 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 import cv2 as cv
-from webcamera_test import Camera
-import button
-import constants
-from class_challenges import Challenges
+from GUI.webcamera_test import Camera
+import GUI.button as button
+import GUI.constants as constants
+from GUI.class_challenges import Challenges
 
 class Challenge_page(tk.Frame):
     def __init__(self, parent, controller):

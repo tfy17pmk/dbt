@@ -1,6 +1,6 @@
 import tkinter as tk
-import constants
-import button
+import GUI.constants as constants
+import GUI.button as button
 
 
 # Competition page

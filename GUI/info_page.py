@@ -1,9 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
-import constants
-import button
-import communication
+import GUI.constants as constants       
+import GUI.button as button
+import GUI.communication as communication
 
 class Info_page(tk.Frame):
     def __init__(self, parent, controller):

@@ -10,7 +10,7 @@ class Commmunication:
 
         # Open the serial port
         self.esp32 = None
-        self.connect()
+        #self.connect()
         time.sleep(1)  # Wait for the connection to establish
 
     def connect(self):
@@ -40,12 +40,12 @@ class Commmunication:
         message = start_byte + message_body
         
         # Send the message
-        self.esp32.write(message)
+        #self.esp32.write(message)
         #esp32.flush()
         #print(f"Sent: value1={value1}, value2={value2}, height={height}, states=({state1}, {state2}, {state3}), homing={homing}")
         
 
-    def receive_response(self):
+    '''def receive_response(self):
         try:
             # Wait to receive the start byte
             while True:
@@ -68,7 +68,7 @@ class Commmunication:
                         #print(f"states=({state1}, {state2}, {state3}), homing={homing}")
                         break
         except struct.error as e:
-            print(f"Unpacking error: {e}")
+            print(f"Unpacking error: {e}")'''
 '''
 if __name__ == "__main__":
     com = Commmunication()

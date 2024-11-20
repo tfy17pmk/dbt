@@ -1,7 +1,7 @@
 import serial
 import time
 import struct
-import constants
+import GUI.constants as constants
 
 # Open the serial port
 #esp32 = serial.Serial(constants.serial_port, constants.baud_rate, timeout=1)

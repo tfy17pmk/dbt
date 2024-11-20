@@ -1,11 +1,11 @@
 import tkinter as tk
-from home_page import Home_page
-from info_page import Info_page
-from competition_page import Competition_page
-from pattern_page import Pattern_page
-from freeplay_page import Freeplay_page
-from challenge_page import Challenge_page
-import constants
+from GUI.home_page import Home_page
+from GUI.info_page import Info_page                     
+from GUI.competition_page import Competition_page
+from GUI.pattern_page import Pattern_page
+from GUI.freeplay_page import Freeplay_page
+from GUI.challenge_page import Challenge_page
+import GUI.constants as constants
 import serial
 import time
 
@@ -46,6 +46,6 @@ class App(tk.Tk):
         frame.tkraise()
 
 # Run the application
-if __name__ == "__main__":
+'''if __name__ == "__main__":
     app = App()
-    app.mainloop()
+    app.mainloop()'''

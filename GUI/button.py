@@ -1,5 +1,5 @@
 import tkinter as tk
-import constants
+import GUI.constants as constants
 
 class RoundedButton(tk.Canvas):
     def __init__(self, master=None, text: str = "", image=None, radius=25, btnforeground="#000000",

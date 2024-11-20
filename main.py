@@ -6,6 +6,8 @@ from test_code.find_ball import FindBall
 from PID.class_PID import PID
 import sys
 import time
+from GUI.GUI import App
+
 
 def capture_and_detect(queue, goal_position, stop_event):
     """Capture frames and detect ball coordinates, placing them in the queue."""
@@ -85,8 +87,8 @@ def pid_control(queue_in, k_pid, esp_com, goal_position, stop_event):
             #print(queue_in.size())
             #print(f"Control angles: X: {control_x}, Y: {control_y}")
             # Send angles to ESP here
-            esp_com.send_data(-control_x, control_y, height, state1, state2, state3, homing)
-            #esp_com.receive_response()
+            '''esp_com.send_data(-control_x, control_y, height, state1, state2, state3, homing)
+            esp_com.receive_response()'''
 
         # Check if 3 seconds have passed since the last update
         if time.perf_counter() - last_received_time > 3:
@@ -94,6 +96,9 @@ def pid_control(queue_in, k_pid, esp_com, goal_position, stop_event):
             esp_com.send_data(0, 0, height, state1, state2, state3, homing)
             last_received_time = time.perf_counter()  # Reset timer to avoid continuous reset
 
+def start_GUI():
+    app = App()
+    app.mainloop()
 
 
 if __name__ == "__main__":
@@ -114,10 +119,11 @@ if __name__ == "__main__":
     # Create processes
     capture_process = Process(target=capture_and_detect, args=(ball_coords_queue, goal_position, stop_event), daemon=True)
     pid_process = Process(target=pid_control, args=(ball_coords_queue, k_pid, esp_com, goal_position, stop_event), daemon=True)
-
+    gui_process = Process(target=start_GUI, args=(), daemon=True)
     # Start processes
     capture_process.start()
     pid_process.start()
+    gui_process.start()
 
     try:
         # Main loop
@@ -133,9 +139,12 @@ if __name__ == "__main__":
         # Ensure all processes are terminated
         capture_process.join(timeout=1)
         pid_process.join(timeout=1)
+        gui_process.join(timeout=1)
 
         # Force terminate if still alive
         if capture_process.is_alive():
             capture_process.terminate()
         if pid_process.is_alive():
             pid_process.terminate()
+        if gui_process.is_alive():
+            gui_process.terminate()    

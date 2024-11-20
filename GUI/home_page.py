@@ -1,6 +1,6 @@
 import tkinter as tk
 from PIL import Image, ImageTk  # Import Pillow for image resizing
-import constants
+import GUI.constants as constants
 
 # Page 1: Home Page
 class Home_page(tk.Frame):

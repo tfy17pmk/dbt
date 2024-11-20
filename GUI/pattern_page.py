@@ -1,9 +1,9 @@
 import tkinter as tk
 from PIL import Image, ImageDraw, ImageTk, ImageEnhance  # Import Pillow for image resizing
-import constants
-import button
-import Hexagon
-from Hexagon import HexagonShape
+import GUI.constants
+import GUI.button
+import GUI.Hexagon
+from GUI.Hexagon import HexagonShape
 import math
 
 # Page 3: Page Two
