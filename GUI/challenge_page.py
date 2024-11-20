@@ -5,6 +5,7 @@ from webcamera_test import Camera
 import button
 import constants
 from class_challenges import Challenges
+from math import atan2, cos, sin, sqrt
 
 class Challenge_page(tk.Frame):
     def __init__(self, parent, controller):
@@ -16,11 +17,9 @@ class Challenge_page(tk.Frame):
         self.button_diameter = 200
             
         # Output frame size
-        frame = self.camera.get_frame()
-        frame = self.camera.crop_frame(frame)
-        frame_height, frame_width, _ = frame.shape
-        self.cam_width = frame_width*3
-        self.cam_height = frame_height*3
+        self.frame_height, self.frame_width = 285, 320
+        self.cam_width = self.frame_width*3
+        self.cam_height = self.frame_height*3
 
         # Frame for the video feed
         self.cam_frame = tk.Frame(self, bg=constants.background_color, highlightthickness=0)
@@ -95,6 +94,42 @@ class Challenge_page(tk.Frame):
         )
         self.back_button.grid(row=3, column=0, padx=10, pady=10, sticky="sw")
 
+        # Joystick area
+        joystick_frame = tk.Frame(self, bg=constants.background_color)
+        joystick_frame.grid(row=3, column=2, sticky="nesw", pady=(0, 10))
+
+        # Create a canvas for the joystick
+        joystick_size = 150
+        self.joystick_center = joystick_size // 2
+        self.joystick_canvas = tk.Canvas(joystick_frame, width=joystick_size, height=joystick_size, bg=constants.background_color, highlightthickness=0)
+        self.joystick_canvas.pack()
+
+        # Draw joystick area 
+        self.area_radius = 60
+        self.joystick_area = self.joystick_canvas.create_oval(
+            self.joystick_center - self.area_radius, 
+            self.joystick_center - self.area_radius,
+            self.joystick_center + self.area_radius, 
+            self.joystick_center + self.area_radius,
+            fill="#C8C8C8",
+            outline="#C8C8C8"
+        )
+
+        # Draw the joystick handle
+        self.handle_radius = 30
+        self.handle = self.joystick_canvas.create_oval(
+            self.joystick_center - self.handle_radius, 
+            self.joystick_center - self.handle_radius,
+            self.joystick_center + self.handle_radius, 
+            self.joystick_center + self.handle_radius,
+            fill="white",
+            outline="white"
+        )
+
+        # Bind mouse events for joystick control
+        self.joystick_canvas.bind("<B1-Motion>", self.move_handle)
+        self.joystick_canvas.bind("<ButtonRelease-1>", self.reset_handle)
+
         # Configure grid layout
         self.grid_columnconfigure(0, weight=0)
         self.grid_columnconfigure(1, weight=0)
@@ -137,9 +172,7 @@ class Challenge_page(tk.Frame):
         for widget in self.result_frame.winfo_children():
             widget.destroy()
         self.result_canvas = tk.Canvas(self.result_frame, bg=constants.background_color, height=2, width=35, highlightthickness=0)
-        frame = self.camera.get_frame()
-        frame = self.camera.crop_frame(frame)
-        self.challenge = Challenges(frame)
+        self.challenge = Challenges(self.frame_height, self.frame_width)
         self.challenge.start_challenge(nivå)
         self.challenge_isRunning = True
 
@@ -176,5 +209,41 @@ class Challenge_page(tk.Frame):
     def __del__(self):
         if self.camera.cam.isOpened():
             self.camera.cam.release()
+
+    def move_handle(self, event):
+        # Calculate the distance and angle from the center
+        dx = event.x - self.joystick_center
+        dy = event.y - self.joystick_center
+        distance = sqrt(dx**2 + dy**2)
+
+        # Limit the movement within joystick bounds
+        if distance > self.joystick_center - self.handle_radius:
+            # Restrict position to the edge of the larger circle
+            angle = atan2(dy, dx)
+            dx = cos(angle) * (self.joystick_center - self.handle_radius)
+            dy = sin(angle) * (self.joystick_center - self.handle_radius)
+
+        # Move the handle
+        self.joystick_canvas.coords(
+            self.handle,
+            self.joystick_center + dx - self.handle_radius,
+            self.joystick_center + dy - self.handle_radius,
+            self.joystick_center + dx + self.handle_radius,
+            self.joystick_center + dy + self.handle_radius
+        )
+
+        # Print the joystick's position relative to the center
+        print(f"Joystick position: x={dx:.2f}, y={dy:.2f}")
+
+    def reset_handle(self, event):
+        # Reset the handle to the center
+        self.joystick_canvas.coords(
+            self.handle,
+            self.joystick_center - self.handle_radius,
+            self.joystick_center - self.handle_radius,
+            self.joystick_center + self.handle_radius,
+            self.joystick_center + self.handle_radius
+        )
+        print("Joystick position: x=0, y=0")  # Print center position when reset
 
     
