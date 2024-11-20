@@ -1,24 +1,29 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 import cv2 as cv
-from GUI.webcamera_test import Camera
-import GUI.button
-import GUI.constants
+import GUI.button as button
+import GUI.constants as constants
 from GUI.class_challenges import Challenges
 from math import atan2, cos, sin, sqrt
+from multiprocessing import Lock
+import threading
 
 class Challenge_page(tk.Frame):
-    def __init__(self, parent, controller):
+    def __init__(self, parent, controller, gui_frame_queue, ball_coords_queue):
         super().__init__(parent)
         self.controller = controller
-        self.button = GUI.button
-        self.constants = GUI.constants
-        self.configure(bg=self.constants.background_color)
-        self.page_texts = self.constants.challenge_text
-        self.camera = Camera()
-        
+        self.gui_frame_queue = gui_frame_queue #
+        self.ball_coords_queue = ball_coords_queue #
+        self.stop_event = threading.Event() #
+        self.start_thread() #
+        self.update_camera() # 
+
+        self.configure(bg=constants.background_color)
+        self.page_texts = constants.challenge_text
+        self.button_diameter = 200
             
         # Output frame size
+        self.current_frame = None
         self.frame_height, self.frame_width = 285, 320
         self.cam_width = self.frame_width*3
         self.cam_height = self.frame_height*3
@@ -32,9 +37,9 @@ class Challenge_page(tk.Frame):
         self.page_content_text = tk.Text(
             self, 
             wrap="word", 
-            font=self.constants.body_text,
-            bg=self.constants.background_color, 
-            fg=self.constants.text_color,
+            font=constants.body_text,
+            bg=constants.background_color, 
+            fg=constants.text_color,
             relief="flat", 
             height=8, 
             width=40, 
@@ -59,9 +64,9 @@ class Challenge_page(tk.Frame):
         # Label above the button_test with extra vertical padding
         self.btn_frame_label = tk.Label(self.btn_frame, 
                              text="Starta utmaning!", 
-                             font=self.constants.heading, 
-                             bg=self.constants.background_color, 
-                             fg=self.constants.text_color,
+                             font=constants.heading, 
+                             bg=constants.background_color, 
+                             fg=constants.text_color,
                              anchor="center")
         self.btn_frame_label.pack()  # Adds 10 pixels of space below the label
 
@@ -84,14 +89,14 @@ class Challenge_page(tk.Frame):
         back_btn_frame.grid(row=3, column=0, sticky="sw")
 
         # Lower-left corner button to go back
-        self.back_button = self.button.RoundedButton(
+        self.back_button = button.RoundedButton(
                                 master = back_btn_frame, 
                                 text="Bakåt", 
                                 radius=20, 
                                 width=200, 
                                 height=70, 
-                                btnbackground=self.constants.text_color, 
-                                btnforeground=self.constants.background_color, 
+                                btnbackground=constants.text_color, 
+                                btnforeground=constants.background_color, 
                                 clicked=lambda: controller.show_frame("Competition_page")
         )
         self.back_button.grid(row=3, column=0, padx=10, pady=10, sticky="sw")
@@ -179,12 +184,10 @@ class Challenge_page(tk.Frame):
         self.challenge_isRunning = True
 
     def update_camera(self):
-        frame = self.camera.get_frame()
-        frame = self.camera.crop_frame(frame)
-        if frame is not None:
+        if self.current_frame is not None:
             if self.challenge_isRunning:
-                x, y, area = self.camera.get_ball(frame)
-                self.challenge_isFinished, result_time = self.challenge.create_dots(frame, x, y)
+                x, y, _ = self.current_coords
+                self.challenge_isFinished, result_time = self.challenge.create_dots(self.current_frame, x, y)
                 if self.challenge_isFinished:
                     btn_label = tk.Label(self.result_frame, 
                              text="Du klarade det!\nDin tid var " + str(round(result_time, 2)) + " sekunder", 
@@ -195,8 +198,9 @@ class Challenge_page(tk.Frame):
 
                     self.challenge_isRunning = False
                     self.challenge_isFinished = False
-            frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
-            resized_frame = cv.resize(frame, (self.cam_height, self.cam_width))
+
+            self.current_frame = cv.cvtColor(self.current_frame, cv.COLOR_BGR2RGB)
+            resized_frame = cv.resize(self.current_frame, (self.cam_height, self.cam_width))
             photo = ImageTk.PhotoImage(image = Image.fromarray(resized_frame))
             self.cam_canvas.create_image(0, 0, image = photo, anchor = tk.NW)
 
@@ -206,11 +210,6 @@ class Challenge_page(tk.Frame):
             print("no frame")
 
         self.after(self.delay, self.update_camera)
-
-    # Releases camera, remove when integrating w main
-    def __del__(self):
-        if self.camera.cam.isOpened():
-            self.camera.cam.release()
 
     def move_handle(self, event):
         # Calculate the distance and angle from the center
@@ -247,5 +246,28 @@ class Challenge_page(tk.Frame):
             self.joystick_center + self.handle_radius
         )
         print("Joystick position: x=0, y=0")  # Print center position when reset
+
+    def start_thread(self):
+        """Start a separate thread to fetch frames from the queue."""
+        self.stop_event.clear()
+        self.thread = threading.Thread(target=self.fetch)
+        self.thread.start()
+
+    def join_threads(self):
+        """Join the frame fetching thread."""
+        self.stop_event.set()
+        self.thread.join()
+
+    def fetch(self):
+        """Fetch frames from the queue in a separate thread."""
+        while not self.stop_event.is_set():
+            try:
+                if not self.gui_frame_queue.empty():
+                    self.current_frame = self.gui_frame_queue.get_nowait()
+                if not self.ball_coords_queue.empty():
+                    self.current_coords = self.ball_coords_queue.get_nowait()
+            except Exception as e:
+                pass
+
 
     
