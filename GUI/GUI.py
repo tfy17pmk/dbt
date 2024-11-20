@@ -1,21 +1,18 @@
 import tkinter as tk
-from home_page import Home_page
-from info_page import Info_page
-from competition_page import Competition_page
-from pattern_page import Pattern_page
-from freeplay_page import Freeplay_page
-from challenge_page import Challenge_page
-import constants
-import serial
-import time
-
+from .home_page import Home_page
+from .info_page import Info_page
+from .competition_page import Competition_page
+from .pattern_page import Pattern_page
+from .freeplay_page import Freeplay_page
 
 # Main Application Class
 class App(tk.Tk):
-    def __init__(self):
+    def __init__(self, send_frames_to_gui, gui_frame_queue):
         super().__init__()
         self.title("BallBot")
-        
+        self.send_frames_to_gui = send_frames_to_gui
+        self.gui_frame_queue = gui_frame_queue
+
         # Start in full-screen mode
         self.attributes("-fullscreen", True)
 
@@ -31,9 +28,14 @@ class App(tk.Tk):
         self.frames = {}
 
         # Initialize each page
-        for Page in (Home_page, Info_page, Pattern_page, Competition_page, Challenge_page, Freeplay_page):
+        for Page in (Home_page, Info_page, Pattern_page, Competition_page, Freeplay_page):
             page_name = Page.__name__
-            frame = Page(parent=container, controller=self)
+            
+            if Page is Info_page:
+                frame = Page(parent=container, controller=self, send_frames_to_gui=self.send_frames_to_gui, gui_frame_queue=self.gui_frame_queue)
+            else:
+                frame = Page(parent=container, controller=self)
+
             self.frames[page_name] = frame
             frame.grid(row=0, column=0, sticky="nsew")
 
@@ -44,6 +46,11 @@ class App(tk.Tk):
     def show_frame(self, page_name):
         frame = self.frames[page_name]
         frame.tkraise()
+
+    def join_threads(self):
+        for frame in self.frames.values():
+            if hasattr(frame, 'join_threads'):
+                frame.join_threads()
 
 # Run the application
 if __name__ == "__main__":
