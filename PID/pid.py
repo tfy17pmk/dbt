@@ -23,10 +23,13 @@ class PID_control:
 		x_current = current[0]
 		y_current = current[1]
 
-		control_x = self.pid_x(timestamp, x_goal-x_current)
-		control_y = self.pid_y(timestamp, y_goal-y_current)
+
+		control_x = self.pid_x(timestamp, (x_goal-x_current)*(0.4/270))
+		control_y = self.pid_y(timestamp, (y_goal-y_current)*(0.4/270))
 
 		return control_x, control_y
+	
+	
 	
 """if __name__ == "__main__":
 	k_pid = [0.1, 0.5, 0.3, 0.1]
@@ -37,3 +40,4 @@ class PID_control:
 		
 		control_x, control_y = pid_controller.get_angles(goal, current)
 		print(f"X:{control_x}, Y:{control_y}")"""
+

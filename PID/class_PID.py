@@ -24,8 +24,8 @@ class PID:
             self.last_time = current_time
             return 0, 0
 
-        error_x = Goal[0] - Current_value[0]
-        error_y = Goal[1] - Current_value[1]
+        error_x = (Goal[0] - Current_value[0])
+        error_y = (Goal[1] - Current_value[1])
 
         self.integral_x += error_x * (current_time - self.last_time)
         self.integral_y += error_y * (current_time - self.last_time)

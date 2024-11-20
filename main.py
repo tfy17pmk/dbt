@@ -55,6 +55,7 @@ def capture_and_detect(queue, gui_queue, send_frames_to_gui, goal_position, stop
 
 def pid_control(queue_in, k_pid, esp_com, goal_position, stop_event):
     """Receive ball coordinates from the queue, compute control angles, and send commands."""
+    
     #pid_controller = PID_control(k_pid)
     pid_controller = PID(k_pid, 1, 1)
     #goal_position = (0, 0)  # Desired position (update when we know coordinates for tables middle point)
@@ -91,14 +92,20 @@ def handle_keyboard_interrupt(signum, frame):
     stop_event.set()  # Signal processes to stop
 
 if __name__ == "__main__":
+    #         
     #k_pid = [0.0004, 0.000002, 0.007, 0.1]
     #k_pid = [0.00065, 0, 0.005, 0.1]
     #k_pid = [0.0005, 0, 0.0005, 0.1]
     #k_pid = [0.00055, 0, 0.0005, 0.1] # working with adv pid
     #k_pid = [0.00055, 0.0004, 0.0005, 0.1] # working with new pid
-    k_pid = [0.00055, 0.0007, 0.0007]
+    #k_pid = [0.00055, 0.0007, 0.0007] 
+    #k_pid = [0.00055, 0.0007, 0.0007] # with cs =50
+    #k_pid = [0.00045, 0.00065, 0.0008] # with cs =50
+    #k_pid = [0.00085, 0.00055, 0.00065]
+    #k_pid = [0.0388, 0.00225, 0.0168] # Joel (behövs meter, advanced PID?)
+    k_pid = [0.0014, 0.00065, 0.0007] # Nico och Martin
 
-    goal_position = (0,0)
+    goal_position = (-50,0)
     ball_coords_queue = Queue(maxsize=5)
     gui_frame_queue = Queue(maxsize=10)
     stop_event = Event()
