@@ -133,3 +133,8 @@ if __name__ == "__main__":
             capture_process.terminate()
         if pid_process.is_alive():
             pid_process.terminate()
+        
+        # Exit GUI
+        app.join_threads()
+        sleep(1)
+        app.destroy()

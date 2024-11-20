@@ -47,6 +47,11 @@ class App(tk.Tk):
         frame = self.frames[page_name]
         frame.tkraise()
 
+    def join_threads(self):
+        for frame in self.frames.values():
+            if hasattr(frame, 'join_threads'):
+                frame.join_threads()
+
 # Run the application
 if __name__ == "__main__":
     app = App()
