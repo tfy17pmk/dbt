@@ -21,10 +21,10 @@ class Home_page(tk.Frame):
 
         # Load and resize images for each button
         # Replace 'path_to_image1.png' with the path to your actual image files
-        self.info_image = Image.open(GUI.constants.INFO_IMAGE).resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
-        self.competition_image = Image.open(GUI.constants.COMPETITION_IMAGE).resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
-        self.pattern_image = Image.open(GUI.constants.PATTERN_IMAGE).resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
-
+        self.info_image = Image.open(self.constants.INFO_IMAGE).resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
+        self.competition_image = Image.open(self.constants.COMPETITION_IMAGE).resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
+        self.pattern_image = Image.open(self.constants.PATTERN_IMAGE).resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
+        
         # Convert images to PhotoImage for tkinter compatibility
         self.info_image = ImageTk.PhotoImage(self.info_image)
         self.competition_image = ImageTk.PhotoImage(self.competition_image)

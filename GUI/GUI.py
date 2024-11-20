@@ -1,24 +1,23 @@
 from tkinter import *
 import tkinter as tk
-from GUI.home_page import Home_page
-from GUI.info_page import Info_page
-from GUI.competition_page import Competition_page
-from GUI.pattern_page import Pattern_page
-from GUI.freeplay_page import Freeplay_page
-from GUI.challenge_page import Challenge_page
-from GUI.competition_page import Competition_page
-import GUI.constants as constants
-import serial
-import time
+from .home_page import Home_page
+from .info_page import Info_page
+from .competition_page import Competition_page
+from .pattern_page import Pattern_page
+from .freeplay_page import Freeplay_page
+from .challenge_page import Challenge_page
 
 
 # Main Application Class
 class App(tk.Tk):
-    def __init__(self, send_frames_to_gui, gui_frame_queue):
+    def __init__(self, send_frames_to_gui, gui_frame_queue, send_frames_to_challenge, gui_challange_frame_queue, ball_coords_queue):
         super().__init__()
         self.title("BallBot")
         self.send_frames_to_gui = send_frames_to_gui
         self.gui_frame_queue = gui_frame_queue
+        self.send_frames_to_challenge = send_frames_to_challenge
+        self.gui_challange_frame_queue = gui_challange_frame_queue
+        self.ball_coords_queue = ball_coords_queue
 
         # Start in full-screen mode
         self.attributes("-fullscreen", True)
@@ -35,11 +34,13 @@ class App(tk.Tk):
         self.frames = {}
 
         # Initialize each page
-        for Page in (Home_page, Info_page, Pattern_page, Competition_page, Freeplay_page):
+        for Page in (Home_page, Info_page, Pattern_page, Challenge_page, Competition_page, Freeplay_page):
             page_name = Page.__name__
             
             if Page is Info_page:
                 frame = Page(parent=container, controller=self, send_frames_to_gui=self.send_frames_to_gui, gui_frame_queue=self.gui_frame_queue)
+            elif Page is Challenge_page:
+                frame = Page(parent=container, controller=self, send_frames=self.send_frames_to_challenge, gui_frame_queue=self.gui_challange_frame_queue, ball_coords_queue=self.ball_coords_queue)
             else:
                 frame = Page(parent=container, controller=self)
 
@@ -52,6 +53,10 @@ class App(tk.Tk):
     # Method to show a frame for the given page name
     def show_frame(self, page_name):
         frame = self.frames[page_name]
+
+        if page_name == "Challenge_page":
+            self.send_frames_to_challenge.value = True
+
         frame.tkraise()
 
     def join_threads(self):

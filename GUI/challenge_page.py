@@ -9,14 +9,14 @@ from multiprocessing import Lock
 import threading
 
 class Challenge_page(tk.Frame):
-    def __init__(self, parent, controller, gui_frame_queue, ball_coords_queue):
+    def __init__(self, parent, controller, send_frames, gui_frame_queue, ball_coords_queue):
         super().__init__(parent)
         self.controller = controller
         self.gui_frame_queue = gui_frame_queue #
         self.ball_coords_queue = ball_coords_queue #
+        self.send_frames = send_frames
         self.stop_event = threading.Event() #
-        self.start_thread() #
-        self.update_camera() # 
+        self.thread_started = False
 
         self.configure(bg=constants.background_color)
         self.page_texts = constants.challenge_text
@@ -97,7 +97,7 @@ class Challenge_page(tk.Frame):
                                 height=70, 
                                 btnbackground=constants.text_color, 
                                 btnforeground=constants.background_color, 
-                                clicked=lambda: controller.show_frame("Competition_page")
+                                clicked=lambda: self.back()
         )
         self.back_button.grid(row=3, column=0, padx=10, pady=10, sticky="sw")
 
@@ -173,7 +173,6 @@ class Challenge_page(tk.Frame):
         # Button action using a lambda
         self.btn_canvas.bind("<Button-1>", lambda e: self.on_button_click(text))
 
-
     def on_button_click(self, nivå):
         # Define the action for the button_test click
         for widget in self.result_frame.winfo_children():
@@ -184,30 +183,35 @@ class Challenge_page(tk.Frame):
         self.challenge_isRunning = True
 
     def update_camera(self):
-        if self.current_frame is not None:
-            if self.challenge_isRunning:
-                x, y, _ = self.current_coords
-                self.challenge_isFinished, result_time = self.challenge.create_dots(self.current_frame, x, y)
-                if self.challenge_isFinished:
-                    btn_label = tk.Label(self.result_frame, 
-                             text="Du klarade det!\nDin tid var " + str(round(result_time, 2)) + " sekunder", 
-                             font=constants.body_text, 
-                             bg=constants.background_color, 
-                             fg=constants.text_color)
-                    btn_label.pack(side="bottom")
+        if self.send_frames.value and not self.thread_started:
+            self.start_thread()
+            self.thread_started = True
+        
+        elif self.send_frames.value and self.thread_started:
+            if self.current_frame is not None:
+                if self.challenge_isRunning:
+                    x, y, _ = self.current_coords
+                    self.challenge_isFinished, result_time = self.challenge.create_dots(self.current_frame, x, y)
+                    if self.challenge_isFinished:
+                        btn_label = tk.Label(self.result_frame, 
+                                text="Du klarade det!\nDin tid var " + str(round(result_time, 2)) + " sekunder", 
+                                font=constants.body_text, 
+                                bg=constants.background_color, 
+                                fg=constants.text_color)
+                        btn_label.pack(side="bottom")
 
-                    self.challenge_isRunning = False
-                    self.challenge_isFinished = False
+                        self.challenge_isRunning = False
+                        self.challenge_isFinished = False
 
-            self.current_frame = cv.cvtColor(self.current_frame, cv.COLOR_BGR2RGB)
-            resized_frame = cv.resize(self.current_frame, (self.cam_height, self.cam_width))
-            photo = ImageTk.PhotoImage(image = Image.fromarray(resized_frame))
-            self.cam_canvas.create_image(0, 0, image = photo, anchor = tk.NW)
+                self.current_frame = cv.cvtColor(self.current_frame, cv.COLOR_BGR2RGB)
+                resized_frame = cv.resize(self.current_frame, (self.cam_height, self.cam_width))
+                photo = ImageTk.PhotoImage(image = Image.fromarray(resized_frame))
+                self.cam_canvas.create_image(0, 0, image = photo, anchor = tk.NW)
 
-            label = tk.Label(image=photo)
-            label.image = photo # keep a reference!
-        else:
-            print("no frame")
+                label = tk.Label(image=photo)
+                label.image = photo # keep a reference!
+            else:
+                print("no frame")
 
         self.after(self.delay, self.update_camera)
 
@@ -257,6 +261,7 @@ class Challenge_page(tk.Frame):
         """Join the frame fetching thread."""
         self.stop_event.set()
         self.thread.join()
+        self.thread_started = False
 
     def fetch(self):
         """Fetch frames from the queue in a separate thread."""
@@ -269,5 +274,7 @@ class Challenge_page(tk.Frame):
             except Exception as e:
                 pass
 
-
-    
+    def back(self):
+        self.join_threads()
+        self.send_frames.value = False
+        self.controller.show_frame("Competition_page")
