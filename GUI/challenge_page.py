@@ -11,10 +11,19 @@ class Challenge_page(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
+<<<<<<< HEAD
         self.configure(bg=constants.background_color)
         self.page_texts = constants.challenge_text
         self.camera = Camera()
         self.button_diameter = 200
+=======
+        self.button = GUI.button
+        self.constants = GUI.constants
+        self.configure(bg=self.constants.background_color)
+        self.page_texts = self.constants.challenge_text
+        self.camera = Camera()
+        
+>>>>>>> refs/remotes/origin/main-id-106
             
         # Output frame size
         self.frame_height, self.frame_width = 285, 320

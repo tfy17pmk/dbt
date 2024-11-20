@@ -1,4 +1,4 @@
-from multiprocessing import Process, Queue, Event, Value, Lock
+from multiprocessing import Process, Queue, Event, Value
 from Image_processing.webcamera import Camera
 from PID.pid import PID_control
 from communication.communication import Commmunication
@@ -20,9 +20,8 @@ def put_value_in_shared_queue(value, shared_queue, variant):
 
 def empty_queue(queue):
     """Empty all items from the queue."""
-    with lock:
-        while not queue.empty():
-            queue.get()
+    while not queue.empty():
+        queue.get()
 
 def capture_and_detect(queue, gui_queue, send_frames_to_gui, goal_position, stop_event):
     """Capture frames and detect ball coordinates, placing them in the queue."""
