@@ -54,18 +54,30 @@ class Freeplay_page(tk.Frame):
 
         # Create a canvas for the joystick
         joystick_size = 150
-        self.joystick_canvas = tk.Canvas(joystick_frame, width=joystick_size, height=joystick_size, bg=self.constants.background_color, highlightthickness=0)
+        self.joystick_center = joystick_size // 2
+        self.joystick_canvas = tk.Canvas(joystick_frame, width=joystick_size, height=joystick_size, bg=constants.background_color, highlightthickness=0)
         self.joystick_canvas.pack()
 
+        # Draw joystick area 
+        self.area_radius = 60
+        self.joystick_area = self.joystick_canvas.create_oval(
+            self.joystick_center - self.area_radius, 
+            self.joystick_center - self.area_radius,
+            self.joystick_center + self.area_radius, 
+            self.joystick_center + self.area_radius,
+            fill="#C8C8C8",
+            outline="#C8C8C8"
+        )
+
         # Draw the joystick handle
-        self.handle_radius = 15
-        self.joystick_center = joystick_size // 2
+        self.handle_radius = 30
         self.handle = self.joystick_canvas.create_oval(
             self.joystick_center - self.handle_radius, 
             self.joystick_center - self.handle_radius,
             self.joystick_center + self.handle_radius, 
             self.joystick_center + self.handle_radius,
-            fill="blue"
+            fill="white",
+            outline="white"
         )
 
         # Bind mouse events for joystick control
