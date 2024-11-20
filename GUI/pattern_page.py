@@ -11,7 +11,11 @@ class Pattern_page(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
+        self.constants = GUI.constants
+        self.button = GUI.button
+        self.hexagon = GUI.Hexagon
         self.configure(bg=self.constants.background_color)
+        
 
         #the squere image fot the patterns page
         image = Image.open(self.constants.SQUARE).resize((40, 40))

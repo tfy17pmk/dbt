@@ -8,9 +8,10 @@ class Competition_page(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
-        self.configure(bg=constants.background_color)
         self.constants = GUI.constants
         self.button = GUI.button
+        self.configure(bg=self.constants.background_color)
+        
 
         # Get screen dimensions
         screen_width = self.winfo_screenwidth()
