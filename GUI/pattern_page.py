@@ -1,3 +1,4 @@
+from tkinter import *
 import tkinter as tk
 from PIL import Image, ImageDraw, ImageTk  # Import Pillow for image resizing
 import constants
