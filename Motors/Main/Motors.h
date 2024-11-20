@@ -51,7 +51,7 @@ private:
     std::array<double, 3> prev_steps = {0,0,0};
     void set_speed(double steps[3]);
     float _max_speed = 2000;//2000
-    float _cs = 50;//50
+    float _cs = 70;//50
     double _acc_multiplier = 5;//5
     double _speed_diff = 100;//100
     double speedPrev[3];

@@ -44,7 +44,7 @@ void IRAM_ATTR handleButtonPress3() {
 void setup() {
   Serial.begin(115200);
   //SerialPort.begin(115200, SERIAL_8N1, 16, 17);
-  setCpuFrequencyMhz(160);
+  setCpuFrequencyMhz(240);
 
   motors.buttonPressed.fill(false);
   motors.skipPhaseOne.fill(false);
