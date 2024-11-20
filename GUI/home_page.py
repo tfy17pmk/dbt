@@ -10,15 +10,7 @@ class Home_page(tk.Frame):
         self.controller = controller
         self.constants = GUI.constants
         
-
-       # bg_img = tk.PhotoImage(file = "orange.png")
-        #label = tk.Label( self, image = bg_img) 
-        #label.place(x = 0, y = 0) 
-        
-        #photo = PhotoImage(file = "orange.png")
-        #lbl = Label(image=photo)
-        #lbl.image = photo # keep a reference!
-        #lbl.pack()
+        self.configure(bg=GUI.constants.background_color)
 
         # Get screen dimensions
         screen_width = self.winfo_screenwidth()
@@ -29,28 +21,18 @@ class Home_page(tk.Frame):
 
         # Load and resize images for each button
         # Replace 'path_to_image1.png' with the path to your actual image files
-        self.info_image = Image.open(constants.INFO_IMAGE).resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
-        self.competition_image = Image.open(constants.COMPETITION_IMAGE).resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
-        self.pattern_image = Image.open(constants.PATTERN_IMAGE).resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
-        
+        self.info_image = Image.open(GUI.constants.INFO_IMAGE).resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
+        self.competition_image = Image.open(GUI.constants.COMPETITION_IMAGE).resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
+        self.pattern_image = Image.open(GUI.constants.PATTERN_IMAGE).resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
+
         # Convert images to PhotoImage for tkinter compatibility
         self.info_image = ImageTk.PhotoImage(self.info_image)
         self.competition_image = ImageTk.PhotoImage(self.competition_image)
         self.pattern_image = ImageTk.PhotoImage(self.pattern_image)
 
         # Frame to hold buttons and text in a single row, centered
-        self.image = PhotoImage(file="orange.png")  # Replace with your file path
-
-        # Create a label to hold the image
-        background_label = tk.Label(self, image=self.image)
-        background_label.place(relwidth=1, relheight=1)
-
-        button_frame = tk.Frame(self)
-        button_frame.pack(anchor="center", expand=True) 
-
-
-       # button_frame = tk.Frame(self, bg=constants.background_color)
-        #button_frame.pack(anchor="center", expand=True)  # Center button frame in the middle of Home_page
+        button_frame = tk.Frame(self, bg=GUI.constants.background_color)
+        button_frame.pack(anchor="center", expand=True)  # Center button frame in the middle of Home_page
 
         # Custom function to create circular buttons with labels and images
         def create_circular_button(frame, text, command, image):

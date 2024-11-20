@@ -1,12 +1,13 @@
 from tkinter import *
 import tkinter as tk
-from home_page import Home_page
-from info_page import Info_page
-from competition_page import Competition_page
-from pattern_page import Pattern_page
-from freeplay_page import Freeplay_page
-from challenge_page import Challenge_page
-import constants
+from GUI.home_page import Home_page
+from GUI.info_page import Info_page
+from GUI.competition_page import Competition_page
+from GUI.pattern_page import Pattern_page
+from GUI.freeplay_page import Freeplay_page
+from GUI.challenge_page import Challenge_page
+from GUI.competition_page import Competition_page
+import GUI.constants as constants
 import serial
 import time
 
