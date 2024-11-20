@@ -23,7 +23,7 @@ def empty_queue(queue):
     while not queue.empty():
         queue.get()
 
-def capture_and_detect(queue, gui_queue, send_frames_to_gui, goal_position, stop_event):
+def capture_and_detect(queue, gui_queue, send_frames_to_gui, gui_challange_frame_queue, send_frames_to_challenge, ball_coords_gui_queue, goal_position, stop_event):
     """Capture frames and detect ball coordinates, placing them in the queue."""
     camera = Camera()
     try:
@@ -44,6 +44,14 @@ def capture_and_detect(queue, gui_queue, send_frames_to_gui, goal_position, stop
                 else:
                     if not gui_queue.empty():
                         empty_queue(gui_queue)  # Clear the queue if not empty
+
+                # In in challenge page, send frames
+                if send_frames_to_challenge.value:
+                    put_value_in_shared_queue(cropped_frame, gui_challange_frame_queue, 3)
+                    put_value_in_shared_queue(ball_coordinates, ball_coords_gui_queue, 4)
+                else:
+                    if not gui_challange_frame_queue.empty():
+                        empty_queue(gui_challange_frame_queue)
 
                 #camera.show_frame(cropped_frame, goal_position)  # Display frame if needed
             else:
@@ -106,13 +114,16 @@ if __name__ == "__main__":
 
     goal_position = (-50,0)
     ball_coords_queue = Queue(maxsize=5)
+    ball_coords_gui_queue = Queue(maxsize=5)
     gui_frame_queue = Queue(maxsize=10)
+    gui_challange_frame_queue = Queue(maxsize=10)
     stop_event = Event()
     send_frames_to_gui = Value('b', False)
+    send_frames_to_challenge = Value('b', False)
     esp_com = Commmunication()
 
     # Create processes
-    capture_process = Process(target=capture_and_detect, args=(ball_coords_queue, gui_frame_queue, send_frames_to_gui, goal_position, stop_event), daemon=True)
+    capture_process = Process(target=capture_and_detect, args=(ball_coords_queue, gui_frame_queue, send_frames_to_gui, gui_challange_frame_queue, send_frames_to_challenge, ball_coords_gui_queue, goal_position, stop_event), daemon=True)
     pid_process = Process(target=pid_control, args=(ball_coords_queue, k_pid, esp_com, goal_position, stop_event), daemon=True)
 
     # Start processes
@@ -123,7 +134,7 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, handle_keyboard_interrupt)
 
     try:
-        app = App(send_frames_to_gui=send_frames_to_gui, gui_frame_queue=gui_frame_queue)
+        app = App(send_frames_to_gui=send_frames_to_gui, gui_frame_queue=gui_frame_queue, send_frames_to_challenge=send_frames_to_challenge, gui_challange_frame_queue=gui_challange_frame_queue, ball_coords_queue=ball_coords_gui_queue)
         app.mainloop()
     except Exception as e:
         print(f"An error occurred: {e}", file=sys.stderr)
