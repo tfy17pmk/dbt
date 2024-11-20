@@ -1,3 +1,4 @@
+from tkinter import *
 import tkinter as tk
 from PIL import Image, ImageTk
 from home_page import Home_page
@@ -5,7 +6,7 @@ from info_page import Info_page
 from competition_page import Competition_page
 from pattern_page import Pattern_page
 from freeplay_page import Freeplay_page
-from challenge_page import Challenge_page
+#from challenge_page import Challenge_page
 import constants
 import serial
 import time
@@ -32,7 +33,7 @@ class App(tk.Tk):
         self.frames = {}
 
         # Initialize each page
-        for Page in (Home_page, Info_page, Pattern_page, Competition_page, Challenge_page, Freeplay_page):
+        for Page in (Home_page, Info_page, Pattern_page, Competition_page, Freeplay_page):
             page_name = Page.__name__
             frame = Page(parent=container, controller=self)
             self.frames[page_name] = frame
