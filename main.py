@@ -104,7 +104,7 @@ if __name__ == "__main__":
     #k_pid = [0.00055, 0.0004, 0.0005, 0.1] # working with new pid
     #k_pid = [0.00055, 0.0007, 0.0007] 
     #k_pid = [0.00055, 0.0007, 0.0007] # with cs =50
-    k_pid = [0.0007, 0.0006, 0.00055] # with cs =50
+    k_pid = [0.00055, 0.0006, 0.00055] # with cs =50
 
     goal_position = (0,0)
     ball_coords_queue = Queue(maxsize=5)
