@@ -56,7 +56,7 @@ class Freeplay_page(tk.Frame):
         # Create a canvas for the joystick
         joystick_size = 150
         self.joystick_center = joystick_size // 2
-        self.joystick_canvas = tk.Canvas(joystick_frame, width=joystick_size, height=joystick_size, bg=constants.background_color, highlightthickness=0)
+        self.joystick_canvas = tk.Canvas(joystick_frame, width=joystick_size, height=joystick_size, bg=self.constants.background_color, highlightthickness=0)
         self.joystick_canvas.pack()
 
         # Draw joystick area 
