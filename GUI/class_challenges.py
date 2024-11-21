@@ -52,7 +52,7 @@ class Challenges:
         
         self.circle_colors = np.zeros((len(self.array[:,0]), 3))
         for i in range(len(self.circle_colors[:,1])):
-            self.circle_colors[i, :] = [0,0,255]
+            self.circle_colors[i, :] = [255,0,0]
         
         self.goals_hit = np.zeros(len(self.array[:,0]))
         self.nr_of_goals = len(self.array[:,0])
@@ -63,7 +63,7 @@ class Challenges:
         if [ball_x, ball_y] != [-1, -1]:
             for i in range(len(self.array[:,0])):
                 if abs(ball_x-self.goal_array[i,0]) <= self.dot_radius and abs(ball_y-self.goal_array[i,1]) <= self.dot_radius and self.goals_hit[i] != 1:
-                    self.circle_colors[i, :] = [255,0,0]
+                    self.circle_colors[i, :] = [0,0,255]
                     self.goals_hit[i] = 1
         
         for i in range(len(self.array[:,0])):

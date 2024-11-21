@@ -12,10 +12,10 @@ class Challenge_page(tk.Frame):
     def __init__(self, parent, controller, send_frames, gui_frame_queue, ball_coords_queue):
         super().__init__(parent)
         self.controller = controller
-        self.gui_frame_queue = gui_frame_queue #
-        self.ball_coords_queue = ball_coords_queue #
+        self.gui_frame_queue = gui_frame_queue
+        self.ball_coords_queue = ball_coords_queue
         self.send_frames = send_frames
-        self.stop_event = threading.Event() #
+        self.stop_event = threading.Event()
         self.thread_started = False
 
         self.configure(bg=constants.background_color)
@@ -29,10 +29,8 @@ class Challenge_page(tk.Frame):
         self.cam_height = self.frame_height*3
 
         # Frame for the video feed
-        self.cam_frame = tk.Frame(self, bg=constants.background_color, highlightthickness=0)
+        self.cam_frame = tk.Label(self) #
         self.cam_frame.grid(row=0, column=0, rowspan=3, columnspan=2, sticky="new", padx=(50,0), pady=(50,0))  # Place below text widget in grid
-        self.cam_canvas = tk.Canvas(self.cam_frame, width=self.cam_width, height=self.cam_height, highlightthickness=0, bg=constants.background_color)
-        self.cam_canvas.pack()
 
         self.page_content_text = tk.Text(
             self, 
@@ -73,10 +71,12 @@ class Challenge_page(tk.Frame):
         self.btn_container = tk.Frame(self.btn_frame, bg=constants.background_color)
         self.btn_container.pack(side="left")
 
+        # Create challenge buttons
         self.create_button(self.btn_container, "Lätt")
         self.create_button(self.btn_container, "Medel")
         self.create_button(self.btn_container, "Svår")
 
+        # Create frame to display results
         self.result_frame = tk.Frame(self, bg=constants.background_color, highlightthickness=0)
         self.result_frame.grid(row=2, column=2, sticky="new", ipadx=0, ipady=0)
         self.result_canvas = tk.Canvas(self.result_frame, bg=constants.background_color, height=2, width=50, highlightthickness=0)
@@ -203,13 +203,11 @@ class Challenge_page(tk.Frame):
                         self.challenge_isRunning = False
                         self.challenge_isFinished = False
 
-                self.current_frame = cv.cvtColor(self.current_frame, cv.COLOR_BGR2RGB)
+                # Resize and display frame
                 resized_frame = cv.resize(self.current_frame, (self.cam_height, self.cam_width))
-                photo = ImageTk.PhotoImage(image = Image.fromarray(resized_frame))
-                self.cam_canvas.create_image(0, 0, image = photo, anchor = tk.NW)
-
-                label = tk.Label(image=photo)
-                label.image = photo # keep a reference!
+                self.photo = ImageTk.PhotoImage(image = Image.fromarray(resized_frame))
+                self.cam_frame.config(image=self.photo) #
+                self.cam_frame.image = self.photo #
             else:
                 print("no frame")
 
@@ -275,6 +273,15 @@ class Challenge_page(tk.Frame):
                 pass
 
     def back(self):
+        # Remove result text
+        for widget in self.result_frame.winfo_children():
+            widget.destroy()
+        self.result_canvas = tk.Canvas(self.result_frame, bg=constants.background_color, height=2, width=35, highlightthickness=0)
+        # End challenge
+        self.challenge_isRunning = False
+        self.challenge_isFinished = False
+        # Kill thread
         self.join_threads()
         self.send_frames.value = False
+        # Show previous page
         self.controller.show_frame("Competition_page")

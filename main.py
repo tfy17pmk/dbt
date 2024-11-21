@@ -4,6 +4,7 @@ from PID.pid import PID_control
 from communication.communication import Commmunication
 from PID.class_PID import PID
 from GUI.GUI import App
+import cv2 as cv
 import sys
 import time
 import signal
@@ -30,6 +31,7 @@ def capture_and_detect(queue, gui_queue, send_frames_to_gui, gui_challange_frame
         while not stop_event.is_set():
             frame = camera.get_frame()
             cropped_frame = camera.crop_frame(frame)
+            cropped_frame = cv.cvtColor(cropped_frame, cv.COLOR_BGR2RGB)
 
             # Detect ball coordinates and put them in the queue
             if cropped_frame is not None:
