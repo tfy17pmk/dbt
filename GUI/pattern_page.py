@@ -25,29 +25,11 @@ class Pattern_page(tk.Frame):
         self.grid_columnconfigure(1, weight=5)
         self.grid_columnconfigure(2, weight=1)
         
-        #self.configure(bg=self.constants.background_color)
-
-        #load the bg png
-        bg_image = Image.open(GUI.constants.BG)
+        self.configure(bg=self.constants.background_color)
 
         # Get screen dimensions
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
-
-        img_width, img_height = bg_image.size
-        scale = max(screen_width / img_width, screen_height / img_height)
-
-        # Resize the image to fit the screen while maintaining aspect ratio
-        new_width = int(img_width * scale)
-        new_height = int(img_height * scale)
-        bg_image = bg_image.resize((new_width, new_height), Image.LANCZOS)
-
-        # Convert the resized image to a PhotoImage
-        self.bg_image = ImageTk.PhotoImage(bg_image)
-
-        # Add background image as a Label
-        bg_label = tk.Label(self, image=self.bg_image)
-        bg_label.grid(row=0, column=0, rowspan=3, columnspan=3, sticky="nsew")
 
         #the squere image fot the patterns page
         image = Image.open(self.constants.SQUARE).resize((40, 40))
@@ -77,38 +59,24 @@ class Pattern_page(tk.Frame):
         button_width, button_height = 200, 70
 
         # Calculate cropping coordinates based on the button's position
-        button_x = 20
-        button_y = screen_height - button_height - 20
-        crop_x_img = int((new_width - screen_width) / 2 + button_x)
-        crop_y_img = int((new_height - screen_height) / 2 + button_y)
+      
 
-        # Crop the corresponding portion of the background image for the button
-        cropped_button_image = bg_image.crop((
-            crop_x_img,
-            crop_y_img,
-            crop_x_img + button_width,
-            crop_y_img + button_height
-        ))
-        cropped_button_photo = ImageTk.PhotoImage(cropped_button_image)
 
         # Create a frame for the button
-        back_button_frame = tk.Frame(self, width=button_width, height=button_height, highlightthickness=0, borderwidth=0)
+        back_button_frame = tk.Frame(self, width=button_width, height=button_height,bg=self.constants.background_color, highlightthickness=0, borderwidth=0)
         back_button_frame.grid(row=2, column=0, sticky="sw", padx=20, pady=20)
 
-        # Add a Label with the cropped background image inside the frame
-        frame_bg_label = tk.Label(back_button_frame, image=cropped_button_photo, borderwidth=0, highlightthickness=0)
-        frame_bg_label.image = cropped_button_photo  # Keep reference to prevent garbage collection
-        frame_bg_label.place(relwidth=1, relheight=1)
+   
 
         # Add the "Bakåt" button on top of the background image
         back_button = self.button.RoundedButton(
             master=back_button_frame,
             text="Bakåt",
             radius=20,
-            width=button_width,
-            height=button_height,
-            btnforeground=self.constants.text_color,
-            btnbackground=None,  # Transparent background to show the cropped image
+            width=200,
+            height=70,
+            btnbackground=self.constants.text_color, 
+            btnforeground=self.constants.background_color, 
             clicked=self.go_back
         )
         back_button.place(relx=0.5, rely=0.5, anchor="center")
