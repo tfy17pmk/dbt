@@ -112,7 +112,8 @@ if __name__ == "__main__":
     #k_pid = [0.00045, 0.00065, 0.0008] # with cs =50
     #k_pid = [0.00085, 0.00055, 0.00065]
     #k_pid = [0.0388, 0.00225, 0.0168] # Joel (behövs meter, advanced PID?)
-    k_pid = [0.0014, 0.00065, 0.0007] # Nico och Martin
+    #k_pid = [0.0014, 0.00065, 0.0007] # Nico och Martin
+    k_pid = [0.0012, 0.00066, 0.00072, 0.0013, 0.00067, 0.00071]
 
     goal_position = (-50,0)
     ball_coords_queue = Queue(maxsize=5)
