@@ -225,7 +225,7 @@ class Info_page(tk.Frame):
 
         # Display the correct image and handle camera frame for each page
         if page_index == 1:
-            self.send_frames_to_gui.value = True
+            self.send_frames_to_gui.value = True # Set flag for backend to send frames to GUI
             # Show the EYES image for the second page
             self.image_canvas.create_image(150, 150, image=self.eyes_image_icon)
             self.image_canvas.grid()  # Make sure the image canvas is visible
@@ -233,14 +233,15 @@ class Info_page(tk.Frame):
             # Create and display camera_frame below the image, only on the second page
             if not hasattr(self, "camera_frame"):
                 self.camera_frame = tk.Label(self)
-                #self.camera_frame = tk.Canvas(self, width=640, height=480, bg="transparent", highlightthickness=0)
+
             self.camera_frame.grid(row=1, column=1, padx=50, sticky="sw", pady=30)
             self.start_frame_thread()  # Start the frame fetching thread
             self.update_frame()  # Update the frame content
         else:
-            self.send_frames_to_gui.value = False
+            self.send_frames_to_gui.value = False # Set flag to stop sending frames to GUI
             self.current_frame = None  # Clear the current frame
-            #self.join_threads()  # Stop the frame fetching thread
+            self.join_threads()  # Terminate the frame fetching thread
+
             # Hide camera_frame on pages other than the second
             if hasattr(self, "camera_frame"):
                 self.camera_frame.grid_remove()
@@ -276,10 +277,11 @@ class Info_page(tk.Frame):
         self.frame_thread = threading.Thread(target=self.fetch_frames)
         self.frame_thread.start()
 
-    '''def join_threads(self):
+    def join_threads(self):
         """Join the frame fetching thread."""
         self.stop_event.set()
-        self.frame_thread.join()'''
+        if hasattr(self, 'frame_thread') and self.frame_thread.is_alive():
+            self.frame_thread.join()
 
     def fetch_frames(self):
         """Fetch frames from the queue in a separate thread."""
@@ -288,15 +290,18 @@ class Info_page(tk.Frame):
                 if not self.gui_frame_queue.empty():
                     frame = self.gui_frame_queue.get_nowait()
                     self.current_frame = ImageTk.PhotoImage(Image.fromarray(frame))
+                    # Update the camera_frame with the latest frame directly
+                    self.camera_frame.config(image=self.current_frame)
+                    self.camera_frame.image = self.current_frame
             except Exception as e:
                 pass
 
-    def update_frame(self):
+    '''def update_frame(self):
         """Update the camera_frame with the latest frame."""
         if self.send_frames_to_gui.value and self.current_frame:
             self.camera_frame.config(image=self.current_frame)
             self.camera_frame.image = self.current_frame
-        self.after(1, self.update_frame)  # Schedule the next frame update with a 1-millisecond interval
+        self.after(1, self.update_frame)  # Schedule the next frame update with a 1-millisecond interval'''
 
     def update_arrow_visibility(self):
         """Hide left arrow on the first page and right arrow on the last page."""
