@@ -10,6 +10,7 @@ import threading
 
 class Info_page(tk.Frame):
     def __init__(self, parent, controller, send_frames_to_gui, gui_frame_queue):
+        """Initialize the Info page."""
         super().__init__(parent)
         self.controller = controller
         self.current_page = 0

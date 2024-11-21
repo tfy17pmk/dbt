@@ -11,6 +11,7 @@ from .challenge_page import Challenge_page
 # Main Application Class
 class App(tk.Tk):
     def __init__(self, send_frames_to_gui, gui_frame_queue, send_frames_to_challenge, gui_challange_frame_queue, ball_coords_queue):
+        """Initialize the application."""
         super().__init__()
         self.title("BallBot")
         self.send_frames_to_gui = send_frames_to_gui
@@ -50,8 +51,9 @@ class App(tk.Tk):
         # Show the start page
         self.show_frame("Home_page")
 
-    # Method to show a frame for the given page name
+
     def show_frame(self, page_name):
+        """Show a frame for the given page name."""
         frame = self.frames[page_name]
 
         if page_name == "Challenge_page":
@@ -60,6 +62,7 @@ class App(tk.Tk):
         frame.tkraise()
 
     def join_threads(self):
+        """Join all threads in the frames."""
         for frame in self.frames.values():
             if hasattr(frame, 'join_threads'):
                 frame.join_threads()

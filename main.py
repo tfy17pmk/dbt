@@ -154,6 +154,6 @@ if __name__ == "__main__":
             pid_process.terminate()
         
         # Exit GUI
-        #app.join_threads()
-        #sleep(1)
-        #app.destroy()
+        if app is not None:
+            app.join_threads()
+            app.destroy()
