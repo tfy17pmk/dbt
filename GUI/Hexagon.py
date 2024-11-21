@@ -49,6 +49,7 @@ class HexagonShape:
                 pass
         
     def start_thread(self):
+        self.thread_started = True
         self.stop_event.clear()
         self.thread = threading.Thread(target=self.send_data)
         self.thread.start()
@@ -98,6 +99,9 @@ class HexagonShape:
         # Remap coordinates with a linear scale factor
         mapped_x = x * (self.target_width / canvas_width)
         mapped_y = y * (self.target_height / canvas_height)
+
+        if not self.thread_started:
+            self.start_thread()
         
         if not self.data_queue.full():
             try:
