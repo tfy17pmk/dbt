@@ -9,33 +9,18 @@ class Home_page(tk.Frame):
         super().__init__(parent)
         self.controller = controller
         self.constants = GUI.constants
-        self.cropped_images = []
-
-        # Load the background image
-        bg_image = Image.open(GUI.constants.BG)
 
         # Get screen dimensions
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
 
-        # Calculate the scaling factor to fit the screen without distortion
-        img_width, img_height = bg_image.size
-        scale = max(screen_width / img_width, screen_height / img_height)
-
-        # Resize the image to fit the screen while maintaining aspect ratio
-        new_width = int(img_width * scale)
-        new_height = int(img_height * scale)
-        bg_image = bg_image.resize((new_width, new_height), Image.LANCZOS)
-
         # Convert the resized image to a PhotoImage
-        self.bg_image = ImageTk.PhotoImage(bg_image)
 
         # Create a Canvas to hold the background image
         self.canvas = tk.Canvas(self, width=screen_width, height=screen_height, highlightthickness=0, bd=0)
+        self.canvas.config(bg=self.constants.background_color)
         self.canvas.pack(fill="both", expand=True)
 
-        # Place the background image on the canvas and center it
-        self.canvas.create_image(0, 0, image=self.bg_image, anchor="nw")
 
         # Scale button size relative to screen size
         button_diameter = int(screen_width * 0.25)
@@ -52,24 +37,6 @@ class Home_page(tk.Frame):
         self.pattern_image = ImageTk.PhotoImage(self.pattern_image)
 
         def create_circular_button(canvas, text, command, image, canvas_x, canvas_y):
-            # Calculate cropping area based on button position on the canvas
-            crop_x = canvas_x - button_diameter // 2
-            crop_y = canvas_y - button_diameter // 2
-
-            # Ensure cropping coordinates are within bounds of the background image
-            crop_x = max(0, crop_x)
-            crop_y = max(0, crop_y)
-            crop_y += 72
-            crop_x_end = min(crop_x + button_diameter, bg_image.size[0])
-            crop_y_end = min(crop_y + button_diameter, bg_image.size[1])
-
-            # Crop the background image dynamically to use as the button's background
-            cropped_bg = bg_image.crop((crop_x, crop_y, crop_x_end, crop_y_end))
-            cropped_bg = cropped_bg.resize((button_diameter, button_diameter), Image.LANCZOS)
-            cropped_bg_image = ImageTk.PhotoImage(cropped_bg)
-
-            # Save reference to prevent garbage collection
-            self.cropped_images.append(cropped_bg_image)
 
             # Create the button container (transparent)
             btn_container = tk.Frame(canvas, bd=0)
@@ -83,25 +50,10 @@ class Home_page(tk.Frame):
                 highlightthickness=0,
                 bd=0
             )
+            label_canvas.config(bg=self.constants.background_color)
             label_canvas.pack()
 
-            # Crop and apply the background for the label
-            label_crop_y = crop_y - int(button_diameter * 0.3)
-            label_crop_y = max(0, label_crop_y)
-            label_cropped_bg = bg_image.crop((
-                crop_x,
-                label_crop_y,
-                crop_x + button_diameter,
-                label_crop_y + int(button_diameter * 0.3)
-            ))
-            label_cropped_bg = label_cropped_bg.resize((button_diameter, int(button_diameter * 0.3)), Image.LANCZOS)
-            label_cropped_image = ImageTk.PhotoImage(label_cropped_bg)
-
-            # Save reference to prevent garbage collection
-            self.cropped_images.append(label_cropped_image)
-
             # Place the cropped label background and overlay text
-            label_canvas.create_image(0, 0, image=label_cropped_image, anchor="nw")
             label_canvas.create_text(
                 button_diameter // 2, int(button_diameter * 0.15),
                 text=text,
@@ -118,9 +70,7 @@ class Home_page(tk.Frame):
                 bd=0
             )
             button_canvas.pack()
-
-            # Place the cropped background as the button's background
-            button_canvas.create_image(0, 0, image=cropped_bg_image, anchor="nw")
+            button_canvas.config(bg=self.constants.background_color)
 
             # Draw the button circle
             button_canvas.create_oval(
