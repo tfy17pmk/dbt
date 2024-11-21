@@ -1,5 +1,7 @@
-import tkinter as tk
 import math
+import threading
+from multiprocessing import Queue
+import time
 
 class HexagonShape:
     def __init__(self, canvas, fill="#ffffff", outline="#ffffff"):
@@ -14,6 +16,11 @@ class HexagonShape:
         self.is_freehand = False  # Track if drawing is freehand
         self.target_width = 320
         self.target_height = 285
+        self.send_goal_pos = None
+        self.stop_event = threading.Event()
+        self.thread_started = False
+        self.data_queue = Queue(maxsize=500)
+        self.prev_goal_pos = (0, 0)
 
         # Bind to draw the hexagon in the case of window resize
         self.canvas.bind("<Configure>", self.on_resize)
@@ -25,10 +32,40 @@ class HexagonShape:
 
         # Create initial hexagon
         self.create_hexagon()
+        self.start_thread()
         
+    def send_data(self):
+        print("in send data")
+        while not self.stop_event.is_set():
+            try:
+                if not self.data_queue.empty():
+                    coordinates = self.data_queue.get_nowait()
+                    
+                    dist = math.sqrt((self.prev_goal_pos[0] - coordinates[0]) ** 2 + (self.prev_goal_pos[1] - coordinates[1]) ** 2)
+                    delay = dist/40
+                    self.send_goal_pos(coordinates[0], coordinates[1])
+                    time.sleep(delay)
+            except Exception as e:
+                pass
+        
+    def start_thread(self):
+        self.stop_event.clear()
+        self.thread = threading.Thread(target=self.send_data)
+        self.thread.start()
+    
+    def set_goal_function(self, send_goal_pos_function):
+        self.send_goal_pos = send_goal_pos_function
+        
+    def join_threads(self):
+        self.stop_event.set()
+        self.thread.join()
+        self.thread_started = False
+          
     def clear_all(self):
         # Function to overwrite previous goal points
-
+        while not self.data_queue.empty():
+            self.data_queue.get_nowait()
+            
         # Clear all lines
         while self.line_ids:
             last_line = self.line_ids.pop()
@@ -61,13 +98,22 @@ class HexagonShape:
         # Remap coordinates with a linear scale factor
         mapped_x = x * (self.target_width / canvas_width)
         mapped_y = y * (self.target_height / canvas_height)
-
+        
+        if not self.data_queue.full():
+            try:
+                self.data_queue.put((int(mapped_x-self.target_width/2), -int(mapped_y-self.target_height/2)), timeout=0.01)
+            except Exception as e:
+                print(f"Queue error: {e}")
+        else:
+            print(f"Queue with goal pos is full!")
+            
         # Return remapped coordinates with redefined origin in the middle    
         return int(mapped_x-self.target_width/2), -int(mapped_y-self.target_height/2) 
         
     def log_shape_coordinates(self, points):
         # Example of mapping coordinates (optional)
         self.mapped_points = [self.map_coordinates(x, y) for x, y in points]
+        self.send_data
         print("Mapped shape coordinates:", self.mapped_points)
 
     def draw_square(self):
@@ -219,7 +265,7 @@ class HexagonShape:
             self.current_line_ids = []  # Reset for next line
 
         # Remap coordinates into cropped camera picture
-        self.mapped_points = [self.map_coordinates(x, y, self.target_width, self.target_height) for x, y in self.drawing_points]
+        self.mapped_points = [self.map_coordinates(x, y) for x, y in self.drawing_points]
         print("Mapped drawing points", self.mapped_points)
 
     def redraw_points(self):

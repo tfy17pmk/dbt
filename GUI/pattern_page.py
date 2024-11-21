@@ -6,15 +6,17 @@ import GUI.button
 import GUI.Hexagon
 from GUI.Hexagon import HexagonShape
 import math
+import threading
 
 # Page 3: Page Two
 class Pattern_page(tk.Frame):
-    def __init__(self, parent, controller):
+    def __init__(self, parent, controller, goal_pos_queue):
         super().__init__(parent)
         self.controller = controller
         self.constants = GUI.constants
         self.button = GUI.button
         self.hexagon = GUI.Hexagon
+        self.goal_pos_queue = goal_pos_queue
 
         # Setup grid pattern with equal weight for each row and column
         self.grid_rowconfigure(0, weight=1)
@@ -99,6 +101,7 @@ class Pattern_page(tk.Frame):
         # Canvas for creating patterns
         self.bg_canvas = tk.Canvas(pattern_frame, width=800, height=680, bg=self.constants.background_color, highlightthickness=0)
         self.hex = HexagonShape(self.bg_canvas, fill=self.constants.text_color, outline=self.constants.text_color)
+        self.hex.set_goal_function(self.send_goal_pos)
         self.bg_canvas.place(relx=0.5, rely=0.47, anchor="center")
         label.place(relx=0.5, rely=0.05, anchor="center")
         label_line_canvas.place(relx=0.5, rely=0.08, anchor="center")  # Add padding above and below the line
@@ -215,7 +218,17 @@ class Pattern_page(tk.Frame):
         # Convert to a Tkinter-compatible image
         return ImageTk.PhotoImage(img)
     
+    def send_goal_pos(self, x, y):
+        if not self.goal_pos_queue.full():
+            try:
+                self.goal_pos_queue.put((x, y), timeout=0.01)
+            except Exception as e:
+                print(f"Queue error: {e}")
+        else:
+            print(f"Queue gola pos is full!")
+    
     def go_back(self):
-        print("inside go back")
         self.hex.clear_all()  # Clear all shapes and lines before navigating
+        self.send_goal_pos(0, 0)
+        self.hex.join_threads()
         self.controller.show_frame("Home_page")

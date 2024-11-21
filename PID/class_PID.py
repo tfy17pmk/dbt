@@ -54,7 +54,7 @@ class PID:
         self.last_output_x = output_x
         self.last_output_y = output_y
         self.last_time = current_time
-        print(f"In PID x: {output_x} y: {output_y}" )
+        #print(f"In PID x: {output_x} y: {output_y}" )
 
         return output_x, output_y
 

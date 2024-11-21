@@ -4,7 +4,7 @@ import struct
 
 class Commmunication:
     def __init__(self):
-        '''
+
         self.serial_ports = [f"/dev/ttyUSB{i}" for i in range(5)]  # Use 'ls /dev/tty.*' to find the correct port
         self.baud_rate = 115200
 
@@ -69,7 +69,7 @@ class Commmunication:
                         break
         except struct.error as e:
             print(f"Unpacking error: {e}")
-
+'''
 if __name__ == "__main__":
     com = Commmunication()
     try:
