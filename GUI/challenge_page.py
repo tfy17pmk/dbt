@@ -25,12 +25,12 @@ class Challenge_page(tk.Frame):
         # Output frame size
         self.current_frame = None
         self.frame_height, self.frame_width = 285, 320
-        self.cam_width = self.frame_width*3
-        self.cam_height = self.frame_height*3
+        self.cam_width = int(self.frame_width*2.9)
+        self.cam_height = int(self.frame_height*2.9)
 
         # Frame for the video feed
         self.cam_frame = tk.Label(self) #
-        self.cam_frame.grid(row=0, column=0, rowspan=3, columnspan=2, sticky="new", padx=(50,0), pady=(50,0))  # Place below text widget in grid
+        self.cam_frame.grid(row=0, column=0, rowspan=3, columnspan=2, sticky="new", padx=(30,20), pady=(30,0))  # Place below text widget in grid
 
         self.page_content_text = tk.Text(
             self, 
@@ -39,8 +39,8 @@ class Challenge_page(tk.Frame):
             bg=constants.background_color, 
             fg=constants.text_color,
             relief="flat", 
-            height=8, 
-            width=40, 
+            height=6, 
+            width=20, 
             highlightthickness=0,
             padx=0,
             pady=50
@@ -57,7 +57,7 @@ class Challenge_page(tk.Frame):
         self.page_content_text.grid(row=0, column=2, sticky="new")
 
         self.btn_frame = tk.Frame(self, bg=constants.background_color, highlightthickness=0)
-        self.btn_frame.grid(row=1, column=2, sticky="new", ipadx=0, ipady=50)
+        self.btn_frame.grid(row=1, column=2, sticky="new", ipadx=0, ipady=0)
 
         # Label above the button_test with extra vertical padding
         self.btn_frame_label = tk.Label(self.btn_frame, 
@@ -66,7 +66,7 @@ class Challenge_page(tk.Frame):
                              bg=constants.background_color, 
                              fg=constants.text_color,
                              anchor="center")
-        self.btn_frame_label.pack()  # Adds 10 pixels of space below the label
+        self.btn_frame_label.pack(pady=(0,30))  # Adds 10 pixels of space below the label
 
         self.btn_container = tk.Frame(self.btn_frame, bg=constants.background_color)
         self.btn_container.pack(side="left")
@@ -79,14 +79,14 @@ class Challenge_page(tk.Frame):
         # Create frame to display results
         self.result_frame = tk.Frame(self, bg=constants.background_color, highlightthickness=0)
         self.result_frame.grid(row=2, column=2, sticky="new", ipadx=0, ipady=0)
-        self.result_canvas = tk.Canvas(self.result_frame, bg=constants.background_color, height=2, width=50, highlightthickness=0)
+        self.result_canvas = tk.Canvas(self.result_frame, bg=constants.background_color, height=4, width=50, highlightthickness=0)
 
         # Go back frame
         back_btn_frame = tk.Frame(self, 
                                   bg=constants.background_color, 
                                   highlightthickness=0, 
                                   borderwidth=0)
-        back_btn_frame.grid(row=3, column=0, sticky="sw")
+        back_btn_frame.grid(row=3, column=0, sticky="w")
 
         # Lower-left corner button to go back
         self.back_button = button.RoundedButton(
@@ -99,11 +99,11 @@ class Challenge_page(tk.Frame):
                                 btnforeground=constants.background_color, 
                                 clicked=lambda: self.back()
         )
-        self.back_button.grid(row=3, column=0, padx=10, pady=10, sticky="sw")
+        self.back_button.grid(row=3, column=0, padx=10, pady=10, sticky="nw")
 
         # Joystick area
         joystick_frame = tk.Frame(self, bg=constants.background_color)
-        joystick_frame.grid(row=3, column=2, sticky="nesw", pady=(0, 10))
+        joystick_frame.grid(row=3, column=2, sticky="new", pady=(0, 10))
 
         # Create a canvas for the joystick
         joystick_size = 150
@@ -159,7 +159,7 @@ class Challenge_page(tk.Frame):
                            height=self.button_diameter, 
                            highlightthickness=0, 
                            bg=constants.background_color)
-        self.btn_canvas.pack(side="left", padx=50)
+        self.btn_canvas.pack(side="left", padx=70)
 
         # Draw circular button_test shape with calculated diameter
         button_circle = self.btn_canvas.create_oval(

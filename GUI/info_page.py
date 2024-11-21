@@ -22,6 +22,7 @@ class Info_page(tk.Frame):
         self.gui_frame_queue = gui_frame_queue
         self.current_frame = None
         self.stop_event = threading.Event()
+        self.thread_started = False
 
         self.configure(bg=self.constants.background_color)
 
@@ -235,7 +236,7 @@ class Info_page(tk.Frame):
                 self.camera_frame = tk.Label(self)
                 #self.camera_frame = tk.Canvas(self, width=640, height=480, bg="transparent", highlightthickness=0)
             self.camera_frame.grid(row=1, column=1, padx=50, sticky="sw", pady=30)
-            self.start_frame_thread()  # Start the frame fetching thread
+            #self.start_frame_thread()  # Start the frame fetching thread
             self.update_frame()  # Update the frame content
         else:
             self.send_frames_to_gui.value = False
@@ -244,6 +245,9 @@ class Info_page(tk.Frame):
             # Hide camera_frame on pages other than the second
             if hasattr(self, "camera_frame"):
                 self.camera_frame.grid_remove()
+            
+            if self.thread_started:
+                self.join_threads()
 
             # Show the ARM image for the third page
             if page_index == 2:
@@ -276,10 +280,11 @@ class Info_page(tk.Frame):
         self.frame_thread = threading.Thread(target=self.fetch_frames)
         self.frame_thread.start()
 
-    '''def join_threads(self):
+    def join_threads(self):
         """Join the frame fetching thread."""
         self.stop_event.set()
-        self.frame_thread.join()'''
+        self.frame_thread.join()
+        self.thread_started = False
 
     def fetch_frames(self):
         """Fetch frames from the queue in a separate thread."""
@@ -293,9 +298,14 @@ class Info_page(tk.Frame):
 
     def update_frame(self):
         """Update the camera_frame with the latest frame."""
-        if self.send_frames_to_gui.value and self.current_frame:
-            self.camera_frame.config(image=self.current_frame)
-            self.camera_frame.image = self.current_frame
+        if self.send_frames_to_gui.value: 
+            if self.thread_started != True:
+                self.start_frame_thread()
+                self.thread_started = True
+            elif self.current_frame and self.thread_started:
+                self.camera_frame.config(image=self.current_frame)
+                self.camera_frame.image = self.current_frame
+
         self.after(1, self.update_frame)  # Schedule the next frame update with a 1-millisecond interval
 
     def update_arrow_visibility(self):
