@@ -23,6 +23,7 @@ class Info_page(tk.Frame):
         self.gui_frame_queue = gui_frame_queue
         self.current_frame = None
         self.stop_event = threading.Event()
+        self.thread_started = False
 
         self.configure(bg=self.constants.background_color)
 
@@ -236,7 +237,7 @@ class Info_page(tk.Frame):
                 self.camera_frame = tk.Label(self)
 
             self.camera_frame.grid(row=1, column=1, padx=50, sticky="sw", pady=30)
-            self.start_frame_thread()  # Start the frame fetching thread
+            #self.start_frame_thread()  # Start the frame fetching thread
             self.update_frame()  # Update the frame content
         else:
             self.send_frames_to_gui.value = False # Set flag to stop sending frames to GUI
@@ -246,6 +247,9 @@ class Info_page(tk.Frame):
             # Hide camera_frame on pages other than the second
             if hasattr(self, "camera_frame"):
                 self.camera_frame.grid_remove()
+            
+            if self.thread_started:
+                self.join_threads()
 
             # Show the ARM image for the third page
             if page_index == 2:

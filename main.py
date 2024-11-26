@@ -24,7 +24,9 @@ def empty_queue(queue):
     while not queue.empty():
         queue.get()
 
-def capture_and_detect(queue, gui_queue, send_frames_to_gui, gui_challange_frame_queue, send_frames_to_challenge, ball_coords_gui_queue, goal_position, stop_event):
+def capture_and_detect(queue, gui_queue, send_frames_to_gui, gui_challange_frame_queue, 
+                       send_frames_to_challenge, ball_coords_gui_queue, goal_position, 
+                       stop_event):
     """Capture frames and detect ball coordinates, placing them in the queue."""
     camera = Camera()
     try:
@@ -62,7 +64,7 @@ def capture_and_detect(queue, gui_queue, send_frames_to_gui, gui_challange_frame
         camera.clean_up_cam()
         pass
 
-def pid_control(queue_in, k_pid, esp_com, goal_position, stop_event):
+def pid_control(queue_in, k_pid, esp_com, goal_position_queue, stop_event):
     """Receive ball coordinates from the queue, compute control angles, and send commands."""
     
     #pid_controller = PID_control(k_pid)
@@ -75,14 +77,18 @@ def pid_control(queue_in, k_pid, esp_com, goal_position, stop_event):
     state2 = 0
     state3 = 1
     homing = False
+    local_goal_pos = (0, 0)
 
     while not stop_event.is_set():
         if not queue_in.empty():
             current_position = queue_in.get()
             last_received_time = time.perf_counter()  # Update the time with each new data
-
+            if not goal_position_queue.empty():
+                    local_goal_pos = goal_position_queue.get_nowait()
+                    print(local_goal_pos)
+                    
             #control_x, control_y = pid_controller.get_angles(goal_position, current_position)
-            control_x, control_y = pid_controller.compute(goal_position, current_position)
+            control_x, control_y = pid_controller.compute(local_goal_pos, current_position)
             
             #print(queue_in.size())
             #print(f"Control angles: X: {control_x}, Y: {control_y}")
@@ -112,9 +118,10 @@ if __name__ == "__main__":
     #k_pid = [0.00045, 0.00065, 0.0008] # with cs =50
     #k_pid = [0.00085, 0.00055, 0.00065]
     #k_pid = [0.0388, 0.00225, 0.0168] # Joel (behövs meter, advanced PID?)
-    k_pid = [0.0014, 0.00065, 0.0007] # Nico och Martin
+    #k_pid = [0.0014, 0.00065, 0.0007] # Nico och Martin
+    k_pid = [0.0008, 0.0000669, 0.0006505, 0.00098, 0.00019, 0.00067]
 
-    goal_position = (-50,0)
+    goal_position_queue = Queue(maxsize=5)
     ball_coords_queue = Queue(maxsize=5)
     ball_coords_gui_queue = Queue(maxsize=5)
     gui_frame_queue = Queue(maxsize=10)
@@ -125,8 +132,11 @@ if __name__ == "__main__":
     esp_com = Commmunication()
 
     # Create processes
-    capture_process = Process(target=capture_and_detect, args=(ball_coords_queue, gui_frame_queue, send_frames_to_gui, gui_challange_frame_queue, send_frames_to_challenge, ball_coords_gui_queue, goal_position, stop_event), daemon=True)
-    pid_process = Process(target=pid_control, args=(ball_coords_queue, k_pid, esp_com, goal_position, stop_event), daemon=True)
+    capture_process = Process(target=capture_and_detect, args=(ball_coords_queue, gui_frame_queue, send_frames_to_gui, gui_challange_frame_queue, 
+                                                               send_frames_to_challenge, ball_coords_gui_queue, goal_position_queue, 
+                                                               stop_event), daemon=True)
+    
+    pid_process = Process(target=pid_control, args=(ball_coords_queue, k_pid, esp_com, goal_position_queue, stop_event), daemon=True)
 
     # Start processes
     capture_process.start()
@@ -136,7 +146,8 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, handle_keyboard_interrupt)
 
     try:
-        app = App(send_frames_to_gui=send_frames_to_gui, gui_frame_queue=gui_frame_queue, send_frames_to_challenge=send_frames_to_challenge, gui_challange_frame_queue=gui_challange_frame_queue, ball_coords_queue=ball_coords_gui_queue)
+        app = App(send_frames_to_gui=send_frames_to_gui, gui_frame_queue=gui_frame_queue, send_frames_to_challenge=send_frames_to_challenge, 
+                  gui_challange_frame_queue=gui_challange_frame_queue, ball_coords_queue=ball_coords_gui_queue, goal_pos_queue=goal_position_queue)
         app.mainloop()
     except Exception as e:
         print(f"An error occurred: {e}", file=sys.stderr)

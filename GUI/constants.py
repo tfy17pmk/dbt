@@ -19,7 +19,7 @@ LIGHT_BULB = "GUI/assets/light_bulb.png"
 SQUARE = "GUI/assets/square.png"
 CIRCLE = "GUI/assets/circle.png"
 TRIANGLE = "GUI/assets/triangle.png"
-STAR = "GUI/assets/star.png"
+CIRCLE_PATTERN = "GUI/assets/circlePattern.png"
 HEXAGON = "GUI/assets/hexagon.png"
 BG = "GUI/assets/bluebg.png"
 

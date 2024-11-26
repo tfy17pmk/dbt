@@ -12,3 +12,6 @@ GUI/dbt-venv
 GUI/__pycache__/
 .DS_Store
 __pycache__/
+Data/
+pid_plotting.py
+tuning_main.py
