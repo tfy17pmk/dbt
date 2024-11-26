@@ -70,6 +70,12 @@ class Freeplay_page(tk.Frame):
             outline="#C8C8C8"
         )
 
+        # Initialize mapping range joystick
+        self.new_min_joystick = -0.15
+        self.old_min_joystick = -45
+        self.new_max_joystick = 0.15
+        self.old_max_joystick = 45
+
         # Draw the joystick handle
         self.handle_radius = 30
         self.handle = self.joystick_canvas.create_oval(
@@ -105,6 +111,10 @@ class Freeplay_page(tk.Frame):
         )
         self.back_button.grid(row=2, column=1, padx=10, pady=10, sticky="sw")
 
+    def map_joystick(self, value, event):
+        target = self.new_min_joystick + (value - self.old_min_joystick) * (self.new_max_joystick - self.new_min_joystick) / (self.old_max_joystick - self.old_min_joystick)
+        return target
+
     def move_handle(self, event):
         # Calculate the distance and angle from the center
         dx = event.x - self.joystick_center
@@ -115,8 +125,10 @@ class Freeplay_page(tk.Frame):
         if distance > self.joystick_center - self.handle_radius:
             # Restrict position to the edge of the larger circle
             angle = atan2(dy, dx)
-            dx = cos(angle) * (self.joystick_center - self.handle_radius) * (0.15 / (self.joystick_center - self.handle_radius))
-            dy = sin(angle) * (self.joystick_center - self.handle_radius) * (0.15 / (self.joystick_center - self.handle_radius))
+            dx = cos(angle) * (self.joystick_center - self.handle_radius)
+            dy = sin(angle) * (self.joystick_center - self.handle_radius)
+            dx_mapped = dx * (0.15 / (self.joystick_center - self.handle_radius))
+            dy_mapped = dy * (0.15 / (self.joystick_center - self.handle_radius))
 
         # Move the handle
         self.joystick_canvas.coords(
@@ -128,7 +140,7 @@ class Freeplay_page(tk.Frame):
         )
 
         # Print the joystick's position relative to the center
-        print(f"Joystick position: x={dx:.2f}, y={dy:.2f}")
+        print(f"Joystick position: x={dx_mapped:.2f}, y={dy_mapped:.2f}")
 
     def reset_handle(self, event):
         # Reset the handle to the center
