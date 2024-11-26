@@ -9,6 +9,21 @@ import sys
 import time
 import signal
 
+class SharedResources:
+    def __init__(self):
+        # Shared queues
+        self.goal_position_queue = Queue(maxsize=5)
+        self.ball_coords_queue = Queue(maxsize=5)
+        self.ball_coords_gui_queue = Queue(maxsize=5)
+        self.gui_frame_queue = Queue(maxsize=10)
+        self.gui_challange_frame_queue = Queue(maxsize=10)
+        # Shared variables
+        self.send_frames_to_gui = Value('b', False)
+        self.send_frames_to_challenge = Value('b', False)
+        self.esp_com = 0#Commmunication()
+        # Events
+        self.stop_event = Event()
+
 def put_value_in_shared_queue(value, shared_queue, variant):
     """Put a value in the shared queue if it is not full."""
     if not shared_queue.full():
@@ -24,13 +39,11 @@ def empty_queue(queue):
     while not queue.empty():
         queue.get()
 
-def capture_and_detect(queue, gui_queue, send_frames_to_gui, gui_challange_frame_queue, 
-                       send_frames_to_challenge, ball_coords_gui_queue, goal_position, 
-                       stop_event):
+def capture_and_detect(resources):
     """Capture frames and detect ball coordinates, placing them in the queue."""
     camera = Camera()
     try:
-        while not stop_event.is_set():
+        while not resources.stop_event.is_set():
             frame = camera.get_frame()
             cropped_frame = camera.crop_frame(frame)
             cropped_frame = cv.cvtColor(cropped_frame, cv.COLOR_BGR2RGB)
@@ -39,32 +52,30 @@ def capture_and_detect(queue, gui_queue, send_frames_to_gui, gui_challange_frame
             if cropped_frame is not None:
                 ball_coordinates = camera.get_ball(cropped_frame)
                 if ball_coordinates != (-1, -1, 0):  # Valid detection
-                    put_value_in_shared_queue(ball_coordinates, queue, 1)
+                    put_value_in_shared_queue(ball_coordinates, resources.ball_coords_queue, 1)
 
                 # If in info-page, send frame to GUI
-                if send_frames_to_gui.value:
-                    #print("Sending frame to GUI")
-                    put_value_in_shared_queue(cropped_frame, gui_queue, 2)
+                if resources.send_frames_to_gui.value:
+                    put_value_in_shared_queue(cropped_frame, resources.gui_frame_queue, 2)
                 else:
-                    if not gui_queue.empty():
-                        empty_queue(gui_queue)  # Clear the queue if not empty
+                    if not resources.gui_frame_queue.empty():
+                        empty_queue(resources.gui_frame_queue)  # Clear the queue if not empty
 
                 # In in challenge page, send frames
-                if send_frames_to_challenge.value:
-                    put_value_in_shared_queue(cropped_frame, gui_challange_frame_queue, 3)
-                    put_value_in_shared_queue(ball_coordinates, ball_coords_gui_queue, 4)
+                if resources.send_frames_to_challenge.value:
+                    put_value_in_shared_queue(cropped_frame, resources.gui_challange_frame_queue, 3)
+                    put_value_in_shared_queue(ball_coordinates, resources.ball_coords_gui_queue, 4)
                 else:
-                    if not gui_challange_frame_queue.empty():
-                        empty_queue(gui_challange_frame_queue)
+                    if not resources.gui_challange_frame_queue.empty():
+                        empty_queue(resources.gui_challange_frame_queue)
 
                 #camera.show_frame(cropped_frame, goal_position)  # Display frame if needed
             else:
                 break
     finally:
         camera.clean_up_cam()
-        pass
 
-def pid_control(queue_in, k_pid, esp_com, goal_position_queue, stop_event):
+def pid_control(resources, k_pid):
     """Receive ball coordinates from the queue, compute control angles, and send commands."""
     
     #pid_controller = PID_control(k_pid)
@@ -79,13 +90,15 @@ def pid_control(queue_in, k_pid, esp_com, goal_position_queue, stop_event):
     homing = False
     local_goal_pos = (0, 0)
 
-    while not stop_event.is_set():
-        if not queue_in.empty():
-            current_position = queue_in.get()
+    while not resources.stop_event.is_set():
+
+        if not resources.ball_coords_queue.empty():
+            current_position = resources.ball_coords_queue.get()
             last_received_time = time.perf_counter()  # Update the time with each new data
-            if not goal_position_queue.empty():
-                    local_goal_pos = goal_position_queue.get_nowait()
-                    print(local_goal_pos)
+
+            if not resources.goal_position_queue.empty():
+                local_goal_pos = resources.goal_position_queue.get_nowait()
+                #print(local_goal_pos)
                     
             #control_x, control_y = pid_controller.get_angles(goal_position, current_position)
             control_x, control_y = pid_controller.compute(local_goal_pos, current_position)
@@ -93,18 +106,18 @@ def pid_control(queue_in, k_pid, esp_com, goal_position_queue, stop_event):
             #print(queue_in.size())
             #print(f"Control angles: X: {control_x}, Y: {control_y}")
             # Send angles to ESP here
-            esp_com.send_data(-control_x, control_y, height, state1, state2, state3, homing)
+            resources.esp_com.send_data(-control_x, control_y, height, state1, state2, state3, homing)
 
         # Check if 3 seconds have passed since the last update
         if time.perf_counter() - last_received_time > 3:
             pid_controller.reset()  # Reset the PID controllers
-            esp_com.send_data(0, 0, height, state1, state2, state3, homing)
+            resources.esp_com.send_data(0, 0, height, state1, state2, state3, homing)
             last_received_time = time.perf_counter()  # Reset timer to avoid continuous reset
 
-def handle_keyboard_interrupt(signum, frame):
+def handle_keyboard_interrupt(signum, frame, resources):
     """Handle keyboard interrupt by setting the stop event."""
     print("Keyboard interrupt received. Exiting...")
-    stop_event.set()  # Signal processes to stop
+    resources.stop_event.set()  # Signal processes to stop
 
 if __name__ == "__main__":
     #         
@@ -121,22 +134,11 @@ if __name__ == "__main__":
     #k_pid = [0.0014, 0.00065, 0.0007] # Nico och Martin
     k_pid = [0.0008, 0.0000669, 0.0006505, 0.00098, 0.00019, 0.00067]
 
-    goal_position_queue = Queue(maxsize=5)
-    ball_coords_queue = Queue(maxsize=5)
-    ball_coords_gui_queue = Queue(maxsize=5)
-    gui_frame_queue = Queue(maxsize=10)
-    gui_challange_frame_queue = Queue(maxsize=10)
-    stop_event = Event()
-    send_frames_to_gui = Value('b', False)
-    send_frames_to_challenge = Value('b', False)
-    esp_com = Commmunication()
+    resources = SharedResources()
 
     # Create processes
-    capture_process = Process(target=capture_and_detect, args=(ball_coords_queue, gui_frame_queue, send_frames_to_gui, gui_challange_frame_queue, 
-                                                               send_frames_to_challenge, ball_coords_gui_queue, goal_position_queue, 
-                                                               stop_event), daemon=True)
-    
-    pid_process = Process(target=pid_control, args=(ball_coords_queue, k_pid, esp_com, goal_position_queue, stop_event), daemon=True)
+    capture_process = Process(target=capture_and_detect, args=(resources,), daemon=True)
+    pid_process = Process(target=pid_control, args=(resources, k_pid), daemon=True)
 
     # Start processes
     capture_process.start()
@@ -146,15 +148,14 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, handle_keyboard_interrupt)
 
     try:
-        app = App(send_frames_to_gui=send_frames_to_gui, gui_frame_queue=gui_frame_queue, send_frames_to_challenge=send_frames_to_challenge, 
-                  gui_challange_frame_queue=gui_challange_frame_queue, ball_coords_queue=ball_coords_gui_queue, goal_pos_queue=goal_position_queue)
+        app = App(resources=resources)
         app.mainloop()
     except Exception as e:
         print(f"An error occurred: {e}", file=sys.stderr)
-        stop_event.set()
+        resources.stop_event.set()
     finally:
         # Stop processes
-        stop_event.set()
+        resources.stop_event.set()
         capture_process.join(timeout=5)
         pid_process.join(timeout=5)
        

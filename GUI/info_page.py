@@ -9,7 +9,7 @@ from multiprocessing import Lock
 import threading
 
 class Info_page(tk.Frame):
-    def __init__(self, parent, controller, send_frames_to_gui, gui_frame_queue):
+    def __init__(self, parent, controller, resources):
         """Initialize the Info page."""
         super().__init__(parent)
         self.controller = controller
@@ -19,11 +19,9 @@ class Info_page(tk.Frame):
         # temporary using another communication file
         self.communication = GUI.communication
 
-        self.send_frames_to_gui = send_frames_to_gui
-        self.gui_frame_queue = gui_frame_queue
+        self.resources = resources
         self.current_frame = None
         self.stop_event = threading.Event()
-        self.thread_started = False
 
         self.configure(bg=self.constants.background_color)
 
@@ -227,7 +225,7 @@ class Info_page(tk.Frame):
 
         # Display the correct image and handle camera frame for each page
         if page_index == 1:
-            self.send_frames_to_gui.value = True # Set flag for backend to send frames to GUI
+            self.resources.send_frames_to_gui.value = True # Set flag for backend to send frames to GUI
             # Show the EYES image for the second page
             self.image_canvas.create_image(150, 150, image=self.eyes_image_icon)
             self.image_canvas.grid()  # Make sure the image canvas is visible
@@ -237,19 +235,16 @@ class Info_page(tk.Frame):
                 self.camera_frame = tk.Label(self)
 
             self.camera_frame.grid(row=1, column=1, padx=50, sticky="sw", pady=30)
-            #self.start_frame_thread()  # Start the frame fetching thread
-            self.update_frame()  # Update the frame content
+            self.start_frame_thread()  # Start the frame fetching thread
+            #self.update_frame()  # Update the frame content
         else:
-            self.send_frames_to_gui.value = False # Set flag to stop sending frames to GUI
+            self.resources.send_frames_to_gui.value = False # Set flag to stop sending frames to GUI
             self.current_frame = None  # Clear the current frame
             self.join_threads()  # Terminate the frame fetching thread
 
             # Hide camera_frame on pages other than the second
             if hasattr(self, "camera_frame"):
                 self.camera_frame.grid_remove()
-            
-            if self.thread_started:
-                self.join_threads()
 
             # Show the ARM image for the third page
             if page_index == 2:
@@ -292,8 +287,8 @@ class Info_page(tk.Frame):
         """Fetch frames from the queue in a separate thread."""
         while not self.stop_event.is_set():
             try:
-                if not self.gui_frame_queue.empty():
-                    frame = self.gui_frame_queue.get_nowait()
+                if not self.resources.gui_frame_queue.empty():
+                    frame = self.resources.gui_frame_queue.get_nowait()
                     self.current_frame = ImageTk.PhotoImage(Image.fromarray(frame))
                     # Update the camera_frame with the latest frame directly
                     self.camera_frame.config(image=self.current_frame)
