@@ -51,7 +51,7 @@ class Freeplay_page(tk.Frame):
 
         # Joystick area
         joystick_frame = tk.Frame(self, bg=self.constants.background_color)
-        joystick_frame.grid(row=1, column=2, sticky="e", padx=20)
+        joystick_frame.grid(row=2, column=2, sticky="e", padx=20)
 
         # Create a canvas for the joystick
         joystick_size = 150
@@ -115,8 +115,8 @@ class Freeplay_page(tk.Frame):
         if distance > self.joystick_center - self.handle_radius:
             # Restrict position to the edge of the larger circle
             angle = atan2(dy, dx)
-            dx = cos(angle) * (self.joystick_center - self.handle_radius)
-            dy = sin(angle) * (self.joystick_center - self.handle_radius)
+            dx = cos(angle) * (self.joystick_center - self.handle_radius) * (0.15 / (self.joystick_center - self.handle_radius))
+            dy = sin(angle) * (self.joystick_center - self.handle_radius) * (0.15 / (self.joystick_center - self.handle_radius))
 
         # Move the handle
         self.joystick_canvas.coords(
