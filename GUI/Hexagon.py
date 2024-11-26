@@ -21,6 +21,7 @@ class HexagonShape:
         self.thread_started = False
         self.data_queue = Queue(maxsize=500)
         self.prev_goal_pos = (0, 0)
+        self.restart_delay = 0.01
 
         # Bind to draw the hexagon in the case of window resize
         self.canvas.bind("<Configure>", self.on_resize)
@@ -35,17 +36,20 @@ class HexagonShape:
         self.start_thread()
         
     def send_data(self):
-        print("in send data")
         while not self.stop_event.is_set():
             try:
                 if not self.data_queue.empty():
                     coordinates = self.data_queue.get_nowait()
                     
                     dist = math.sqrt((self.prev_goal_pos[0] - coordinates[0]) ** 2 + (self.prev_goal_pos[1] - coordinates[1]) ** 2)
-                    delay = dist/80
+                    delay = abs((dist/80) - self.restart_delay)
                     self.send_goal_pos(coordinates[0], coordinates[1])
                     self.prev_goal_pos = coordinates
                     time.sleep(delay)
+                elif len(self.mapped_points):
+                    [self.data_queue.put((x,y)) for x, y in self.mapped_points]
+                time.sleep(self.restart_delay)  # Add a small delay to observe the behavior
+        
             except Exception as e:
                 pass
         
@@ -62,7 +66,8 @@ class HexagonShape:
 
         while not self.data_queue.empty():
             self.data_queue.get_nowait()
-            
+        
+        self.mapped_points = []
         self.send_goal_pos(0, 0)
         ''' # If we want to kill the thread 
         self.stop_event.set()
@@ -97,11 +102,10 @@ class HexagonShape:
         self.canvas.delete("shape")
 
         # Resets ball position to origin
-        self.mapped_points = [[0, 0]]
         while not self.data_queue.empty():
             self.data_queue.get_nowait()
+        self.mapped_points = []
         self.send_goal_pos(0, 0)
-        print("Mapped points reset to:", self.mapped_points)
 
     def map_coordinates(self, x, y):
         canvas_width = self.canvas.winfo_width()
@@ -116,19 +120,19 @@ class HexagonShape:
         
         if not self.data_queue.full():
             try:
-                self.data_queue.put((int(mapped_x-self.target_width/2), -int(mapped_y-self.target_height/2)), timeout=0.01)
+                self.data_queue.put((int(mapped_x-self.target_width/2), int(mapped_y-self.target_height/2)), timeout=0.01)
             except Exception as e:
                 print(f"Queue error: {e}")
         else:
             print(f"Queue with goal pos is full!")
             
         # Return remapped coordinates with redefined origin in the middle    
-        return int(mapped_x-self.target_width/2), -int(mapped_y-self.target_height/2) 
+        return int(mapped_x-self.target_width/2), int(mapped_y-self.target_height/2) 
         
     def log_shape_coordinates(self, points):
         # Example of mapping coordinates (optional)
         self.mapped_points = [self.map_coordinates(x, y) for x, y in points]
-        self.send_data
+        #self.send_data
         print("Mapped shape coordinates:", self.mapped_points)
 
     def draw_square(self):
@@ -191,20 +195,28 @@ class HexagonShape:
     def draw_star(self):
         self.is_freehand = False
         self.clear_all()
+
+        # Calculate the width, height, and center of the canvas
         width = self.canvas.winfo_width()
         height = self.canvas.winfo_height()
-        size = min(width, height) // 3
-        cx, cy = width / 2, height / 2
+        center_x = width / 2
+        center_y = height / 2
+        radius = min(width, height) / 2.5  # Radius for the hexagon to fit within canvas
+
+        # Calculate the six vertices of the hexagon
         points = []
-        for i in range(10):
-            angle = i * 36
-            radius = size if i % 2 == 0 else size / 2
-            x = cx + radius * math.cos(math.radians(angle - 90))
-            y = cy + radius * math.sin(math.radians(angle - 90))
+        for i in range(45):
+            angle_deg = 8 * i
+            angle_rad = math.radians(angle_deg)
+            x = center_x + radius * math.cos(angle_rad)
+            y = center_y + radius * math.sin(angle_rad)
             points.append((x, y))
+        points.append(points[0])
+        # Draw the hexagon on the canvas
         shape_id = self.canvas.create_polygon(points, outline="black", fill="", tags="shape")
         self.line_ids.append([shape_id])
-        # Log the coordinates of the star points
+
+        # Log the coordinates of the hexagon vertices
         self.log_shape_coordinates(points)
     
     def clear_shapes_if_present(self):
@@ -267,6 +279,8 @@ class HexagonShape:
                     self.drawing_points.append((event.x, event.y))
 
     def stop_drawing(self, event):
+        self.clear_all()
+        self.mapped_points = []
         # Connect the last point to the first to close the shape, if close enough
         if len(self.drawing_points) > 1:
             first_x, first_y = self.drawing_points[0]

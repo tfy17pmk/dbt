@@ -45,7 +45,7 @@ class Pattern_page(tk.Frame):
             Image.open(self.constants.HEXAGON).resize((40, 45)).rotate(90, expand=True)
         )
         self.triangle_icon = ImageTk.PhotoImage(Image.open(self.constants.TRIANGLE).resize((50, 50)))
-        self.star_icon = ImageTk.PhotoImage(Image.open(self.constants.STAR).resize((40, 40)))
+        self.circle_icon = ImageTk.PhotoImage(Image.open(self.constants.CIRCLE_PATTERN).resize((40, 40)))
 
 
         button_width = int(screen_width * 0.05)
@@ -144,7 +144,7 @@ class Pattern_page(tk.Frame):
                                         height=70, 
                                         btnbackground=self.constants.text_color, 
                                         btnforeground=self.constants.background_color, 
-                                        image=self.star_icon,
+                                        image=self.circle_icon,
                                         clicked=lambda: self.hex.draw_star())
         
         btn_label = tk.Label(master=button_frame, 
@@ -225,7 +225,7 @@ class Pattern_page(tk.Frame):
             except Exception as e:
                 print(f"Queue error: {e}")
         else:
-            print(f"Queue gola pos is full!")
+            print(f"Queue goal pos is full!")
     
     def go_back(self):
         self.controller.show_frame("Home_page")
