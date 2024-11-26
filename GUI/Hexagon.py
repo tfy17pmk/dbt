@@ -42,8 +42,9 @@ class HexagonShape:
                     coordinates = self.data_queue.get_nowait()
                     
                     dist = math.sqrt((self.prev_goal_pos[0] - coordinates[0]) ** 2 + (self.prev_goal_pos[1] - coordinates[1]) ** 2)
-                    delay = dist/40
+                    delay = dist/80
                     self.send_goal_pos(coordinates[0], coordinates[1])
+                    self.prev_goal_pos = coordinates
                     time.sleep(delay)
             except Exception as e:
                 pass
@@ -57,10 +58,17 @@ class HexagonShape:
     def set_goal_function(self, send_goal_pos_function):
         self.send_goal_pos = send_goal_pos_function
         
-    def join_threads(self):
+    def clear_thread(self):
+
+        while not self.data_queue.empty():
+            self.data_queue.get_nowait()
+            
+        self.send_goal_pos(0, 0)
+        ''' # If we want to kill the thread 
         self.stop_event.set()
         self.thread.join()
         self.thread_started = False
+        '''
           
     def clear_all(self):
         # Function to overwrite previous goal points
@@ -90,6 +98,9 @@ class HexagonShape:
 
         # Resets ball position to origin
         self.mapped_points = [[0, 0]]
+        while not self.data_queue.empty():
+            self.data_queue.get_nowait()
+        self.send_goal_pos(0, 0)
         print("Mapped points reset to:", self.mapped_points)
 
     def map_coordinates(self, x, y):
@@ -131,7 +142,7 @@ class HexagonShape:
         shape_id = self.canvas.create_rectangle(x0, y0, x1, y1, outline="black", tags="shape")
         self.line_ids.append([shape_id])
         # Log the coordinates of the square
-        self.log_shape_coordinates([(x0, y0), (x1, y0), (x1, y1), (x0, y1)])
+        self.log_shape_coordinates([(x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0)])
 
     def draw_hexagon(self):
         self.is_freehand = False
@@ -152,7 +163,7 @@ class HexagonShape:
             x = center_x + radius * math.cos(angle_rad)
             y = center_y + radius * math.sin(angle_rad)
             points.append((x, y))
-
+        points.append(points[0])
         # Draw the hexagon on the canvas
         shape_id = self.canvas.create_polygon(points, outline="black", fill="", tags="shape")
         self.line_ids.append([shape_id])
@@ -170,6 +181,7 @@ class HexagonShape:
             (width / 2, (height - size) / 2),
             ((width - size) / 2, (height + size) / 2),
             ((width + size) / 2, (height + size) / 2),
+            (width / 2, (height - size) / 2)
         ]
         shape_id = self.canvas.create_polygon(points, outline="black", fill="", tags="shape")
         self.line_ids.append([shape_id])

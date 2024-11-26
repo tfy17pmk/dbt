@@ -228,7 +228,6 @@ class Pattern_page(tk.Frame):
             print(f"Queue gola pos is full!")
     
     def go_back(self):
-        self.hex.clear_all()  # Clear all shapes and lines before navigating
-        self.send_goal_pos(0, 0)
-        self.hex.join_threads()
         self.controller.show_frame("Home_page")
+        self.hex.clear_all()  # Clear all shapes and lines before navigating
+        self.hex.clear_thread() #dont need to kill if we kill the power :)
