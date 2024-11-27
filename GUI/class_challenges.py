@@ -46,7 +46,6 @@ class Challenges:
         while not self.goal_pos_queue.empty():
             self.goal_pos_queue.get_nowait()
         self.goal_pos_queue.put((0, 0), timeout=0.01)
-        time.sleep(3)
         
         self.isFinished = False
         self.robotIsFinished = False
@@ -72,13 +71,12 @@ class Challenges:
         self.goals_hit = np.zeros(len(self.array[:,0]))
         self.nr_of_goals = len(self.array[:,0])
         self.goal_index = 0
-        self.start_time = time.time()
         self.goal_pos_queue.put((self.goal_array[0,0], self.goal_array[0,1]), timeout=0.01)
 
     def compete(self, frame, ball_x, ball_y):
         self.robotIsFinished = False
         if self.competitor == "Robot":
-            self.robotResultTime = self.create_dots_robot(frame, ball_x, ball_y)
+            self.create_dots_robot(frame, ball_x, ball_y)
             if self.robotIsFinished:
                 # Return ball to center
                 self.goal_pos_queue.put((0, 0), timeout=0.01)
@@ -89,18 +87,17 @@ class Challenges:
                 # Set starting competitor as robot
                 self.competitor = "User"
                 self.goals_hit = np.zeros(len(self.array[:,0]))
-                self.start_time = time.time()
         elif self.competitor == "User":
-            self.userResultTime = self.create_dots_user(frame, ball_x, ball_y)
+            self.create_dots_user(frame, ball_x, ball_y)
         
-        return self.robotIsFinished, self.isFinished, self.robotResultTime, self.userResultTime
+        return self.robotIsFinished, self.isFinished, self.result_time
 
                 
     def create_dots_robot(self, frame, ball_x, ball_y):
         
         if [ball_x, ball_y] != [-1, -1]:
             for i in range(len(self.array[:,0])):
-                if abs(ball_x-self.goal_array[i,0]) <= self.dot_radius and abs(ball_y-self.goal_array[i,1]) <= self.dot_radius and self.goals_hit[i] != 1:
+                if abs(ball_x-self.goal_array[i,0]) <= self.dot_radius*2 and abs(ball_y-self.goal_array[i,1]) <= self.dot_radius*2 and self.goals_hit[i] != 1:
                     self.circle_colors[i, :] = [0,0,255]
                     self.goals_hit[i] = 1
 
@@ -113,18 +110,16 @@ class Challenges:
             cv.circle(frame, (int(self.array[i,0]), int(self.array[i,1])), int(self.dot_radius), color=self.circle_colors[i, :], thickness=2)
 
         if np.sum(self.goals_hit) == self.nr_of_goals:
-            result_time = time.time()-self.start_time
+            self.result_time = time.time()
             self.robotIsFinished = True
         else:
-            result_time = None
-
-        return result_time
+            self.result_time = time.time()
 
     def create_dots_user(self, frame, ball_x, ball_y):
         
         if [ball_x, ball_y] != [-1, -1]:
             for i in range(len(self.array[:,0])):
-                if abs(ball_x-self.goal_array[i,0]) <= self.dot_radius and abs(ball_y-self.goal_array[i,1]) <= self.dot_radius and self.goals_hit[i] != 1:
+                if abs(ball_x-self.goal_array[i,0]) <= self.dot_radius*2 and abs(ball_y-self.goal_array[i,1]) <= self.dot_radius*2 and self.goals_hit[i] != 1:
                     self.circle_colors[i, :] = [0,0,255]
                     self.goals_hit[i] = 1
         
@@ -132,9 +127,7 @@ class Challenges:
             cv.circle(frame, (int(self.array[i,0]), int(self.array[i,1])), int(self.dot_radius), color=self.circle_colors[i, :], thickness=2)
 
         if np.sum(self.goals_hit) == self.nr_of_goals:
-            result_time = time.time()-self.start_time
+            self.result_time = time.time()
             self.isFinished = True
         else:
-            result_time = None
-        
-        return result_time
+            self.result_time = time.time()

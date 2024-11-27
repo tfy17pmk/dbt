@@ -18,6 +18,7 @@ class Challenge_page(tk.Frame):
         self.send_frames = send_frames
         self.goal_pos_queue = goal_pos_queue
         self.joystick_control_queue = joystick_control_queue
+        self.isJoystick = False
         self.start_time = None
         self.robot_time = None
         self.user_time = None
@@ -31,8 +32,8 @@ class Challenge_page(tk.Frame):
         # Output frame size
         self.current_frame = None
         self.frame_height, self.frame_width = 285, 320
-        self.cam_width = int(self.frame_width*2.9)
-        self.cam_height = int(self.frame_height*2.9)
+        self.cam_width = int(self.frame_width*2.5)
+        self.cam_height = int(self.frame_height*2.5)
 
         # Frame for the video feed
         self.cam_frame = tk.Label(self) #
@@ -48,7 +49,7 @@ class Challenge_page(tk.Frame):
             height=6, 
             width=20, 
             highlightthickness=0,
-            padx=0,
+            padx=20,
             pady=50
         )
 
@@ -112,13 +113,13 @@ class Challenge_page(tk.Frame):
         joystick_frame.grid(row=3, column=2, sticky="new", pady=(0, 10))
 
         # Create a canvas for the joystick
-        joystick_size = 150
+        joystick_size = 300
         self.joystick_center = joystick_size // 2
         self.joystick_canvas = tk.Canvas(joystick_frame, width=joystick_size, height=joystick_size, bg=constants.background_color, highlightthickness=0)
         self.joystick_canvas.pack()
 
         # Draw joystick area 
-        self.area_radius = 60
+        self.area_radius = 120
         self.joystick_area = self.joystick_canvas.create_oval(
             self.joystick_center - self.area_radius, 
             self.joystick_center - self.area_radius,
@@ -136,7 +137,7 @@ class Challenge_page(tk.Frame):
         self.maxnormal = 0.15
 
         # Draw the joystick handle
-        self.handle_radius = 30
+        self.handle_radius = 50
         self.handle = self.joystick_canvas.create_oval(
             self.joystick_center - self.handle_radius, 
             self.joystick_center - self.handle_radius,
@@ -172,7 +173,7 @@ class Challenge_page(tk.Frame):
                            height=self.button_diameter, 
                            highlightthickness=0, 
                            bg=constants.background_color)
-        self.btn_canvas.pack(side="left", padx=70)
+        self.btn_canvas.pack(side="left", padx=90)
 
         # Draw circular button_test shape with calculated diameter
         button_circle = self.btn_canvas.create_oval(
@@ -200,17 +201,19 @@ class Challenge_page(tk.Frame):
         self.isJoystick = False
         self.joystick_control_queue.put_nowait(False)
 
-        self.cam_canvas(self.cam_frame, bg=constants.background_color, height=self.cam_height, width=self.cam_width, tags="cam_canvas")
-        self.joystick_canvas.pack()
-        radius = 100
-        self.cam_canvas.create_oval(x0=self.cam_width/2-radius, y0=self.cam_height/2-radius, x1=self.cam_width/2+radius, y1=self.cam_height/2+radius, fill=constants.text_color, tags="nrCircle")
-        for i in range(3):
-            self.cam_canvas.create_text(self.cam_width/2, self.cam_height/2, 
-                                                    text=str(3-i), tags="nr", fill=constants.background_color,
-                                                    font=(constants.heading, 25), justify="center")
-            time.sleep(1)
-            self.cam_canvas.delete("nr")
-        self.cam_frame.delete("cam_canvas")
+        #self.cam_canvas = tk.Canvas(self.cam_frame, bg=constants.background_color, height=self.cam_height, width=self.cam_width)
+        #self.cam_canvas.pack()
+        #radius = 100
+        #self.cam_canvas.create_oval((self.cam_width/2)-radius, (self.cam_height/2)+radius, (self.cam_width/2)+radius, (self.cam_height/2)-radius, fill=constants.text_color, tags="nrCircle")
+        #for i in range(3):
+        #    self.cam_canvas.create_text(self.cam_width/2, self.cam_height/2, 
+        #                                            text=str(3-i), tags="nr", fill=constants.background_color,
+        #                                            font=(constants.heading, 25), justify="center")
+        #    time.sleep(1)
+        #    self.cam_canvas.delete("nr")
+        #for widget in self.cam_frame.winfo_children():
+        #    widget.destroy()
+        time.sleep(2)
 
         self.challenge = Challenges(self.frame_height, self.frame_width, self.goal_pos_queue)
         self.challenge.start_challenge(nivå)
@@ -255,23 +258,26 @@ class Challenge_page(tk.Frame):
                                 fg=constants.text_color)
                         result_label.pack(side="bottom")
 
-                        self.cam_canvas(self.cam_frame, bg=constants.background_color, height=self.cam_height, width=self.cam_width, tags="cam_canvas")
-                        self.joystick_canvas.pack()
-                        radius = 100
-                        self.cam_canvas.create_oval(x0=self.cam_width/2-radius, y0=self.cam_height/2-radius, x1=self.cam_width/2+radius, y1=self.cam_height/2+radius, fill=constants.text_color, tags="nrCircle")
-                        for i in range(3):
-                            self.cam_canvas.create_text(self.cam_width/2, self.cam_height/2, 
-                                                                    text=str(3-i), tags="nr", fill=constants.background_color,
-                                                                    font=(constants.heading, 25), justify="center")
-                            time.sleep(1)
-                            self.cam_canvas.delete("nr")
-                        self.cam_frame.delete("cam_canvas")
+                        #self.cam_canvas = tk.Canvas(self.cam_frame, bg=constants.background_color, height=self.cam_height, width=self.cam_width)
+                        #self.cam_canvas.pack()
+                        #radius = 100
+                        #self.cam_canvas.create_oval((self.cam_width/2)-radius, (self.cam_height/2)+radius, (self.cam_width/2)+radius, (self.cam_height/2)-radius, fill=constants.text_color, tags="nrCircle")
+                        #for i in range(3):
+                        #    self.cam_canvas.create_text(self.cam_width/2, self.cam_height/2, 
+                        #                                            text=str(3-i), tags="nr", fill=constants.background_color,
+                        #                                            font=(constants.heading, 25), justify="center")
+                        #    time.sleep(1)
+                        #    self.cam_canvas.delete("nr")
+                        #for widget in self.cam_frame.winfo_children():
+                        #    widget.destroy()
+                        time.sleep(2)
                         
                         self.isJoystick = True
                         self.start_time = time.time()
 
                 # Resize and display frame
-                resized_frame = cv.resize(self.current_frame, (self.cam_height, self.cam_width))
+                flipped_frame = cv.flip(self.current_frame,-1)
+                resized_frame = cv.resize(flipped_frame, (self.cam_height, self.cam_width))
                 self.photo = ImageTk.PhotoImage(image = Image.fromarray(resized_frame))
                 self.cam_frame.config(image=self.photo) #
                 self.cam_frame.image = self.photo #
