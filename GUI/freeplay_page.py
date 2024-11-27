@@ -111,7 +111,7 @@ class Freeplay_page(tk.Frame):
         )
         self.back_button.grid(row=2, column=1, padx=10, pady=10, sticky="sw")
 
-    self.maxnormal = 0.15
+        self.maxnormal = 0.15
     def map_joystick(self, value, event):
         target = self.new_min_joystick + (value - self.old_min_joystick) * (self.new_max_joystick - self.new_min_joystick) / (self.old_max_joystick - self.old_min_joystick)
         return target
