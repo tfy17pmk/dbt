@@ -26,6 +26,11 @@ class Info_page(tk.Frame):
 
         self.configure(bg=self.constants.background_color)
 
+        # Frame to hold 'back' button
+        button_frame = tk.Frame(self, bg=self.constants.background_color, highlightthickness=0, borderwidth=0)
+        button_frame.config(borderwidth=0)
+        button_frame.grid(row=2, column=1, sticky="sw")
+
         # Load the arrow icon and create rotated version for left button
         original_arrow = Image.open(self.constants.RIGHT_ARROW).resize((40, 40))
         self.right_arrow_icon = ImageTk.PhotoImage(original_arrow)
@@ -40,59 +45,36 @@ class Info_page(tk.Frame):
 
         brain_image_original = Image.open(self.constants.BRAIN).resize((250, 250))
         self.brain_image_icon = ImageTk.PhotoImage(brain_image_original)
-
-        # Load the light icon for the dynamic button
-        self.light_icon = ImageTk.PhotoImage(Image.open(self.constants.LIGHT_BULB).resize((40, 40)))
-
-        button_frame = tk.Frame(self, bg=self.constants.background_color, highlightthickness=0, borderwidth=0)
-        button_frame.config(borderwidth=0)
-        button_frame.grid(row=2, column=1, sticky="sw")
         
         # Placeholder for each page's unique text and actions
         self.page_texts = self.constants.info_text
 
-        def send_light_data(light, state):
-            if light == 1:
-                self.communication.send_data(0, 0, 0, state, 0, 0, False)
-                print(f"light 1: {'on' if state else 'off'}")
-            elif light == 2:
-                self.communication.send_data(0, 0, 0, 0, state, 0, False)
-                print(f"light 2: {'on' if state else 'off'}")
-            else:
-                self.communication.send_data(0, 0, 0, 0, 0, state, False)
-                print(f"light 3: {'on' if state else 'off'}")
-
-            
-        self.page_actions = [
-            lambda: print("Action for Page 1"), 
-            lambda: send_light_data(1, 1),
-            lambda: send_light_data(2, 1),
-            lambda: send_light_data(3, 1)
-        ]
-
         # Configure grid layout to center content
-        self.grid_rowconfigure(0, weight=0)
-        self.grid_rowconfigure(1, weight=9)
-        self.grid_rowconfigure(2, weight=1)
+        self.grid_rowconfigure(0, weight=4)
+        self.grid_rowconfigure(1, weight=3)
+        self.grid_rowconfigure(2, weight=0)
         self.grid_columnconfigure(0, weight=0)
-        self.grid_columnconfigure(1, weight=1)
+        self.grid_columnconfigure(1, weight=9)
         self.grid_columnconfigure(2, weight=0)
 
         # Prevents dynamic resizing when widgets are shown/hidden
         self.grid_propagate(False)
+        
 
         # Dots canvas for page indicators
         self.dots = tk.Canvas(self, height=40, bg=self.constants.background_color, highlightthickness=0)
-        self.dots.grid(row=2, column=1, pady=30, sticky="n")
+        self.dots.grid(row=2, column=1, pady=10, padx=(420,0), sticky="n")
+        self.update_dots()
+        
 
         # Create canvases for navigation buttons
         self.btn_prev_canvas = tk.Canvas(self, width=80, height=80, bg=self.constants.background_color, highlightthickness=0)
-        self.btn_prev_canvas.grid(row=2, column=1, sticky="nw", padx=535, pady=5)
+        self.btn_prev_canvas.grid(row=2, column=1, sticky="nw", padx=(730,0), pady=0)
         
         self.btn_next_canvas = tk.Canvas(self, width=80, height=80, bg=self.constants.background_color, highlightthickness=0)
-        self.btn_next_canvas.grid(row=2, column=1, sticky="ne", padx=550, pady=5)
+        self.btn_next_canvas.grid(row=2, column=1, sticky="ne", padx=(0,320), pady=0)
 
-        # Draw circular buttons with arrow icons, and store IDs
+        # Draw circular buttons with arrow icons, and store IDs 
         self.left_arrow_id = self.create_circle_button(self.btn_prev_canvas, 40, 40, 30, self.left_arrow_icon, self.prev_page)
         self.right_arrow_id = self.create_circle_button(self.btn_next_canvas, 40, 40, 30, self.right_arrow_icon, self.next_page)
 
@@ -110,7 +92,7 @@ class Info_page(tk.Frame):
             padx=100
         )
         
-        self.page_content_text.grid(row=1, column=1, sticky="ne")
+        self.page_content_text.grid(row=0, column=1, padx=(200,0), sticky="n")
         
         self.page_content_text.tag_configure("heading", font=self.constants.heading, foreground=self.constants.text_color)
         self.page_content_text.tag_configure("subheading", font=self.constants.sub_heading, foreground=self.constants.text_color)
@@ -126,13 +108,7 @@ class Info_page(tk.Frame):
         self.page_content_text.bind("<Shift-Down>", lambda e: "break")   # Disable Shift+Down selection
         self.page_content_text.bind("<Control-a>", lambda e: "break")    # Disable Ctrl+A selection (Select All)
 
-        # Frame to hold the button (keeps layout stable)
-        self.dynamic_button_frame = tk.Frame(self, bg=self.constants.background_color)
-        self.dynamic_button_frame.grid(row=1, column=1, padx=60, pady=40, sticky="se")
 
-        # Placeholder spacer label to maintain consistent layout when button is hidden
-        self.spacer_label = tk.Label(self.dynamic_button_frame, text="", height=2, bg=self.constants.background_color)
-        self.spacer_label.grid(row=0, column=0)
 
         # Define a custom style for the rounded button
         style = ttk.Style()
@@ -145,24 +121,8 @@ class Info_page(tk.Frame):
         style.map("RoundedButton.TButton",
                   background=[("active", self.constants.background_color)])  # Hover color
 
-        # Create the dynamic button with light bulb icon
-        self.dynamic_button = self.button.RoundedButton(
-            master=self.dynamic_button_frame,
-            text="",  # No text since we're using an icon
-            radius=25,
-            width=160,
-            height=70,
-            btnbackground=self.constants.text_color,  # Button background
-            btnforeground=self.constants.background_color,  # Icon/text color
-            image=self.light_icon,  # Set the light bulb icon
-        )
 
-        # Add the button to the grid
-        self.dynamic_button.grid(row=0, column=0)
 
-        # Bind ButtonPress and ButtonRelease events to send the appropriate data
-        self.dynamic_button.bind("<ButtonPress-1>", lambda event: send_light_data(self.current_page, 1))
-        self.dynamic_button.bind("<ButtonRelease-1>", lambda event: send_light_data(self.current_page, 0))
 
         # Lower-left corner button to go back
         self.back_button = self.button.RoundedButton(
@@ -175,11 +135,11 @@ class Info_page(tk.Frame):
             btnforeground=self.constants.background_color, 
             clicked=self.go_back_to_home
         )
-        self.back_button.grid(row=2, column=1, padx=10, pady=10, sticky="sw")
+        self.back_button.grid(row=1, column=0, padx=(0,200), pady=10, sticky="n")
 
         # Canvas to display images on relevant pages
-        self.image_canvas = tk.Canvas(self, width=400, height=300, bg=self.constants.background_color, highlightthickness=0)
-        self.image_canvas.grid(row=1, column=1, padx=50, sticky="nw")
+        self.image_canvas = tk.Canvas(self, width=500, height=300, bg=self.constants.background_color, highlightthickness=0)
+        self.image_canvas.grid(row=0, column=2, pady=(50,0), sticky="n")
         self.image_canvas.grid_remove()  # Initially hidden
 
         # Display the first page initially
@@ -205,7 +165,7 @@ class Info_page(tk.Frame):
 
         # Adjust the width of the Text widget for the second page
         if page_index == 1:
-            self.page_content_text.config(width=55)  # Set to a smaller width on the second page
+            self.page_content_text.config(width=70)  # Set to a smaller width on the second page
         else:
             self.page_content_text.config(width=70)  # Default width for other pages
 
@@ -217,7 +177,6 @@ class Info_page(tk.Frame):
         self.page_content_text.insert(tk.END, self.page_texts[page_index]["heading"] + "\n", "heading")
         self.page_content_text.insert(tk.END, self.page_texts[page_index].get("subheading", "") + "\n", "subheading")
         self.page_content_text.insert(tk.END, self.page_texts[page_index]["body"], "body")
-        self.page_content_text.insert(tk.END, self.page_texts[page_index]["lightButtonText"] + "\n", "lightButtonText")
         self.page_content_text.config(state="disabled")
 
         # Show or hide the appropriate image based on the current page
@@ -225,6 +184,10 @@ class Info_page(tk.Frame):
         self.image_canvas.config(bg=self.constants.background_color)  # Ensure the background color remains consistent
 
         # Display the correct image and handle camera frame for each page
+        
+        if page_index == 0:
+            self.image_canvas.grid()  # Make sure the image canvas is visible
+
         if page_index == 1:
             self.send_frames_to_gui.value = True
             # Show the EYES image for the second page
@@ -235,7 +198,7 @@ class Info_page(tk.Frame):
             if not hasattr(self, "camera_frame"):
                 self.camera_frame = tk.Label(self)
                 #self.camera_frame = tk.Canvas(self, width=640, height=480, bg="transparent", highlightthickness=0)
-            self.camera_frame.grid(row=1, column=1, padx=50, sticky="sw", pady=30)
+            self.camera_frame.grid(row=0, column=2, padx=(0,100), sticky="")
             #self.start_frame_thread()  # Start the frame fetching thread
             self.update_frame()  # Update the frame content
         else:
@@ -251,22 +214,17 @@ class Info_page(tk.Frame):
 
             # Show the ARM image for the third page
             if page_index == 2:
-                self.image_canvas.create_image(125, 170, image=self.arm_image_icon)
+                self.image_canvas.create_image(195, 170, image=self.arm_image_icon)
                 self.image_canvas.grid()
 
             # Show the BRAIN image for the last page
             elif page_index == len(self.page_texts) - 1:
                 self.image_canvas.create_image(125, 170, image=self.brain_image_icon)
                 self.image_canvas.grid()
-            else:
+            '''else:
                 # Hide the canvas if no image is needed
-                self.image_canvas.grid_remove()
+                self.image_canvas.grid_remove()'''
 
-        # Update dynamic button visibility based on the current page
-        if page_index == 0:
-            self.dynamic_button.grid_remove()  # Hide by removing from frame (keeps layout stable)
-        else:
-            self.dynamic_button.grid()  # Show by adding back to frame
 
         # Update arrow visibility based on the current page
         self.update_arrow_visibility()
@@ -334,7 +292,7 @@ class Info_page(tk.Frame):
         for i in range(len(self.page_texts)):
             x = center_x + i * dot_spacing
             color = self.constants.text_color if i == self.current_page else self.constants.background_color
-            dot = self.dots.create_oval(x, 10, x + 2 * dot_radius, 10 + 2 * dot_radius, fill=color)
+            dot = self.dots.create_oval(x, 10, x + 2 * dot_radius, 10 + 2 * dot_radius, fill=color, outline=self.constants.text_color)
             self.dots.tag_bind(dot, "<Button-1>", lambda event, index=i: self.show_page(index))
 
     def prev_page(self):
@@ -352,3 +310,64 @@ class Info_page(tk.Frame):
             self.current_page = 0
             self.show_page(0)  # Show the first page when returning
             self.controller.show_frame("Home_page")
+
+
+'''
+
+        # Load the light icon for the dynamic button
+        self.light_icon = ImageTk.PhotoImage(Image.open(self.constants.LIGHT_BULB).resize((40, 40)))
+
+   
+    
+            def send_light_data(light, state):
+            if light == 1:
+                self.communication.send_data(0, 0, 0, state, 0, 0, False)
+                print(f"light 1: {'on' if state else 'off'}")
+            elif light == 2:
+                self.communication.send_data(0, 0, 0, 0, state, 0, False)
+                print(f"light 2: {'on' if state else 'off'}")
+            else:
+                self.communication.send_data(0, 0, 0, 0, 0, state, False)
+                print(f"light 3: {'on' if state else 'off'}")
+
+            
+        self.page_actions = [
+            lambda: print("Action for Page 1"), 
+            lambda: send_light_data(1, 1),
+            lambda: send_light_data(2, 1),
+            lambda: send_light_data(3, 1)
+        ]
+
+                # Create the dynamic button with light bulb icon
+        self.dynamic_button = self.button.RoundedButton(
+            master=self.dynamic_button_frame,
+            text="",  # No text since we're using an icon
+            radius=25,
+            width=160,
+            height=70,
+            btnbackground=self.constants.text_color,  # Button background
+            btnforeground=self.constants.background_color,  # Icon/text color
+            image=self.light_icon,  # Set the light bulb icon
+        )
+
+                # Add the button to the grid
+        self.dynamic_button.grid(row=0, column=0)
+
+        # Bind ButtonPress and ButtonRelease events to send the appropriate data
+        self.dynamic_button.bind("<ButtonPress-1>", lambda event: send_light_data(self.current_page, 1))
+        self.dynamic_button.bind("<ButtonRelease-1>", lambda event: send_light_data(self.current_page, 0))
+
+                # Update dynamic button visibility based on the current page
+        if page_index == 0:
+            self.dynamic_button.grid_remove()  # Hide by removing from frame (keeps layout stable)
+        else:
+            self.dynamic_button.grid()  # Show by adding back to frame
+
+                    # Frame to hold the button (keeps layout stable)
+        self.dynamic_button_frame = tk.Frame(self, bg=self.constants.background_color)
+        self.dynamic_button_frame.grid(row=1, column=1, padx=60, pady=40, sticky="se")
+
+        # Placeholder spacer label to maintain consistent layout when button is hidden
+        self.spacer_label = tk.Label(self.dynamic_button_frame, text="", height=2, bg=self.constants.background_color)
+        self.spacer_label.grid(row=0, column=0)
+    '''
