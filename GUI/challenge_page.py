@@ -9,12 +9,13 @@ from multiprocessing import Lock
 import threading
 
 class Challenge_page(tk.Frame):
-    def __init__(self, parent, controller, send_frames, gui_frame_queue, ball_coords_queue):
+    def __init__(self, parent, controller, send_frames, gui_frame_queue, ball_coords_queue, goal_pos_queue):
         super().__init__(parent)
         self.controller = controller
         self.gui_frame_queue = gui_frame_queue
         self.ball_coords_queue = ball_coords_queue
         self.send_frames = send_frames
+        self.goal_pos_queue = goal_pos_queue
         self.stop_event = threading.Event()
         self.thread_started = False
 
@@ -178,7 +179,13 @@ class Challenge_page(tk.Frame):
         for widget in self.result_frame.winfo_children():
             widget.destroy()
         self.result_canvas = tk.Canvas(self.result_frame, bg=constants.background_color, height=2, width=35, highlightthickness=0)
-        self.challenge = Challenges(self.frame_height, self.frame_width)
+        result_label = tk.Label(self.result_frame, 
+                                text="Tävlingen har startats!\nRoboten börjar!", 
+                                font=constants.heading, 
+                                bg=constants.background_color, 
+                                fg=constants.text_color)
+        result_label.pack(side="bottom")
+        self.challenge = Challenges(self.frame_height, self.frame_width, self.goal_pos_queue)
         self.challenge.start_challenge(nivå)
         self.challenge_isRunning = True
 
@@ -191,17 +198,31 @@ class Challenge_page(tk.Frame):
             if self.current_frame is not None:
                 if self.challenge_isRunning:
                     x, y, _ = self.current_coords
-                    self.challenge_isFinished, result_time = self.challenge.create_dots(self.current_frame, x, y)
+                    robotIsFinished, self.challenge_isFinished, robotResultTime, userResultTime = self.challenge.compete(self.current_frame, x, y)
                     if self.challenge_isFinished:
-                        btn_label = tk.Label(self.result_frame, 
-                                text="Du klarade det!\nDin tid var " + str(round(result_time, 2)) + " sekunder", 
+                        self.goal_pos_queue.put((0, 0), timeout=0.01)
+                        for widget in self.result_frame.winfo_children():
+                            widget.destroy()
+                        self.result_canvas = tk.Canvas(self.result_frame, bg=constants.background_color, height=2, width=35, highlightthickness=0)
+                        result_label = tk.Label(self.result_frame, 
+                                text="Du klarade det!\n Robotens tid var" + str(round(robotResultTime,2)) + " sekunder\nDin tid var " + str(round(userResultTime, 2)) + " sekunder", 
                                 font=constants.body_text, 
                                 bg=constants.background_color, 
                                 fg=constants.text_color)
-                        btn_label.pack(side="bottom")
+                        result_label.pack(side="bottom")
 
                         self.challenge_isRunning = False
                         self.challenge_isFinished = False
+                    elif robotIsFinished:
+                        for widget in self.result_frame.winfo_children():
+                            widget.destroy()
+                        self.result_canvas = tk.Canvas(self.result_frame, bg=constants.background_color, height=2, width=35, highlightthickness=0)
+                        result_label = tk.Label(self.result_frame, 
+                                text="Din tur!", 
+                                font=constants.heading, 
+                                bg=constants.background_color, 
+                                fg=constants.text_color)
+                        result_label.pack(side="bottom")
 
                 # Resize and display frame
                 resized_frame = cv.resize(self.current_frame, (self.cam_height, self.cam_width))
@@ -273,6 +294,10 @@ class Challenge_page(tk.Frame):
                 pass
 
     def back(self):
+        while not self.data_queue.empty():
+            self.goal.get_nowait()
+        self.goal_pos_queue.put((0, 0), timeout=0.01)
+        
         # Remove result text
         for widget in self.result_frame.winfo_children():
             widget.destroy()
