@@ -111,14 +111,17 @@ class Freeplay_page(tk.Frame):
         )
         self.back_button.grid(row=2, column=1, padx=10, pady=10, sticky="sw")
 
+        self.maxnormal = 0.15
     def map_joystick(self, value, event):
         target = self.new_min_joystick + (value - self.old_min_joystick) * (self.new_max_joystick - self.new_min_joystick) / (self.old_max_joystick - self.old_min_joystick)
         return target
 
+    
+
     def move_handle(self, event):
         # Calculate the distance and angle from the center
-        dx = event.x - self.joystick_center
-        dy = event.y - self.joystick_center
+        dx = (event.x - self.joystick_center)
+        dy = (event.y - self.joystick_center)
         distance = sqrt(dx**2 + dy**2)
 
         # Limit the movement within joystick bounds
@@ -127,8 +130,6 @@ class Freeplay_page(tk.Frame):
             angle = atan2(dy, dx)
             dx = cos(angle) * (self.joystick_center - self.handle_radius)
             dy = sin(angle) * (self.joystick_center - self.handle_radius)
-            dx_mapped = dx * (0.15 / (self.joystick_center - self.handle_radius))
-            dy_mapped = dy * (0.15 / (self.joystick_center - self.handle_radius))
 
         # Move the handle
         self.joystick_canvas.coords(
@@ -139,8 +140,10 @@ class Freeplay_page(tk.Frame):
             self.joystick_center + dy + self.handle_radius
         )
 
+        dx = dx * (self.maxnormal / (self.joystick_center - self.handle_radius))
+        dy = dy * (self.maxnormal / (self.joystick_center - self.handle_radius))
         # Print the joystick's position relative to the center
-        print(f"Joystick position: x={dx_mapped:.2f}, y={dy_mapped:.2f}")
+        print(f"Joystick position: x={dx:.2f}, y={dy:.2f}")
 
     def reset_handle(self, event):
         # Reset the handle to the center
