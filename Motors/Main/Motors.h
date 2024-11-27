@@ -25,6 +25,16 @@ public:
     std::array<int, 3> buttonPin = {25, 5, 4};
     std::array<bool, 3> buttonPressed;
     std::array<bool, 3> skipPhaseOne;
+    double speed1[3] = {0,0,0};
+    double speed2[3] = {0,0,0};
+    double speed3[3] = {0,0,0};
+    double speed[3] = {0,0,0};
+
+    double position[3] = {0,0,0};
+    double _diff[3] = {0,0,0};
+
+
+
 
 private:
     // Member variables for motor control
@@ -41,12 +51,9 @@ private:
     std::array<double, 3> prev_steps = {0,0,0};
     void set_speed(double steps[3]);
     float _max_speed = 2000;//2000
-    float _cs = 50;//50
+    float _cs = 70;//50
     double _acc_multiplier = 5;//5
     double _speed_diff = 100;//100
-    double _diff = 0;
-    double speed[3] = {0,0,0};
-    double position[3] = {0,0,0};
     double speedPrev[3];
     double prev_rec_time = 0;
 
