@@ -88,7 +88,7 @@ def pid_control(queue_in, k_pid, esp_com, goal_position_queue, joystick_control_
             controlling = False
         elif isinstance(local_joystick_control, tuple) and (last_tuple is not local_joystick_control):
             last_tuple = local_joystick_control
-            esp_com.send_data(-local_joystick_control[0], local_joystick_control[1], height, state1, state2, state3, homing)
+            esp_com.send_data(local_joystick_control[0], local_joystick_control[1], height, state1, state2, state3, homing)
             controlling = True
 
         if not queue_in.empty():

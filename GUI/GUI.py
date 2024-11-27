@@ -22,7 +22,7 @@ class App(tk.Tk):
         self.joystick_control_queue = joystick_control_queue
 
         # Start in full-screen mode
-        #self.attributes("-fullscreen", True)
+        self.attributes("-fullscreen", True)
 
         # Container to hold all pages
         container = tk.Frame(self)
