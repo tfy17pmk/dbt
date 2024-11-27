@@ -10,16 +10,19 @@ from .challenge_page import Challenge_page
 
 # Main Application Class
 class App(tk.Tk):
-    def __init__(self, send_frames_to_gui, gui_frame_queue, send_frames_to_challenge, gui_challange_frame_queue, ball_coords_queue, goal_pos_queue, joystick_control_queue):
+    """Initialize the application."""
+    def __init__(self, resources):
         super().__init__()
         self.title("BallBot")
-        self.send_frames_to_gui = send_frames_to_gui
-        self.gui_frame_queue = gui_frame_queue
-        self.send_frames_to_challenge = send_frames_to_challenge
-        self.gui_challange_frame_queue = gui_challange_frame_queue
-        self.ball_coords_queue = ball_coords_queue
-        self.goal_pos_queue = goal_pos_queue
-        self.joystick_control_queue = joystick_control_queue
+        self.resources = resources
+
+        # Replace this shared resources with the resources from main.py
+        self.send_frames_to_challenge = resources.send_frames_to_challenge
+        self.gui_challange_frame_queue = resources.gui_challange_frame_queue
+        self.ball_coords_queue = resources.ball_coords_queue
+        self.goal_pos_queue = resources.goal_position_queue
+        self.joystick_control_queue = resources.joystick_control_queue
+        #--------------------------------------------------------------
 
         # Start in full-screen mode
         self.attributes("-fullscreen", True)
@@ -40,7 +43,7 @@ class App(tk.Tk):
             page_name = Page.__name__
             
             if Page is Info_page:
-                frame = Page(parent=container, controller=self, send_frames_to_gui=self.send_frames_to_gui, gui_frame_queue=self.gui_frame_queue)
+                frame = Page(parent=container, controller=self, resources=self.resources)
             elif Page is Challenge_page:
                 frame = Page(parent=container, controller=self, send_frames=self.send_frames_to_challenge, gui_frame_queue=self.gui_challange_frame_queue, ball_coords_queue=self.ball_coords_queue, goal_pos_queue=self.goal_pos_queue)
             elif Page is Pattern_page:
@@ -56,16 +59,18 @@ class App(tk.Tk):
         # Show the start page
         self.show_frame("Home_page")
 
-    # Method to show a frame for the given page name
+
     def show_frame(self, page_name):
+        """Show a frame for the given page name."""
         frame = self.frames[page_name]
 
-        if page_name == "Challenge_page":
-            self.send_frames_to_challenge.value = True
+        #if page_name == "Challenge_page":
+            #self.resources.send_frames_to_challenge.value = True
 
         frame.tkraise()
 
     def join_threads(self):
+        """Join all threads in the frames."""
         for frame in self.frames.values():
             if hasattr(frame, 'join_threads'):
                 frame.join_threads()

@@ -9,7 +9,8 @@ from multiprocessing import Lock
 import threading
 
 class Info_page(tk.Frame):
-    def __init__(self, parent, controller, send_frames_to_gui, gui_frame_queue):
+    def __init__(self, parent, controller, resources):
+        """Initialize the Info page."""
         super().__init__(parent)
         self.controller = controller
         self.current_page = 0
@@ -18,11 +19,9 @@ class Info_page(tk.Frame):
         # temporary using another communication file
         self.communication = GUI.communication
 
-        self.send_frames_to_gui = send_frames_to_gui
-        self.gui_frame_queue = gui_frame_queue
+        self.resources = resources
         self.current_frame = None
         self.stop_event = threading.Event()
-        self.thread_started = False
 
         self.configure(bg=self.constants.background_color)
 
@@ -189,7 +188,7 @@ class Info_page(tk.Frame):
             self.image_canvas.grid()  # Make sure the image canvas is visible
 
         if page_index == 1:
-            self.send_frames_to_gui.value = True
+            self.resources.send_frames_to_gui.value = True # Set flag for backend to send frames to GUI
             # Show the EYES image for the second page
             self.image_canvas.create_image(150, 150, image=self.eyes_image_icon)
             self.image_canvas.grid()  # Make sure the image canvas is visible
@@ -199,18 +198,15 @@ class Info_page(tk.Frame):
                 self.camera_frame = tk.Label(self)
                 #self.camera_frame = tk.Canvas(self, width=640, height=480, bg="transparent", highlightthickness=0)
             self.camera_frame.grid(row=0, column=2, padx=(0,100), sticky="")
-            #self.start_frame_thread()  # Start the frame fetching thread
-            self.update_frame()  # Update the frame content
+            self.start_frame_thread()  # Start the frame fetching thread
         else:
-            self.send_frames_to_gui.value = False
+            self.resources.send_frames_to_gui.value = False # Set flag to stop sending frames to GUI
             self.current_frame = None  # Clear the current frame
-            #self.join_threads()  # Stop the frame fetching thread
+            #self.join_threads()  # Terminate the frame fetching thread
+
             # Hide camera_frame on pages other than the second
             if hasattr(self, "camera_frame"):
                 self.camera_frame.grid_remove()
-            
-            if self.thread_started:
-                self.join_threads()
 
             # Show the ARM image for the third page
             if page_index == 2:
@@ -235,36 +231,28 @@ class Info_page(tk.Frame):
     def start_frame_thread(self):
         """Start a separate thread to fetch frames from the queue."""
         self.stop_event.clear()
-        self.frame_thread = threading.Thread(target=self.fetch_frames)
-        self.frame_thread.start()
+        if not hasattr(self, 'frame_thread'):
+            self.frame_thread = threading.Thread(target=self.fetch_frames)
+            self.frame_thread.start()
 
     def join_threads(self):
         """Join the frame fetching thread."""
         self.stop_event.set()
-        self.frame_thread.join()
-        self.thread_started = False
+        if hasattr(self, 'frame_thread') and self.frame_thread.is_alive():
+            self.frame_thread.join()
 
     def fetch_frames(self):
         """Fetch frames from the queue in a separate thread."""
         while not self.stop_event.is_set():
             try:
-                if not self.gui_frame_queue.empty():
-                    frame = self.gui_frame_queue.get_nowait()
+                if not self.resources.gui_frame_queue.empty():
+                    frame = self.resources.gui_frame_queue.get_nowait()
                     self.current_frame = ImageTk.PhotoImage(Image.fromarray(frame))
+                    # Update the camera_frame with the latest frame directly
+                    self.camera_frame.config(image=self.current_frame)
+                    self.camera_frame.image = self.current_frame
             except Exception as e:
                 pass
-
-    def update_frame(self):
-        """Update the camera_frame with the latest frame."""
-        if self.send_frames_to_gui.value: 
-            if self.thread_started != True:
-                self.start_frame_thread()
-                self.thread_started = True
-            elif self.current_frame and self.thread_started:
-                self.camera_frame.config(image=self.current_frame)
-                self.camera_frame.image = self.current_frame
-
-        self.after(1, self.update_frame)  # Schedule the next frame update with a 1-millisecond interval
 
     def update_arrow_visibility(self):
         """Hide left arrow on the first page and right arrow on the last page."""
@@ -310,64 +298,3 @@ class Info_page(tk.Frame):
             self.current_page = 0
             self.show_page(0)  # Show the first page when returning
             self.controller.show_frame("Home_page")
-
-
-'''
-
-        # Load the light icon for the dynamic button
-        self.light_icon = ImageTk.PhotoImage(Image.open(self.constants.LIGHT_BULB).resize((40, 40)))
-
-   
-    
-            def send_light_data(light, state):
-            if light == 1:
-                self.communication.send_data(0, 0, 0, state, 0, 0, False)
-                print(f"light 1: {'on' if state else 'off'}")
-            elif light == 2:
-                self.communication.send_data(0, 0, 0, 0, state, 0, False)
-                print(f"light 2: {'on' if state else 'off'}")
-            else:
-                self.communication.send_data(0, 0, 0, 0, 0, state, False)
-                print(f"light 3: {'on' if state else 'off'}")
-
-            
-        self.page_actions = [
-            lambda: print("Action for Page 1"), 
-            lambda: send_light_data(1, 1),
-            lambda: send_light_data(2, 1),
-            lambda: send_light_data(3, 1)
-        ]
-
-                # Create the dynamic button with light bulb icon
-        self.dynamic_button = self.button.RoundedButton(
-            master=self.dynamic_button_frame,
-            text="",  # No text since we're using an icon
-            radius=25,
-            width=160,
-            height=70,
-            btnbackground=self.constants.text_color,  # Button background
-            btnforeground=self.constants.background_color,  # Icon/text color
-            image=self.light_icon,  # Set the light bulb icon
-        )
-
-                # Add the button to the grid
-        self.dynamic_button.grid(row=0, column=0)
-
-        # Bind ButtonPress and ButtonRelease events to send the appropriate data
-        self.dynamic_button.bind("<ButtonPress-1>", lambda event: send_light_data(self.current_page, 1))
-        self.dynamic_button.bind("<ButtonRelease-1>", lambda event: send_light_data(self.current_page, 0))
-
-                # Update dynamic button visibility based on the current page
-        if page_index == 0:
-            self.dynamic_button.grid_remove()  # Hide by removing from frame (keeps layout stable)
-        else:
-            self.dynamic_button.grid()  # Show by adding back to frame
-
-                    # Frame to hold the button (keeps layout stable)
-        self.dynamic_button_frame = tk.Frame(self, bg=self.constants.background_color)
-        self.dynamic_button_frame.grid(row=1, column=1, padx=60, pady=40, sticky="se")
-
-        # Placeholder spacer label to maintain consistent layout when button is hidden
-        self.spacer_label = tk.Label(self.dynamic_button_frame, text="", height=2, bg=self.constants.background_color)
-        self.spacer_label.grid(row=0, column=0)
-    '''

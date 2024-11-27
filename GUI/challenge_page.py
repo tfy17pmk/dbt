@@ -279,8 +279,9 @@ class Challenge_page(tk.Frame):
     def join_threads(self):
         """Join the frame fetching thread."""
         self.stop_event.set()
-        self.thread.join()
-        self.thread_started = False
+        if hasattr(self, 'thread') and self.frame_thread.is_alive():
+            self.thread.join()
+            self.thread_started = False
 
     def fetch(self):
         """Fetch frames from the queue in a separate thread."""
