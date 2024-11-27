@@ -10,7 +10,7 @@ from .challenge_page import Challenge_page
 
 # Main Application Class
 class App(tk.Tk):
-    def __init__(self, send_frames_to_gui, gui_frame_queue, send_frames_to_challenge, gui_challange_frame_queue, ball_coords_queue, goal_pos_queue):
+    def __init__(self, send_frames_to_gui, gui_frame_queue, send_frames_to_challenge, gui_challange_frame_queue, ball_coords_queue, goal_pos_queue, joystick_control_queue):
         super().__init__()
         self.title("BallBot")
         self.send_frames_to_gui = send_frames_to_gui
@@ -19,9 +19,10 @@ class App(tk.Tk):
         self.gui_challange_frame_queue = gui_challange_frame_queue
         self.ball_coords_queue = ball_coords_queue
         self.goal_pos_queue = goal_pos_queue
+        self.joystick_control_queue = joystick_control_queue
 
         # Start in full-screen mode
-        self.attributes("-fullscreen", True)
+        #self.attributes("-fullscreen", True)
 
         # Container to hold all pages
         container = tk.Frame(self)
@@ -41,9 +42,11 @@ class App(tk.Tk):
             if Page is Info_page:
                 frame = Page(parent=container, controller=self, send_frames_to_gui=self.send_frames_to_gui, gui_frame_queue=self.gui_frame_queue)
             elif Page is Challenge_page:
-                frame = Page(parent=container, controller=self, send_frames=self.send_frames_to_challenge, gui_frame_queue=self.gui_challange_frame_queue, ball_coords_queue=self.ball_coords_queue)
+                frame = Page(parent=container, controller=self, send_frames=self.send_frames_to_challenge, gui_frame_queue=self.gui_challange_frame_queue, ball_coords_queue=self.ball_coords_queue, goal_pos_queue=self.goal_pos_queue)
             elif Page is Pattern_page:
                 frame = Page(parent=container, controller=self, goal_pos_queue=self.goal_pos_queue)
+            elif Page is Freeplay_page:
+                frame = Page(parent=container, controller=self, joystick_control_queue=self.joystick_control_queue)
             else:
                 frame = Page(parent=container, controller=self)
 

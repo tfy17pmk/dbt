@@ -132,7 +132,6 @@ class HexagonShape:
     def log_shape_coordinates(self, points):
         # Example of mapping coordinates (optional)
         self.mapped_points = [self.map_coordinates(x, y) for x, y in points]
-        #self.send_data
         print("Mapped shape coordinates:", self.mapped_points)
 
     def draw_square(self):

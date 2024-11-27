@@ -64,12 +64,10 @@ def capture_and_detect(queue, gui_queue, send_frames_to_gui, gui_challange_frame
         camera.clean_up_cam()
         pass
 
-def pid_control(queue_in, k_pid, esp_com, goal_position_queue, stop_event):
+def pid_control(queue_in, k_pid, esp_com, goal_position_queue, joystick_control_queue, stop_event):
     """Receive ball coordinates from the queue, compute control angles, and send commands."""
     
-    #pid_controller = PID_control(k_pid)
     pid_controller = PID(k_pid, 1, 1)
-    #goal_position = (0, 0)  # Desired position (update when we know coordinates for tables middle point)
 
     last_received_time = time.perf_counter()
     height = 15
@@ -78,25 +76,35 @@ def pid_control(queue_in, k_pid, esp_com, goal_position_queue, stop_event):
     state3 = 1
     homing = False
     local_goal_pos = (0, 0)
+    local_joystick_control = False
+    controlling = local_joystick_control
+    last_tuple = (0 ,0)
 
     while not stop_event.is_set():
+        if not joystick_control_queue.empty():
+            local_joystick_control = joystick_control_queue.get_nowait()
+    
+        if isinstance(local_joystick_control, bool):
+            controlling = False
+        elif isinstance(local_joystick_control, tuple) and (last_tuple is not local_joystick_control):
+            last_tuple = local_joystick_control
+            esp_com.send_data(-local_joystick_control[0], local_joystick_control[1], height, state1, state2, state3, homing)
+            controlling = True
+
         if not queue_in.empty():
-            current_position = queue_in.get()
+            current_position = queue_in.get_nowait()
             last_received_time = time.perf_counter()  # Update the time with each new data
             if not goal_position_queue.empty():
-                    local_goal_pos = goal_position_queue.get_nowait()
-                    print(local_goal_pos)
-                    
-            #control_x, control_y = pid_controller.get_angles(goal_position, current_position)
+                local_goal_pos = goal_position_queue.get_nowait()
+
             control_x, control_y = pid_controller.compute(local_goal_pos, current_position)
+
             
-            #print(queue_in.size())
-            #print(f"Control angles: X: {control_x}, Y: {control_y}")
-            # Send angles to ESP here
-            esp_com.send_data(-control_x, control_y, height, state1, state2, state3, homing)
+            if not controlling:
+                esp_com.send_data(-control_x, control_y, height, state1, state2, state3, homing)
 
         # Check if 3 seconds have passed since the last update
-        if time.perf_counter() - last_received_time > 3:
+        if (time.perf_counter() - last_received_time > 3) and not controlling:
             pid_controller.reset()  # Reset the PID controllers
             esp_com.send_data(0, 0, height, state1, state2, state3, homing)
             last_received_time = time.perf_counter()  # Reset timer to avoid continuous reset
@@ -107,20 +115,10 @@ def handle_keyboard_interrupt(signum, frame):
     stop_event.set()  # Signal processes to stop
 
 if __name__ == "__main__":
-    #         
-    #k_pid = [0.0004, 0.000002, 0.007, 0.1]
-    #k_pid = [0.00065, 0, 0.005, 0.1]
-    #k_pid = [0.0005, 0, 0.0005, 0.1]
-    #k_pid = [0.00055, 0, 0.0005, 0.1] # working with adv pid
-    #k_pid = [0.00055, 0.0004, 0.0005, 0.1] # working with new pid
-    #k_pid = [0.00055, 0.0007, 0.0007] 
-    #k_pid = [0.00055, 0.0007, 0.0007] # with cs =50
-    #k_pid = [0.00045, 0.00065, 0.0008] # with cs =50
-    #k_pid = [0.00085, 0.00055, 0.00065]
-    #k_pid = [0.0388, 0.00225, 0.0168] # Joel (behövs meter, advanced PID?)
-    #k_pid = [0.0014, 0.00065, 0.0007] # Nico och Martin
+    
     k_pid = [0.0008, 0.0000669, 0.0006505, 0.00098, 0.00019, 0.00067]
 
+    joystick_control_queue = Queue(maxsize=5)
     goal_position_queue = Queue(maxsize=5)
     ball_coords_queue = Queue(maxsize=5)
     ball_coords_gui_queue = Queue(maxsize=5)
@@ -134,9 +132,9 @@ if __name__ == "__main__":
     # Create processes
     capture_process = Process(target=capture_and_detect, args=(ball_coords_queue, gui_frame_queue, send_frames_to_gui, gui_challange_frame_queue, 
                                                                send_frames_to_challenge, ball_coords_gui_queue, goal_position_queue, 
-                                                               stop_event), daemon=True)
+                                                                stop_event), daemon=True)
     
-    pid_process = Process(target=pid_control, args=(ball_coords_queue, k_pid, esp_com, goal_position_queue, stop_event), daemon=True)
+    pid_process = Process(target=pid_control, args=(ball_coords_queue, k_pid, esp_com, goal_position_queue, joystick_control_queue,stop_event), daemon=True)
 
     # Start processes
     capture_process.start()
@@ -147,7 +145,8 @@ if __name__ == "__main__":
 
     try:
         app = App(send_frames_to_gui=send_frames_to_gui, gui_frame_queue=gui_frame_queue, send_frames_to_challenge=send_frames_to_challenge, 
-                  gui_challange_frame_queue=gui_challange_frame_queue, ball_coords_queue=ball_coords_gui_queue, goal_pos_queue=goal_position_queue)
+                  gui_challange_frame_queue=gui_challange_frame_queue, ball_coords_queue=ball_coords_gui_queue, goal_pos_queue=goal_position_queue,
+                  joystick_control_queue=joystick_control_queue)
         app.mainloop()
     except Exception as e:
         print(f"An error occurred: {e}", file=sys.stderr)

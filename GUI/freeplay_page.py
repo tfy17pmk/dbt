@@ -2,16 +2,19 @@ import tkinter as tk
 import GUI.constants
 import GUI.button
 from math import atan2, cos, sin, sqrt
+import time
+
 
 
 class Freeplay_page(tk.Frame):
-    def __init__(self, parent, controller):
+    def __init__(self, parent, controller, joystick_control_queue):
         super().__init__(parent)
         self.controller = controller
         self.constants = GUI.constants
         self.button = GUI.button
         self.configure(bg=self.constants.background_color)
-        
+        self.joystick_control_queue = joystick_control_queue
+        self.last_time = time.time()
 
         # Get screen dimensions
         screen_width = self.winfo_screenwidth()
@@ -107,18 +110,17 @@ class Freeplay_page(tk.Frame):
             height=70, 
             btnbackground=self.constants.text_color, 
             btnforeground=self.constants.background_color, 
-            clicked=lambda: controller.show_frame("Competition_page")
+            clicked=self.go_back
         )
         self.back_button.grid(row=2, column=1, padx=10, pady=10, sticky="sw")
 
-    def map_joystick(self, value, event):
-        target = self.new_min_joystick + (value - self.old_min_joystick) * (self.new_max_joystick - self.new_min_joystick) / (self.old_max_joystick - self.old_min_joystick)
-        return target
+        self.maxnormal = 0.15
+    
 
     def move_handle(self, event):
         # Calculate the distance and angle from the center
-        dx = event.x - self.joystick_center
-        dy = event.y - self.joystick_center
+        dx = (event.x - self.joystick_center)
+        dy = (event.y - self.joystick_center)
         distance = sqrt(dx**2 + dy**2)
 
         # Limit the movement within joystick bounds
@@ -127,8 +129,9 @@ class Freeplay_page(tk.Frame):
             angle = atan2(dy, dx)
             dx = cos(angle) * (self.joystick_center - self.handle_radius)
             dy = sin(angle) * (self.joystick_center - self.handle_radius)
-            dx_mapped = dx * (0.15 / (self.joystick_center - self.handle_radius))
-            dy_mapped = dy * (0.15 / (self.joystick_center - self.handle_radius))
+            '''dx_mapped = float(dx * (0.15 / (self.joystick_center - self.handle_radius)))
+            dy_mapped = float(dy * (0.15 / (self.joystick_center - self.handle_radius)))'''
+
 
         # Move the handle
         self.joystick_canvas.coords(
@@ -139,8 +142,11 @@ class Freeplay_page(tk.Frame):
             self.joystick_center + dy + self.handle_radius
         )
 
-        # Print the joystick's position relative to the center
-        print(f"Joystick position: x={dx_mapped:.2f}, y={dy_mapped:.2f}")
+        dx = dx * (self.maxnormal / (self.joystick_center - self.handle_radius))
+        dy = dy * (self.maxnormal / (self.joystick_center - self.handle_radius))
+
+        self.send_joystick_control(dx, dy)
+
 
     def reset_handle(self, event):
         # Reset the handle to the center
@@ -151,4 +157,20 @@ class Freeplay_page(tk.Frame):
             self.joystick_center + self.handle_radius,
             self.joystick_center + self.handle_radius
         )
-        print("Joystick position: x=0, y=0")  # Print center position when reset
+        self.send_joystick_control(0, 0)
+
+
+    def send_joystick_control(self, dx, dy):
+        if not self.joystick_control_queue.full():
+            try:
+                #if time.time() - self.last_time > 0.1:
+                    self.joystick_control_queue.put_nowait((dx, dy))
+                    #self.last_time = time.time()
+            except Exception as e:
+                print(f"Queue error: {e}")
+        else:
+            print(f"Queue joystick control is full!")
+
+    def go_back(self):
+        self.controller.show_frame("Competition_page")
+        self.joystick_control_queue.put_nowait(False)
