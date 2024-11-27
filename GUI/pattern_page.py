@@ -222,7 +222,6 @@ class Pattern_page(tk.Frame):
         if not self.goal_pos_queue.full():
             try:
                 self.goal_pos_queue.put((x, y), timeout=0.01)
-                print("put in large queue")
             except Exception as e:
                 print(f"Queue error: {e}")
         else:

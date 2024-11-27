@@ -92,7 +92,6 @@ def pid_control(resources, k_pid, stop_event):
     try:
         while not stop_event.is_set():
             if not resources.joystick_control_queue.empty():
-                print(resources.joystick_control_queue.qsize())
                 local_joystick_control = resources.joystick_control_queue.get_nowait()
         
             if isinstance(local_joystick_control, bool):
