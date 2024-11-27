@@ -157,6 +157,15 @@ class Freeplay_page(tk.Frame):
             self.joystick_center + self.handle_radius,
             self.joystick_center + self.handle_radius
         )
+        self.send_joystick_control(0.14, 0.14)
+        self.send_joystick_control(0.14, 0.14)
+        self.send_joystick_control(0.14, 0.14)
+        self.send_joystick_control(0.14, 0.14)
+        self.send_joystick_control(0.14, 0.14)
+        self.send_joystick_control(0, 0)
+        self.send_joystick_control(0, 0)
+        self.send_joystick_control(0, 0)
+        self.send_joystick_control(0, 0)
         self.send_joystick_control(0, 0)
 
 
