@@ -240,7 +240,7 @@ class Info_page(tk.Frame):
         else:
             self.resources.send_frames_to_gui.value = False # Set flag to stop sending frames to GUI
             self.current_frame = None  # Clear the current frame
-            self.join_threads()  # Terminate the frame fetching thread
+            #self.join_threads()  # Terminate the frame fetching thread
 
             # Hide camera_frame on pages other than the second
             if hasattr(self, "camera_frame"):
@@ -274,8 +274,9 @@ class Info_page(tk.Frame):
     def start_frame_thread(self):
         """Start a separate thread to fetch frames from the queue."""
         self.stop_event.clear()
-        self.frame_thread = threading.Thread(target=self.fetch_frames)
-        self.frame_thread.start()
+        if not hasattr(self, 'frame_thread'):
+            self.frame_thread = threading.Thread(target=self.fetch_frames)
+            self.frame_thread.start()
 
     def join_threads(self):
         """Join the frame fetching thread."""

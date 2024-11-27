@@ -5,7 +5,7 @@ from .info_page import Info_page
 from .competition_page import Competition_page
 from .pattern_page import Pattern_page
 from .freeplay_page import Freeplay_page
-#from .challenge_page import Challenge_page
+from .challenge_page import Challenge_page
 
 
 # Main Application Class
@@ -38,13 +38,13 @@ class App(tk.Tk):
         self.frames = {}
 
         # Initialize each page
-        for Page in (Home_page, Info_page, Pattern_page, Competition_page, Freeplay_page):
+        for Page in (Home_page, Info_page, Pattern_page, Challenge_page, Competition_page, Freeplay_page):
             page_name = Page.__name__
             
             if Page is Info_page:
                 frame = Page(parent=container, controller=self, resources=self.resources)
-            #elif Page is Challenge_page:
-                #frame = Page(parent=container, controller=self, send_frames=self.send_frames_to_challenge, gui_frame_queue=self.gui_challange_frame_queue, ball_coords_queue=self.ball_coords_queue)
+            elif Page is Challenge_page:
+                frame = Page(parent=container, controller=self, send_frames=self.send_frames_to_challenge, gui_frame_queue=self.gui_challange_frame_queue, ball_coords_queue=self.ball_coords_queue)
             elif Page is Pattern_page:
                 frame = Page(parent=container, controller=self, goal_pos_queue=self.goal_pos_queue)
             else:
