@@ -82,7 +82,6 @@ class Challenges:
             if self.robotIsFinished:
                 # Return ball to center
                 self.goal_pos_queue.put((0, 0), timeout=0.01)
-                time.sleep(3)
 
                 for i in range(len(self.circle_colors[:,1])):
                     self.circle_colors[i, :] = [255,0,0]
