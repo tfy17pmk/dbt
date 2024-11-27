@@ -57,13 +57,13 @@ class Freeplay_page(tk.Frame):
         joystick_frame.grid(row=2, column=2, sticky="e", padx=20)
 
         # Create a canvas for the joystick
-        joystick_size = 150
+        joystick_size = 300
         self.joystick_center = joystick_size // 2
         self.joystick_canvas = tk.Canvas(joystick_frame, width=joystick_size, height=joystick_size, bg=self.constants.background_color, highlightthickness=0)
         self.joystick_canvas.pack()
 
         # Draw joystick area 
-        self.area_radius = 60
+        self.area_radius = 120
         self.joystick_area = self.joystick_canvas.create_oval(
             self.joystick_center - self.area_radius, 
             self.joystick_center - self.area_radius,
@@ -80,7 +80,7 @@ class Freeplay_page(tk.Frame):
         self.old_max_joystick = 45
 
         # Draw the joystick handle
-        self.handle_radius = 30
+        self.handle_radius = 40
         self.handle = self.joystick_canvas.create_oval(
             self.joystick_center - self.handle_radius, 
             self.joystick_center - self.handle_radius,
