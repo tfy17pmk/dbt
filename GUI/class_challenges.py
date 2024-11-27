@@ -43,13 +43,15 @@ class Challenges:
 
     def start_challenge(self, nivå):
         # Function to overwrite previous goal points
-        while not self.data_queue.empty():
-            self.goal.get_nowait()
+        while not self.goal_pos_queue.empty():
+            self.goal_pos_queue.get_nowait()
         self.goal_pos_queue.put((0, 0), timeout=0.01)
-        time.sleep(1)
+        time.sleep(3)
         
         self.isFinished = False
         self.robotIsFinished = False
+        self.userResultTime = None
+        self.robotResultTime = None
 
         # Set goal array
         self.array = self.patterns[nivå]
@@ -69,16 +71,21 @@ class Challenges:
         self.competitor = "Robot"
         self.goals_hit = np.zeros(len(self.array[:,0]))
         self.nr_of_goals = len(self.array[:,0])
+        self.goal_index = 0
         self.start_time = time.time()
-        self.goal_pos_queue.put((self.goal_array[i,0], self.goal_array[i,1]), timeout=0.01)
+        self.goal_pos_queue.put((self.goal_array[0,0], self.goal_array[0,1]), timeout=0.01)
 
     def compete(self, frame, ball_x, ball_y):
+        self.robotIsFinished = False
         if self.competitor == "Robot":
             self.robotResultTime = self.create_dots_robot(frame, ball_x, ball_y)
             if self.robotIsFinished:
                 # Return ball to center
                 self.goal_pos_queue.put((0, 0), timeout=0.01)
-                time.sleep(1)
+                time.sleep(3)
+
+                for i in range(len(self.circle_colors[:,1])):
+                    self.circle_colors[i, :] = [255,0,0]
 
                 # Set starting competitor as robot
                 self.competitor = "User"

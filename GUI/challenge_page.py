@@ -205,7 +205,7 @@ class Challenge_page(tk.Frame):
                             widget.destroy()
                         self.result_canvas = tk.Canvas(self.result_frame, bg=constants.background_color, height=2, width=35, highlightthickness=0)
                         result_label = tk.Label(self.result_frame, 
-                                text="Du klarade det!\n Robotens tid var" + str(round(robotResultTime,2)) + " sekunder\nDin tid var " + str(round(userResultTime, 2)) + " sekunder", 
+                                text="Du klarade det!\n Robotens tid var " + str(round(robotResultTime,2)) + " sekunder\nDin tid var " + str(round(userResultTime, 2)) + " sekunder", 
                                 font=constants.body_text, 
                                 bg=constants.background_color, 
                                 fg=constants.text_color)
@@ -294,8 +294,8 @@ class Challenge_page(tk.Frame):
                 pass
 
     def back(self):
-        while not self.data_queue.empty():
-            self.goal.get_nowait()
+        while not self.goal_pos_queue.empty():
+            self.goal_pos_queue.get_nowait()
         self.goal_pos_queue.put((0, 0), timeout=0.01)
         
         # Remove result text
