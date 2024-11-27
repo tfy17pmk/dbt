@@ -10,14 +10,14 @@ import threading
 import time
 
 class Challenge_page(tk.Frame):
-    def __init__(self, parent, controller, send_frames, gui_frame_queue, ball_coords_queue, goal_pos_queue, joystick_control_queue):
+    def __init__(self, parent, controller, resources):
         super().__init__(parent)
         self.controller = controller
-        self.gui_frame_queue = gui_frame_queue
-        self.ball_coords_queue = ball_coords_queue
-        self.send_frames = send_frames
-        self.goal_pos_queue = goal_pos_queue
-        self.joystick_control_queue = joystick_control_queue
+        self.gui_frame_queue = resources.gui_challange_frame_queue
+        self.ball_coords_queue = resources.ball_coords_gui_queue
+        self.send_frames = resources.send_frames_to_challenge
+        self.goal_pos_queue = resources.goal_position_queue
+        self.joystick_control_queue = resources.joystick_control_queue
         self.isJoystick = False
         self.start_time = None
         self.robot_time = None

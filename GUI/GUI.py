@@ -19,7 +19,7 @@ class App(tk.Tk):
         # Replace this shared resources with the resources from main.py
         self.send_frames_to_challenge = resources.send_frames_to_challenge
         self.gui_challange_frame_queue = resources.gui_challange_frame_queue
-        self.ball_coords_queue = resources.ball_coords_queue
+        self.ball_coords_queue = resources.ball_coords_gui_queue
         self.goal_pos_queue = resources.goal_position_queue
         self.joystick_control_queue = resources.joystick_control_queue
         #--------------------------------------------------------------
@@ -45,7 +45,7 @@ class App(tk.Tk):
             if Page is Info_page:
                 frame = Page(parent=container, controller=self, resources=self.resources)
             elif Page is Challenge_page:
-                frame = Page(parent=container, controller=self, send_frames=self.send_frames_to_challenge, gui_frame_queue=self.gui_challange_frame_queue, ball_coords_queue=self.ball_coords_queue, goal_pos_queue=self.goal_pos_queue, joystick_control_queue=self.joystick_control_queue)
+                frame = Page(parent=container, controller=self, resources=self.resources)
             elif Page is Pattern_page:
                 frame = Page(parent=container, controller=self, goal_pos_queue=self.goal_pos_queue)
             elif Page is Freeplay_page:
@@ -64,8 +64,8 @@ class App(tk.Tk):
         """Show a frame for the given page name."""
         frame = self.frames[page_name]
 
-        #if page_name == "Challenge_page":
-            #self.resources.send_frames_to_challenge.value = True
+        if page_name == "Challenge_page":
+            self.resources.send_frames_to_challenge.value = True
 
         frame.tkraise()
 

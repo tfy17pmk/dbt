@@ -63,6 +63,7 @@ def capture_and_detect(resources, stop_event):
                 # In in challenge page, send frames
                 if resources.send_frames_to_challenge.value:
                     put_value_in_shared_queue(cropped_frame, resources.gui_challange_frame_queue, 3)
+                    print("put in frame")
                     put_value_in_shared_queue(ball_coordinates, resources.ball_coords_gui_queue, 4)
                 else:
                     if not resources.gui_challange_frame_queue.empty():
