@@ -82,6 +82,7 @@ def pid_control(queue_in, k_pid, esp_com, goal_position_queue, joystick_control_
 
     while not stop_event.is_set():
         if not joystick_control_queue.empty():
+            print(joystick_control_queue.qsize())
             local_joystick_control = joystick_control_queue.get_nowait()
     
         if isinstance(local_joystick_control, bool):
@@ -118,7 +119,7 @@ if __name__ == "__main__":
     
     k_pid = [0.0008, 0.0000669, 0.0006505, 0.00098, 0.00019, 0.00067]
 
-    joystick_control_queue = Queue(maxsize=5)
+    joystick_control_queue = Queue(maxsize=10)
     goal_position_queue = Queue(maxsize=5)
     ball_coords_queue = Queue(maxsize=5)
     ball_coords_gui_queue = Queue(maxsize=5)
