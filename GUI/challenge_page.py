@@ -87,6 +87,14 @@ class Challenge_page(tk.Frame):
         self.result_frame = tk.Frame(self, bg=constants.background_color, highlightthickness=0)
         self.result_frame.grid(row=2, column=2, sticky="new", ipadx=0, ipady=0)
         self.result_canvas = tk.Canvas(self.result_frame, bg=constants.background_color, height=4, width=50, highlightthickness=0)
+        self.result_text_variable = tk.StringVar()
+        self.result_text_variable.set("")
+        self.result_label = tk.Label(self.result_frame, 
+                                textvariable=self.result_text_variable, 
+                                font=constants.heading, 
+                                bg=constants.background_color, 
+                                fg=constants.text_color)
+        self.result_label.pack(side="bottom")
 
         # Go back frame
         back_btn_frame = tk.Frame(self, 
@@ -189,31 +197,10 @@ class Challenge_page(tk.Frame):
 
     def on_button_click(self, nivå):
         # Define the action for the button_test click
-        for widget in self.result_frame.winfo_children():
-            widget.destroy()
-        self.result_canvas = tk.Canvas(self.result_frame, bg=constants.background_color, height=2, width=35, highlightthickness=0)
-        result_label = tk.Label(self.result_frame, 
-                                text="Tävlingen startar!\nRoboten börjar!", 
-                                font=constants.heading, 
-                                bg=constants.background_color, 
-                                fg=constants.text_color)
-        result_label.pack(side="bottom")
+        self.result_text_variable.set("Tävlingen startar!\nRoboten börjar!")
         self.isJoystick = False
         self.joystick_control_queue.put_nowait(False)
-
-        #self.cam_canvas = tk.Canvas(self.cam_frame, bg=constants.background_color, height=self.cam_height, width=self.cam_width)
-        #self.cam_canvas.pack()
-        #radius = 100
-        #self.cam_canvas.create_oval((self.cam_width/2)-radius, (self.cam_height/2)+radius, (self.cam_width/2)+radius, (self.cam_height/2)-radius, fill=constants.text_color, tags="nrCircle")
-        #for i in range(3):
-        #    self.cam_canvas.create_text(self.cam_width/2, self.cam_height/2, 
-        #                                            text=str(3-i), tags="nr", fill=constants.background_color,
-        #                                            font=(constants.heading, 25), justify="center")
-        #    time.sleep(1)
-        #    self.cam_canvas.delete("nr")
-        #for widget in self.cam_frame.winfo_children():
-        #    widget.destroy()
-        time.sleep(2)
+        time.sleep(1)
 
         self.challenge = Challenges(self.frame_height, self.frame_width, self.goal_pos_queue)
         self.challenge.start_challenge(nivå)
@@ -233,44 +220,22 @@ class Challenge_page(tk.Frame):
                     if self.challenge_isFinished:
                         self.user_time = current_time - self.start_time
                         self.goal_pos_queue.put((0, 0), timeout=0.01)
-                        for widget in self.result_frame.winfo_children():
-                            widget.destroy()
-                        self.result_canvas = tk.Canvas(self.result_frame, bg=constants.background_color, height=2, width=35, highlightthickness=0)
-                        result_label = tk.Label(self.result_frame, 
-                                text="Du klarade det!\n Robotens tid var " + str(round(self.robot_time,2)) + " sekunder\nDin tid var " + str(round(self.user_time, 2)) + " sekunder", 
-                                font=constants.body_text, 
-                                bg=constants.background_color, 
-                                fg=constants.text_color)
-                        result_label.pack(side="bottom")
+                        self.result_label.config(font=constants.body_text)
+                        self.result_text_variable.set("Du klarade det!\n Robotens tid var " + str(round(self.robot_time,2)) + " sekunder\nDin tid var " + str(round(self.user_time, 2)) + " sekunder")
 
                         self.challenge_isRunning = False
                         self.challenge_isFinished = False
                         self.isJoystick = False
                     elif robotIsFinished:
                         self.robot_time = current_time - self.start_time
-                        for widget in self.result_frame.winfo_children():
-                            widget.destroy()
-                        self.result_canvas = tk.Canvas(self.result_frame, bg=constants.background_color, height=2, width=35, highlightthickness=0)
-                        result_label = tk.Label(self.result_frame, 
-                                text="Din tur!", 
-                                font=constants.heading, 
-                                bg=constants.background_color, 
-                                fg=constants.text_color)
-                        result_label.pack(side="bottom")
 
-                        #self.cam_canvas = tk.Canvas(self.cam_frame, bg=constants.background_color, height=self.cam_height, width=self.cam_width)
-                        #self.cam_canvas.pack()
-                        #radius = 100
-                        #self.cam_canvas.create_oval((self.cam_width/2)-radius, (self.cam_height/2)+radius, (self.cam_width/2)+radius, (self.cam_height/2)-radius, fill=constants.text_color, tags="nrCircle")
+                        self.result_label.config(font=constants.heading)
                         #for i in range(3):
-                        #    self.cam_canvas.create_text(self.cam_width/2, self.cam_height/2, 
-                        #                                            text=str(3-i), tags="nr", fill=constants.background_color,
-                        #                                            font=(constants.heading, 25), justify="center")
+                        #    self.result_text_variable.set(f"Din tur!\n {str(3-i)}")
                         #    time.sleep(1)
-                        #    self.cam_canvas.delete("nr")
-                        #for widget in self.cam_frame.winfo_children():
-                        #    widget.destroy()
-                        time.sleep(2)
+                        #    print("Hi")
+                        time.sleep(1.5)
+                        self.result_text_variable.set("Din tur!\n Kör!")
                         
                         self.isJoystick = True
                         self.start_time = time.time()
