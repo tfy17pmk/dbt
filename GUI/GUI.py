@@ -45,7 +45,7 @@ class App(tk.Tk):
             if Page is Info_page:
                 frame = Page(parent=container, controller=self, resources=self.resources)
             elif Page is Challenge_page:
-                frame = Page(parent=container, controller=self, send_frames=self.send_frames_to_challenge, gui_frame_queue=self.gui_challange_frame_queue, ball_coords_queue=self.ball_coords_queue, goal_pos_queue=self.goal_pos_queue)
+                frame = Page(parent=container, controller=self, send_frames=self.send_frames_to_challenge, gui_frame_queue=self.gui_challange_frame_queue, ball_coords_queue=self.ball_coords_queue, goal_pos_queue=self.goal_pos_queue, joystick_control_queue=self.joystick_control_queue)
             elif Page is Pattern_page:
                 frame = Page(parent=container, controller=self, goal_pos_queue=self.goal_pos_queue)
             elif Page is Freeplay_page:
