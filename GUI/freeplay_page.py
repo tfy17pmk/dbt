@@ -21,8 +21,8 @@ class Freeplay_page(tk.Frame):
         screen_height = self.winfo_screenheight()
 
         # Setup grid pattern with equal weight for each row and column
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight=5)
+        self.grid_rowconfigure(0, weight=5)
+        self.grid_rowconfigure(1, weight=0)
         self.grid_rowconfigure(2, weight=1)
         
         self.grid_columnconfigure(0, weight=1)
@@ -35,19 +35,19 @@ class Freeplay_page(tk.Frame):
                               highlightthickness=0, 
                               height=screen_height*0.3, 
                               width=screen_width*0.75)
-        text_frame.grid(row=1, column=1, rowspan=1, columnspan=1, pady=300, sticky="nsew")
+        text_frame.grid(row=0, column=1, pady=(0,0), sticky="")
 
         # Adding text to the text frame
         text_label = tk.Label(text_frame, 
-                              text="Välkommen till balanssidan!", 
+                              text="Välkommen till balanssidan!\n", 
                               font=self.constants.heading, 
                               bg=self.constants.background_color, 
                               fg=self.constants.text_color)
         text_label.grid(row=0, column=0, sticky="nsew")
 
         additional_text = tk.Label(text_frame, 
-                                   text="Här kan du testa balansera bollen själv,\nanvänd spakarna för att röra roboten i rätt riktning.", 
-                                    font=self.constants.heading, 
+                                   text="Här kan du testa balansera bollen själv,\nanvänd spaken för att röra roboten.\nSpaken hittar du nere i högra hörnet.", 
+                                    font=self.constants.sub_heading, 
                                     bg=self.constants.background_color, 
                                     fg=self.constants.text_color)
         additional_text.grid(row=1, column=0, sticky="nsew")
