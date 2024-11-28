@@ -1,7 +1,7 @@
 import tkinter as tk
 import GUI.constants
 import GUI.button
-
+from PIL import Image, ImageTk
 
 # Competition page
 class Competition_page(tk.Frame):
@@ -36,8 +36,9 @@ class Competition_page(tk.Frame):
         back_btn_frame = tk.Frame(self, bg=self.constants.background_color, highlightthickness=0, borderwidth=0)
         back_btn_frame.grid(row=2, column=0, sticky="sw")
 
-        # Custom function to create circular buttons with labels and images
-        def create_circular_button(frame, text, command):
+        from PIL import Image, ImageTk  # Add this import at the top of the file
+
+        def create_circular_button(frame, text, command, image_path):
             # Frame for each button and its label
             btn_container = tk.Frame(frame, bg=self.constants.background_color)
             btn_container.pack(side="left", padx=40)
@@ -55,12 +56,23 @@ class Competition_page(tk.Frame):
                 5, 5, button_diameter - 5, button_diameter - 5, fill="#B9D9EB"
             )
 
+            # Load and resize the image
+            icon_image = Image.open(image_path).resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
+            icon_image = ImageTk.PhotoImage(icon_image)
+
+            # Place the image in the center of the button
+            canvas.create_image(button_diameter // 2, button_diameter // 2, image=icon_image)
+
+            # Keep a reference to avoid garbage collection
+            canvas.image = icon_image
+
             # Button action using a lambda
             canvas.bind("<Button-1>", lambda e: command())
 
+
         # Create the circular buttons with labels above and resized images in the center
-        create_circular_button(button_frame, "Utmaning", lambda: controller.show_frame("Challenge_page"))
-        create_circular_button(button_frame, "Balansera själv", lambda: controller.show_frame("Freeplay_page"))
+        create_circular_button(button_frame, "Utmaning", lambda: controller.show_frame("Challenge_page"), self.constants.COMPETITION_IMAGE)
+        create_circular_button(button_frame, "Balansera själv", lambda: controller.show_frame("Freeplay_page"), self.constants.JOYSTICK)
 
         # Lower-left corner button to go back
         self.back_button = self.button.RoundedButton(

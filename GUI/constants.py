@@ -22,6 +22,7 @@ TRIANGLE = "GUI/assets/triangle.png"
 CIRCLE_PATTERN = "GUI/assets/circlePattern.png"
 HEXAGON = "GUI/assets/hexagon.png"
 BG = "GUI/assets/bluebg.png"
+JOYSTICK = "GUI/assets/joystick.png"
 
 #communication
 serial_port = "/dev/tty.usbserial-0199B457"  # Use 'ls /dev/tty.*' to find the correct port AND you cant have serial monitor on in Arduino IDE!
