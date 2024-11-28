@@ -67,6 +67,8 @@ def capture_and_detect(resources, stop_event):
                 else:
                     if not resources.gui_challange_frame_queue.empty():
                         empty_queue(resources.gui_challange_frame_queue)
+                    if not resources.ball_coords_gui_queue.empty():
+                        empty_queue(resources.ball_coords_gui_queue)
 
     except KeyboardInterrupt:
         print("Capture process interrupting. Exiting.")

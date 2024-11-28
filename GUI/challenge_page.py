@@ -7,17 +7,23 @@ from GUI.class_challenges import Challenges
 from math import atan2, cos, sin, sqrt
 from multiprocessing import Lock
 import threading
+import time
 
 class Challenge_page(tk.Frame):
-    def __init__(self, parent, controller, send_frames, gui_frame_queue, ball_coords_queue, goal_pos_queue):
+    def __init__(self, parent, controller, resources):
         super().__init__(parent)
         self.controller = controller
-        self.gui_frame_queue = gui_frame_queue
-        self.ball_coords_queue = ball_coords_queue
-        self.send_frames = send_frames
-        self.goal_pos_queue = goal_pos_queue
+        self.gui_frame_queue = resources.gui_challange_frame_queue
+        self.ball_coords_queue = resources.ball_coords_gui_queue
+        self.send_frames = resources.send_frames_to_challenge
+        self.goal_pos_queue = resources.goal_position_queue
+        self.joystick_control_queue = resources.joystick_control_queue
+        self.isJoystick = False
+        self.start_time = None
+        self.robot_time = None
+        self.user_time = None
         self.stop_event = threading.Event()
-        self.thread_started = False
+        #self.thread_started = False
 
         self.configure(bg=constants.background_color)
         self.page_texts = constants.challenge_text
@@ -26,8 +32,8 @@ class Challenge_page(tk.Frame):
         # Output frame size
         self.current_frame = None
         self.frame_height, self.frame_width = 285, 320
-        self.cam_width = int(self.frame_width*2.9)
-        self.cam_height = int(self.frame_height*2.9)
+        self.cam_width = int(self.frame_width*2.5)
+        self.cam_height = int(self.frame_height*2.5)
 
         # Frame for the video feed
         self.cam_frame = tk.Label(self) #
@@ -43,7 +49,7 @@ class Challenge_page(tk.Frame):
             height=6, 
             width=20, 
             highlightthickness=0,
-            padx=0,
+            padx=20,
             pady=50
         )
 
@@ -81,6 +87,14 @@ class Challenge_page(tk.Frame):
         self.result_frame = tk.Frame(self, bg=constants.background_color, highlightthickness=0)
         self.result_frame.grid(row=2, column=2, sticky="new", ipadx=0, ipady=0)
         self.result_canvas = tk.Canvas(self.result_frame, bg=constants.background_color, height=4, width=50, highlightthickness=0)
+        self.result_text_variable = tk.StringVar()
+        self.result_text_variable.set("")
+        self.result_label = tk.Label(self.result_frame, 
+                                textvariable=self.result_text_variable, 
+                                font=constants.heading, 
+                                bg=constants.background_color, 
+                                fg=constants.text_color)
+        self.result_label.pack(side="bottom")
 
         # Go back frame
         back_btn_frame = tk.Frame(self, 
@@ -107,13 +121,13 @@ class Challenge_page(tk.Frame):
         joystick_frame.grid(row=3, column=2, sticky="new", pady=(0, 10))
 
         # Create a canvas for the joystick
-        joystick_size = 150
+        joystick_size = 300
         self.joystick_center = joystick_size // 2
         self.joystick_canvas = tk.Canvas(joystick_frame, width=joystick_size, height=joystick_size, bg=constants.background_color, highlightthickness=0)
         self.joystick_canvas.pack()
 
         # Draw joystick area 
-        self.area_radius = 60
+        self.area_radius = 120
         self.joystick_area = self.joystick_canvas.create_oval(
             self.joystick_center - self.area_radius, 
             self.joystick_center - self.area_radius,
@@ -123,8 +137,15 @@ class Challenge_page(tk.Frame):
             outline="#C8C8C8"
         )
 
+        # Initialize mapping range joystick
+        self.new_min_joystick = -0.15
+        self.old_min_joystick = -45
+        self.new_max_joystick = 0.15
+        self.old_max_joystick = 45
+        self.maxnormal = 0.15
+
         # Draw the joystick handle
-        self.handle_radius = 30
+        self.handle_radius = 50
         self.handle = self.joystick_canvas.create_oval(
             self.joystick_center - self.handle_radius, 
             self.joystick_center - self.handle_radius,
@@ -160,7 +181,7 @@ class Challenge_page(tk.Frame):
                            height=self.button_diameter, 
                            highlightthickness=0, 
                            bg=constants.background_color)
-        self.btn_canvas.pack(side="left", padx=70)
+        self.btn_canvas.pack(side="left", padx=90)
 
         # Draw circular button_test shape with calculated diameter
         button_circle = self.btn_canvas.create_oval(
@@ -176,56 +197,46 @@ class Challenge_page(tk.Frame):
 
     def on_button_click(self, nivå):
         # Define the action for the button_test click
-        for widget in self.result_frame.winfo_children():
-            widget.destroy()
-        self.result_canvas = tk.Canvas(self.result_frame, bg=constants.background_color, height=2, width=35, highlightthickness=0)
-        result_label = tk.Label(self.result_frame, 
-                                text="Tävlingen har startats!\nRoboten börjar!", 
-                                font=constants.heading, 
-                                bg=constants.background_color, 
-                                fg=constants.text_color)
-        result_label.pack(side="bottom")
+        self.result_text_variable.set("Tävlingen startar!\nRoboten börjar!")
+        self.isJoystick = False
+        self.joystick_control_queue.put_nowait(False)
+        time.sleep(1)
+
         self.challenge = Challenges(self.frame_height, self.frame_width, self.goal_pos_queue)
         self.challenge.start_challenge(nivå)
+        self.start_time = time.time()
         self.challenge_isRunning = True
 
     def update_camera(self):
-        if self.send_frames.value and not self.thread_started:
+        if self.send_frames.value:
             self.start_thread()
-            self.thread_started = True
         
-        elif self.send_frames.value and self.thread_started:
             if self.current_frame is not None:
                 if self.challenge_isRunning:
                     x, y, _ = self.current_coords
-                    robotIsFinished, self.challenge_isFinished, robotResultTime, userResultTime = self.challenge.compete(self.current_frame, x, y)
+                    robotIsFinished, self.challenge_isFinished, current_time = self.challenge.compete(self.current_frame, x, y)
                     if self.challenge_isFinished:
+                        self.user_time = current_time - self.start_time
                         self.goal_pos_queue.put((0, 0), timeout=0.01)
-                        for widget in self.result_frame.winfo_children():
-                            widget.destroy()
-                        self.result_canvas = tk.Canvas(self.result_frame, bg=constants.background_color, height=2, width=35, highlightthickness=0)
-                        result_label = tk.Label(self.result_frame, 
-                                text="Du klarade det!\n Robotens tid var " + str(round(robotResultTime,2)) + " sekunder\nDin tid var " + str(round(userResultTime, 2)) + " sekunder", 
-                                font=constants.body_text, 
-                                bg=constants.background_color, 
-                                fg=constants.text_color)
-                        result_label.pack(side="bottom")
+                        self.result_label.config(font=constants.body_text)
+                        self.result_text_variable.set("Du klarade det!\n Robotens tid var " + str(round(self.robot_time,2)) + " sekunder\nDin tid var " + str(round(self.user_time, 2)) + " sekunder")
 
                         self.challenge_isRunning = False
                         self.challenge_isFinished = False
+                        self.isJoystick = False
                     elif robotIsFinished:
-                        for widget in self.result_frame.winfo_children():
-                            widget.destroy()
-                        self.result_canvas = tk.Canvas(self.result_frame, bg=constants.background_color, height=2, width=35, highlightthickness=0)
-                        result_label = tk.Label(self.result_frame, 
-                                text="Din tur!", 
-                                font=constants.heading, 
-                                bg=constants.background_color, 
-                                fg=constants.text_color)
-                        result_label.pack(side="bottom")
+                        self.robot_time = current_time - self.start_time
+
+                        self.result_label.config(font=constants.heading)
+                        time.sleep(1.5)
+                        self.result_text_variable.set("Din tur!\n Kör!")
+                        
+                        self.isJoystick = True
+                        self.start_time = time.time()
 
                 # Resize and display frame
-                resized_frame = cv.resize(self.current_frame, (self.cam_height, self.cam_width))
+                flipped_frame = cv.flip(self.current_frame,-1)
+                resized_frame = cv.resize(flipped_frame, (self.cam_height, self.cam_width))
                 self.photo = ImageTk.PhotoImage(image = Image.fromarray(resized_frame))
                 self.cam_frame.config(image=self.photo) #
                 self.cam_frame.image = self.photo #
@@ -256,8 +267,11 @@ class Challenge_page(tk.Frame):
             self.joystick_center + dy + self.handle_radius
         )
 
-        # Print the joystick's position relative to the center
-        print(f"Joystick position: x={dx:.2f}, y={dy:.2f}")
+        dx = dx * (self.maxnormal / (self.joystick_center - self.handle_radius))
+        dy = dy * (self.maxnormal / (self.joystick_center - self.handle_radius))
+
+        if self.isJoystick:
+            self.send_joystick_control(dx, dy)
 
     def reset_handle(self, event):
         # Reset the handle to the center
@@ -268,21 +282,43 @@ class Challenge_page(tk.Frame):
             self.joystick_center + self.handle_radius,
             self.joystick_center + self.handle_radius
         )
-        print("Joystick position: x=0, y=0")  # Print center position when reset
+
+        if self.isJoystick:
+            self.send_joystick_control(0.14, 0.14)
+            self.send_joystick_control(0.14, 0.14)
+            self.send_joystick_control(0.14, 0.14)
+            self.send_joystick_control(0.14, 0.14)
+            self.send_joystick_control(0.14, 0.14)
+            self.send_joystick_control(0, 0)
+            self.send_joystick_control(0, 0)
+            self.send_joystick_control(0, 0)
+            self.send_joystick_control(0, 0)
+            self.send_joystick_control(0, 0)
+
+    def send_joystick_control(self, dx, dy):
+        if not self.joystick_control_queue.full():
+            try:
+                #if time.time() - self.last_time > 0.1:
+                    self.joystick_control_queue.put_nowait((dx, dy))
+                    #self.last_time = time.time()
+            except Exception as e:
+                print(f"Queue error: {e}")
+        else:
+            print(f"Queue joystick control is full!")
 
     def start_thread(self):
         """Start a separate thread to fetch frames from the queue."""
         self.stop_event.clear()
-        self.thread = threading.Thread(target=self.fetch)
-        self.thread.start()
+        if not hasattr(self, 'frame_thread'):
+            self.frame_thread = threading.Thread(target=self.fetch)
+            self.frame_thread.start()
 
     def join_threads(self):
         """Join the frame fetching thread."""
         self.stop_event.set()
-        if hasattr(self, 'thread') and self.frame_thread.is_alive():
-            self.thread.join()
-            self.thread_started = False
-
+        if hasattr(self, 'frame_thread') and self.frame_thread.is_alive():
+            self.frame_thread.join()
+            
     def fetch(self):
         """Fetch frames from the queue in a separate thread."""
         while not self.stop_event.is_set():
@@ -298,6 +334,7 @@ class Challenge_page(tk.Frame):
         while not self.goal_pos_queue.empty():
             self.goal_pos_queue.get_nowait()
         self.goal_pos_queue.put((0, 0), timeout=0.01)
+        self.joystick_control_queue.put_nowait(False)
         
         # Remove result text
         for widget in self.result_frame.winfo_children():
@@ -307,7 +344,7 @@ class Challenge_page(tk.Frame):
         self.challenge_isRunning = False
         self.challenge_isFinished = False
         # Kill thread
-        self.join_threads()
+        #self.join_threads()
         self.send_frames.value = False
         # Show previous page
         self.controller.show_frame("Competition_page")
