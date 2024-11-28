@@ -23,7 +23,7 @@ class Challenge_page(tk.Frame):
         self.robot_time = None
         self.user_time = None
         self.stop_event = threading.Event()
-        self.thread_started = False
+        #self.thread_started = False
 
         self.configure(bg=constants.background_color)
         self.page_texts = constants.challenge_text
@@ -208,11 +208,9 @@ class Challenge_page(tk.Frame):
         self.challenge_isRunning = True
 
     def update_camera(self):
-        if self.send_frames.value and not self.thread_started:
+        if self.send_frames.value:
             self.start_thread()
-            self.thread_started = True
         
-        elif self.send_frames.value and self.thread_started:
             if self.current_frame is not None:
                 if self.challenge_isRunning:
                     x, y, _ = self.current_coords
@@ -230,10 +228,6 @@ class Challenge_page(tk.Frame):
                         self.robot_time = current_time - self.start_time
 
                         self.result_label.config(font=constants.heading)
-                        #for i in range(3):
-                        #    self.result_text_variable.set(f"Din tur!\n {str(3-i)}")
-                        #    time.sleep(1)
-                        #    print("Hi")
                         time.sleep(1.5)
                         self.result_text_variable.set("Din tur!\n Kör!")
                         
@@ -315,16 +309,16 @@ class Challenge_page(tk.Frame):
     def start_thread(self):
         """Start a separate thread to fetch frames from the queue."""
         self.stop_event.clear()
-        self.thread = threading.Thread(target=self.fetch)
-        self.thread.start()
+        if not hasattr(self, 'frame_thread'):
+            self.frame_thread = threading.Thread(target=self.fetch)
+            self.frame_thread.start()
 
     def join_threads(self):
         """Join the frame fetching thread."""
         self.stop_event.set()
-        if hasattr(self, 'thread') and self.frame_thread.is_alive():
-            self.thread.join()
-            self.thread_started = False
-
+        if hasattr(self, 'frame_thread') and self.frame_thread.is_alive():
+            self.frame_thread.join()
+            
     def fetch(self):
         """Fetch frames from the queue in a separate thread."""
         while not self.stop_event.is_set():
@@ -350,7 +344,7 @@ class Challenge_page(tk.Frame):
         self.challenge_isRunning = False
         self.challenge_isFinished = False
         # Kill thread
-        self.join_threads()
+        #self.join_threads()
         self.send_frames.value = False
         # Show previous page
         self.controller.show_frame("Competition_page")
