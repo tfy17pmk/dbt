@@ -22,6 +22,8 @@ TRIANGLE = "GUI/assets/triangle.png"
 CIRCLE_PATTERN = "GUI/assets/circlePattern.png"
 HEXAGON = "GUI/assets/hexagon.png"
 BG = "GUI/assets/bluebg.png"
+STAR_PATTERN = "GUI/assets/star.png"
+HEART_PATTERN = "GUI/assets/heart.png"
 JOYSTICK = "GUI/assets/joystick.png"
 
 #communication

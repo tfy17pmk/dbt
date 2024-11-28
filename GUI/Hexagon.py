@@ -2,6 +2,7 @@ import math
 import threading
 from multiprocessing import Queue
 import time
+import numpy as np
 
 class HexagonShape:
     def __init__(self, canvas, fill="#ffffff", outline="#ffffff"):
@@ -200,6 +201,66 @@ class HexagonShape:
         height = self.canvas.winfo_height()
         center_x = width / 2
         center_y = height / 2
+        outer_radius = min(width, height) / 2.5  # Radius for the hexagon to fit within canvas
+        inner_radius = outer_radius/3
+        starpoints = 5
+
+        # Calculate the six vertices of the hexagon
+        points = []
+        for i in range(starpoints*2):
+            angle  = (i-0.5) * math.pi / starpoints
+            radius = outer_radius if i % 2 == 0 else inner_radius
+            x = center_x + radius * math.cos(angle)
+            y = center_y + radius * math.sin(angle)
+            points.append((x, y))
+        points.append(points[0])
+        # Draw the hexagon on the canvas
+        shape_id = self.canvas.create_polygon(points, outline="black", fill="", tags="shape")
+        self.line_ids.append([shape_id])
+
+        # Log the coordinates of the hexagon vertices
+        self.log_shape_coordinates(points)
+
+    def draw_heart(self):
+        self.is_freehand = False
+        self.clear_all()
+
+        # Calculate the width, height, and center of the canvas
+        width = self.canvas.winfo_width()
+        height = self.canvas.winfo_height()
+        center_x = width / 2
+        center_y = height / 2
+        #radius = min(width, height) / 2.5  # Radius for the hexagon to fit within canvas
+        scale = 12.5
+        pointnumber = 20
+
+        # Calculate the six vertices of the hexagon
+        points = []
+        for i in range(pointnumber):
+            t = i * 2 * math.pi / pointnumber  # Generate n_points evenly spaced values for t
+            x = scale * (16 * np.sin(t)**3) + center_x
+            y = -scale * (13 * np.cos(t) - 5 * np.cos(2 * t) - 2 * np.cos(3 * t) - np.cos(4 * t)) + center_y
+            points.append((x, y))
+        points.append(points[0])
+        print(points)
+        # Draw the hexagon on the canvas
+        shape_id = self.canvas.create_polygon(points, outline="black", fill="", tags="shape")
+        self.line_ids.append([shape_id])
+
+        # Log the coordinates of the hexagon vertices
+        self.log_shape_coordinates(points)
+
+
+
+    def draw_circle(self):
+        self.is_freehand = False
+        self.clear_all()
+
+        # Calculate the width, height, and center of the canvas
+        width = self.canvas.winfo_width()
+        height = self.canvas.winfo_height()
+        center_x = width / 2
+        center_y = height / 2
         radius = min(width, height) / 2.5  # Radius for the hexagon to fit within canvas
 
         # Calculate the six vertices of the hexagon
@@ -211,6 +272,7 @@ class HexagonShape:
             y = center_y + radius * math.sin(angle_rad)
             points.append((x, y))
         points.append(points[0])
+        print(points)
         # Draw the hexagon on the canvas
         shape_id = self.canvas.create_polygon(points, outline="black", fill="", tags="shape")
         self.line_ids.append([shape_id])
