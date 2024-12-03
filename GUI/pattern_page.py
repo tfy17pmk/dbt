@@ -40,6 +40,9 @@ class Pattern_page(tk.Frame):
         # Get screen dimensions
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
+        self.configure(bg=self.constants.background_color)
+        button_width = int(screen_width * 0.05)
+        button_height = int(screen_height * 0.05)
 
         # The squere image fot the patterns page
         image = Image.open(self.constants.SQUARE).resize((40, 40))
@@ -47,7 +50,7 @@ class Pattern_page(tk.Frame):
         enhancer = ImageEnhance.Brightness(image)
         darker_image = enhancer.enhance(0.9)
 
-        # Load the light icon for the dynamic buttons
+        # Load the icons for the dynamic buttons
         self.square_icon = ImageTk.PhotoImage(darker_image)
         self.hexagon_icon = ImageTk.PhotoImage(
             Image.open(self.constants.HEXAGON).resize((40, 45)).rotate(90, expand=True)
@@ -55,19 +58,16 @@ class Pattern_page(tk.Frame):
         # Resize the images for the buttons
         self.triangle_icon = ImageTk.PhotoImage(Image.open(self.constants.TRIANGLE).resize((50, 50)))
         self.circle_icon = ImageTk.PhotoImage(Image.open(self.constants.CIRCLE_PATTERN).resize((40, 40)))
-
-        button_width = int(screen_width * 0.05)
-        button_height = int(screen_height * 0.05)
+        self.star_icon = ImageTk.PhotoImage(Image.open(self.constants.STAR_PATTERN).resize((50, 50)))
+        self.heart_icon = ImageTk.PhotoImage(Image.open(self.constants.HEART_PATTERN).resize((45, 45)))
 
         # Button frame for holding buttons, now added to layout
         button_frame = tk.Frame(self, bg=self.constants.background_color, highlightthickness=0, borderwidth=0)
-        button_frame.config(borderwidth=0, height=screen_height*0.5, width=screen_width*0.1)
-        button_frame.grid(row=1, column=2, sticky="nsew", rowspan=1, pady=180, padx=0)  # Set grid position for button_frame
+        button_frame.config(borderwidth=0, height=screen_height*0.6, width=screen_width*0.1)
+        button_frame.grid(row=1, column=2, sticky="nsew", rowspan=1, pady=(50,0), padx=0)  # Set grid position for button_frame
 
-        # Define "Bakåt" button size and position
+        # Define 'Back' button dimensions and create a fram to place it in
         button_width, button_height = 200, 70
-
-        # Create a frame for the button
         back_button_frame = tk.Frame(self, width=button_width, height=button_height,bg=self.constants.background_color, highlightthickness=0, borderwidth=0)
         back_button_frame.grid(row=2, column=0, sticky="sw", padx=20, pady=20)
 
@@ -83,8 +83,7 @@ class Pattern_page(tk.Frame):
             clicked=self.go_back
         )
         back_button.place(relx=0.5, rely=0.5, anchor="center")
-
-        # Pattern frame for holding drawing board and label
+         # Pattern frame for holding drawing board and label
         pattern_frame = tk.Frame(self, bg=self.constants.background_color, highlightthickness=0, borderwidth=0,
                                   height=screen_height*0.7, width=screen_width*0.4)
         pattern_frame.grid(row=1, column=1, sticky="nsew", pady=0, padx=80, rowspan=2, columnspan=1)
@@ -106,6 +105,9 @@ class Pattern_page(tk.Frame):
         label_line_canvas.place(relx=0.5, rely=0.08, anchor="center")  # Add padding above and below the line
 
         # in button frame
+
+        # Frames for each of the 'premade pattern' buttons
+        # Square
         btn_rec = self.button.RoundedButton(master = button_frame, 
                                        text="", 
                                        radius=25, 
@@ -137,9 +139,8 @@ class Pattern_page(tk.Frame):
                                        btnforeground=self.constants.background_color, 
                                        image=self.triangle_icon,
                                        clicked=lambda: self.hex.draw_triangle())
-        
-        # Star pattern button
-        btn_star = self.button.RoundedButton(master = button_frame, 
+        # Circle
+        btn_circle = self.button.RoundedButton(master = button_frame, 
                                         text="", 
                                         radius=25, 
                                         width=200, 
@@ -147,20 +148,38 @@ class Pattern_page(tk.Frame):
                                         btnbackground=self.constants.text_color, 
                                         btnforeground=self.constants.background_color, 
                                         image=self.circle_icon,
+                                        clicked=lambda: self.hex.draw_circle())
+        # Heart
+        btn_heart = self.button.RoundedButton(master = button_frame, 
+                                        text="", 
+                                        radius=25, 
+                                        width=200, 
+                                        height=70, 
+                                        btnbackground=self.constants.text_color, 
+                                        btnforeground=self.constants.background_color, 
+                                        image=self.heart_icon,
+                                        clicked=lambda: self.hex.draw_heart())
+        # Star
+        btn_star = self.button.RoundedButton(master = button_frame, 
+                                        text="", 
+                                        radius=25, 
+                                        width=200, 
+                                        height=70, 
+                                        btnbackground=self.constants.text_color, 
+                                        btnforeground=self.constants.background_color, 
+                                        image=self.star_icon,
                                         clicked=lambda: self.hex.draw_star())
         
-        # The lable for the shapes
+        # Label for premade patterns & underline
         btn_label = tk.Label(master=button_frame, 
                              text = "Färdiga mönster", 
                              font=(self.constants.heading, 24), 
                              fg=self.constants.text_color, 
                              bg=self.constants.background_color)
-        
-        # Canvas to draw the line
         btn_line_canvas = tk.Canvas(button_frame, width=200, height=2, bg=self.constants.background_color, highlightthickness=0)
         btn_line_canvas.create_line(0, 0, 200, 0, fill=self.constants.text_color)
 
-        # Adding the buttons to the frame
+        # Aligning buttons within the premade button frame
         btn_label.grid(row=0, column=4, sticky="nsew", pady=5)
         btn_line_canvas.grid(row=1, column=4)  # Add padding above and below the line
         btn_rec.grid(row=2, column=4, sticky="nsew", pady=20)
@@ -186,16 +205,6 @@ class Pattern_page(tk.Frame):
         btn_undo.place(relx=0.5, rely=0.9, anchor="center")
 
     def create_hexagon_icon(self, size, outline_color="#000000"):
-        """
-        Creates a hexagon-shaped icon as an image.
-        
-        Parameters:
-            size (int): Size of the image (width and height) to contain the hexagon.
-            outline_color (str): Outline color for the hexagon.
-        
-        Returns:
-            ImageTk.PhotoImage: The generated hexagon icon image.
-        """
         # Create a transparent image
         img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
         draw = ImageDraw.Draw(img)
