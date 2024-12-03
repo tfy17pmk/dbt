@@ -1,27 +1,33 @@
+'''
+This class is the info page.
+
+Date: 28-11-2024
+Author: Grupp 11 DBT HT-2024
+'''
+
 from tkinter import *
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
 import GUI.constants
 import GUI.button
-import GUI.communication
 from multiprocessing import Lock
 import threading
 
 class Info_page(tk.Frame):
     def __init__(self, parent, controller, resources):
         """Initialize the Info page."""
+        
         super().__init__(parent)
+        # Saving usefull variables
         self.controller = controller
         self.current_page = 0
         self.constants = GUI.constants
         self.button = GUI.button
-        # temporary using another communication file
-        self.communication = GUI.communication
-
         self.resources = resources
         self.current_frame = None
         self.stop_event = threading.Event()
+
 
         self.configure(bg=self.constants.background_color)
 
@@ -35,13 +41,11 @@ class Info_page(tk.Frame):
         self.right_arrow_icon = ImageTk.PhotoImage(original_arrow)
         self.left_arrow_icon = ImageTk.PhotoImage(original_arrow.rotate(180))
 
-        # Load images for each page (eyes, arm, and brain images)
+        # Load and resize images for each page (eyes, arm, and brain images)
         eyes_image_original = Image.open(self.constants.EYES).resize((300, 300))
         self.eyes_image_icon = ImageTk.PhotoImage(eyes_image_original)
-
         arm_image_original = Image.open(self.constants.ARM).resize((250, 250))
         self.arm_image_icon = ImageTk.PhotoImage(arm_image_original)
-
         brain_image_original = Image.open(self.constants.BRAIN).resize((250, 250))
         self.brain_image_icon = ImageTk.PhotoImage(brain_image_original)
         
@@ -59,13 +63,11 @@ class Info_page(tk.Frame):
         # Prevents dynamic resizing when widgets are shown/hidden
         self.grid_propagate(False)
         
-
         # Dots canvas for page indicators
         self.dots = tk.Canvas(self, height=40, bg=self.constants.background_color, highlightthickness=0)
         self.dots.grid(row=2, column=1, pady=10, padx=(420,0), sticky="n")
         self.update_dots()
         
-
         # Create canvases for navigation buttons
         self.btn_prev_canvas = tk.Canvas(self, width=80, height=80, bg=self.constants.background_color, highlightthickness=0)
         self.btn_prev_canvas.grid(row=2, column=1, sticky="nw", padx=(730,0), pady=0)
@@ -93,11 +95,13 @@ class Info_page(tk.Frame):
         
         self.page_content_text.grid(row=0, column=1, padx=(200,0), sticky="n")
         
+        # Sets the info text
         self.page_content_text.tag_configure("heading", font=self.constants.heading, foreground=self.constants.text_color)
         self.page_content_text.tag_configure("subheading", font=self.constants.sub_heading, foreground=self.constants.text_color)
         self.page_content_text.tag_configure("body", font=self.constants.body_text, foreground=self.constants.text_color)
         self.page_content_text.tag_configure("lightButtonText", font=self.constants.sub_heading, foreground=self.constants.text_color)
         self.page_content_text.config(state="disabled")
+        
         # Disable selection bindings
         self.page_content_text.bind("<Button-1>", lambda e: "break")     # Disable left-click selection
         self.page_content_text.bind("<B1-Motion>", lambda e: "break")    # Disable mouse drag selection
@@ -107,21 +111,16 @@ class Info_page(tk.Frame):
         self.page_content_text.bind("<Shift-Down>", lambda e: "break")   # Disable Shift+Down selection
         self.page_content_text.bind("<Control-a>", lambda e: "break")    # Disable Ctrl+A selection (Select All)
 
-
-
         # Define a custom style for the rounded button
         style = ttk.Style()
         style.configure("RoundedButton.TButton", 
-                        foreground=self.constants.text_color,   # Text color
-                        background=self.constants.background_color,    # Background color
+                        foreground=self.constants.text_color,           # Text color
+                        background=self.constants.background_color,     # Background color
                         borderwidth=0, 
                         focuscolor=style.configure(".")["background"])  # Match focus color to background
         
         style.map("RoundedButton.TButton",
-                  background=[("active", self.constants.background_color)])  # Hover color
-
-
-
+                  background=[("active", self.constants.background_color)])  # Hover color (not in use, cant hover with touch screen)
 
         # Lower-left corner button to go back
         self.back_button = self.button.RoundedButton(
@@ -144,7 +143,7 @@ class Info_page(tk.Frame):
         # Display the first page initially
         self.show_page(0)
 
-        # Fix for initial rendering of dots
+        # Fix visability for initial rendering of dots
         self.after(100, self.update_dots)
 
     def create_circle_button(self, canvas, x, y, radius, icon, command):
@@ -183,7 +182,6 @@ class Info_page(tk.Frame):
         self.image_canvas.config(bg=self.constants.background_color)  # Ensure the background color remains consistent
 
         # Display the correct image and handle camera frame for each page
-        
         if page_index == 0:
             self.image_canvas.grid()  # Make sure the image canvas is visible
 
@@ -202,7 +200,8 @@ class Info_page(tk.Frame):
         else:
             self.resources.send_frames_to_gui.value = False # Set flag to stop sending frames to GUI
             self.current_frame = None  # Clear the current frame
-            #self.join_threads()  # Terminate the frame fetching thread
+            
+            #self.join_threads()  # Terminate the frame fetching thread mayby not needed
 
             # Hide camera_frame on pages other than the second
             if hasattr(self, "camera_frame"):
@@ -217,10 +216,6 @@ class Info_page(tk.Frame):
             elif page_index == len(self.page_texts) - 1:
                 self.image_canvas.create_image(125, 170, image=self.brain_image_icon)
                 self.image_canvas.grid()
-            '''else:
-                # Hide the canvas if no image is needed
-                self.image_canvas.grid_remove()'''
-
 
         # Update arrow visibility based on the current page
         self.update_arrow_visibility()
@@ -245,6 +240,7 @@ class Info_page(tk.Frame):
         """Fetch frames from the queue in a separate thread."""
         while not self.stop_event.is_set():
             try:
+                # Get frame from the frame queue if it is not empty
                 if not self.resources.gui_frame_queue.empty():
                     frame = self.resources.gui_frame_queue.get_nowait()
                     self.current_frame = ImageTk.PhotoImage(Image.fromarray(frame))

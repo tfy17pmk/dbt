@@ -1,11 +1,28 @@
+'''
+This class is the Home page for the ball balancing robot, it contains the 3 different round bottuns for info, 
+competition and pattern creation. The home page do not take any parameters.
+
+Date: 28-11-2024
+Author: Grupp 11 DBT HT-2024
+'''
+
 from tkinter import *
 import tkinter as tk
 from PIL import Image, ImageTk
 import GUI.constants
 
-# Page 1: Home Page
+# Home Page class
 class Home_page(tk.Frame):
     def __init__(self, parent, controller):
+        """Creates the home page.
+
+        Creates all the components for the home page.
+        :param self: self 
+        :param parent: the parent component for the page
+        :param controller: the controller of the page
+        :return: Nothing
+        """
+        
         super().__init__(parent)
         self.controller = controller
         self.constants = GUI.constants
@@ -25,8 +42,7 @@ class Home_page(tk.Frame):
         # Scale button size relative to screen size
         button_diameter = int(screen_width * 0.25)
 
-        # Load and resize images for each button
-        # Replace 'path_to_image1.png' with the path to your actual image files
+        # Load and resize icons for each button
         self.info_image = Image.open(self.constants.INFO_IMAGE).resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
         self.competition_image = Image.open(self.constants.COMPETITION_IMAGE).resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
         self.pattern_image = Image.open(self.constants.PATTERN_IMAGE).resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
@@ -37,6 +53,17 @@ class Home_page(tk.Frame):
         self.pattern_image = ImageTk.PhotoImage(self.pattern_image)
 
         def create_circular_button(canvas, text, command, image, canvas_x, canvas_y):
+            """Creates circular buttons
+
+            Creates a circular button with a image at the center and text above it
+            :param canvas: The canvas to put the button in 
+            :param text: The text above the button
+            :param command: What function to run when the button is pressed
+            :param image: The image to be in the center of the button
+            :param canvas_x: The x size of the canvas
+            :param canvas_y: The y size of the canvas
+            :return: Nothing
+            """
 
             # Create the button container (transparent)
             btn_container = tk.Frame(canvas, bd=0)
@@ -50,6 +77,7 @@ class Home_page(tk.Frame):
                 highlightthickness=0,
                 bd=0
             )
+            # Set bg to match
             label_canvas.config(bg=self.constants.background_color)
             label_canvas.pack()
 
@@ -74,7 +102,7 @@ class Home_page(tk.Frame):
 
             # Draw the button circle
             button_canvas.create_oval(
-                5, 5, button_diameter - 5, button_diameter - 5,
+                5, 5, button_diameter - 5, button_diameter - 5, # modify for larger/smaler buttons
                 outline=self.constants.text_color,
                 fill=self.constants.text_color,
                 width=2
@@ -89,7 +117,6 @@ class Home_page(tk.Frame):
             # Add the button container to the main canvas
             canvas.create_window(canvas_x, canvas_y, window=btn_container, anchor="center")
 
-        # Example button creation
         # Button properties
         button_diameter = int(screen_width * 0.25)  # Adjust button size as needed
         button_spacing = int(screen_width * 0.05)  # Space between buttons
