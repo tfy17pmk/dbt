@@ -37,7 +37,7 @@ show_speaker = False
 #information pages text
 info_text = [
     {
-        "heading": "Hej! \nJag är balansmästaren Axis. Jag är en robot specialiserad på att balansera bollar. Även om du och jag inte ser så lika ut så finns många likheter mellan en robot och en människa. Tryck på pilen så berättar jag mer! ", 
+        "heading": "Hej! \nJag är balansmästaren Axis. Jag är en robot specialiserad på att balansera bollar. Även om du och jag inte ser så lika ut så finns många likheter mellan en robot och en människa. ", 
         "subheading": "\n\nTryck på pilen så berättar jag mer!",
         "body": "",
         "lightButtonText": ""
@@ -45,17 +45,17 @@ info_text = [
     {
         "heading": "Mina ögon",
         "subheading": "\nJag har ögon precis som du. Men istället för ögon har jag en kamera. Kameran använder jag för att se bollens position på plattan.",
-        "body": "\nKameran tar kort på plattan i snabb hastighet, 90 bilder i sekunden. Detta upplever du och jag som en video samtidigt som varje bild kan behandlas separat av till exempel en dator. Genom att använda en dator för att behandla bilderna kan jag hitta bollen och spela upp bilderna snabbt i den ruta du ser. Det du ser i rutan är alltså samma sak som jag ser när jag balanserar bollen. Där har jag hittat bollen och markerat den i en grön cirkel. ",
+        "body": "\nKameran tar kort på plattan i snabb hastighet, 90 bilder i sekunden. Detta upplever du som en video samtidigt som varje bild kan behandlas separat av till exempel en dator. Genom att använda en dator för att behandla bilderna kan jag hitta bollen och spela upp bilderna snabbt i den ruta du ser. Det du ser i rutan är alltså samma sak som jag ser när jag balanserar bollen. Där har jag hittat bollen och markerat den i en grön cirkel. ",
     },
     {
         "heading": "Mina armar",
-        "subheading": "\nJag har även muskler och armar, men till skillnad från dig är mina armar gjorda i plast och mina muskler är elektriska motorer. Dessa använder jag till att flytta plattan.  ",  
-        "body": "\nMina armar är utskrivna i plast av en 3d-skrivare. Dessa är fästa i elektriska motorer. De motorer som används är stegmotorer. Dessa motorer har ett bestämt antal steg per rotationsvarv och genom att hålla koll på hur många steg jag tagit kan jag även veta i vilken riktning armarna pekar. Med denna information kan jag även bestämma hur plattan ska luta och därmed rulla bollen.",
+        "subheading": "\nJag har även muskler och armar, men till skillnad från dig är mina armar gjorda i plast och mina muskler är elektriska motorer. Dessa använder jag till att flytta plattan. ",  
+        "body": "\nMina armar är utskrivna i plast av en 3d-skrivare. Dessa är fästa i elektriska motorer. De motorer som används är stegmotorer. Dessa motorer har ett bestämt antal steg per rotationsvarv och genom att hålla koll på hur många steg jag tagit kan jag även veta i vilken riktning armarna pekar. Med denna information kan jag även bestämma hur plattan ska luta och därmed rulla bollen. ",
     },
     {
         "heading": "Min Hjärna",
-        "subheading": "\nJag har också en hjärna precis som du. Men till skillnad från dig är min hjärna en liten dator. Denna använder jag för att beräkna med hjälp av matematik och information om bollens position från kameran hur motorerna ska luta plattan för att inte tappa bollen.  ",  
-        "body": "\nI min dator sker den bildbehandling som hittar bollens position. Bollens position jämförs sedan med en målposition som befinner sig mitt på plattan, om skillnaden är stor måste jag luta plattan mycket och om skillnaden är liten kan jag luta plattan mindre för att rulla bollen mot målpositionen. Denna uppskattning görs av en PID-kontroller. För att veta hur plattan lutar använder jag trigonometriska formler som omvandlar en bestämd lutning på plattan till ett bestämt antal steg som mina motorer måste ta för att uppnå den bestämda lutningen. Uppskattningen från PID-kontrollern kan nu skickas till omvandlingen mellan lutning och steg, vilket gör att bollen flyttas mot målpositionen.  När bollen flyttas hittar kameran en ny bollposition och hela processen upprepas. Det är så jag håller balansen! ",
+        "subheading": "\nJag har också en hjärna precis som du. Men till skillnad från dig är min hjärna en liten dator.  Med hjälp av matematik och information om bollens position kan jag därför beräkna hur motorerna ska luta plattan för att inte tappa bollen.",  
+        "body": "\nI min dator sker den bildbehandling som hittar bollens position. Bollens position jämförs sedan med en målposition som befinner sig mitt på plattan, om skillnaden är stor måste jag luta plattan mycket och om skillnaden är liten kan jag luta plattan mindre för att rulla bollen mot målpositionen.  För att veta hur plattan lutar använder jag matematiska formler som omvandlar en bestämd lutning på plattan till ett bestämt antal steg som mina motorer tar. Detta gör i sin tur att bollen flyttas mot målpositionen.  När bollen flyttas hittar kameran en ny bollposition och hela processen upprepas. Det är så jag håller balansen! ",
     }
 ]
 
