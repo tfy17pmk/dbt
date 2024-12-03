@@ -6,6 +6,7 @@ from .competition_page import Competition_page
 from .pattern_page import Pattern_page
 from .freeplay_page import Freeplay_page
 from .challenge_page import Challenge_page
+from .patterns import Patterns
 
 
 # Main Application Class
@@ -15,6 +16,8 @@ class App(tk.Tk):
         super().__init__()
         self.title("BallBot")
         self.resources = resources
+
+        self.patterns = Patterns()
 
         #  Reset timer when there is any action on the touch screen
         self.bind_all("<Motion>", self.reset_timer)
@@ -60,14 +63,15 @@ class App(tk.Tk):
             frame.grid(row=0, column=0, sticky="nsew")
 
         # Show the start page
-        self.show_home_page()
+        self.show_frame("Home_page")
 
     def show_frame(self, page_name):
         """Show a frame for the given page name."""
         frame = self.frames[page_name]
+        self.current_page = page_name
 
-        if page_name != "Home_page":
-            self.start_timer()
+        #if page_name != "Home_page":
+        self.start_timer()
 
         if page_name == "Challenge_page":
             self.resources.send_frames_to_challenge.value = True
@@ -85,7 +89,7 @@ class App(tk.Tk):
         # Ensure only one timer is active at a time
         if hasattr(self, 'timer_id'):
             self.after_cancel(self.timer_id)
-        self.timer_id = self.after(180000, self.show_home_page)  # Store the task ID
+        self.timer_id = self.after(10000, self.reset_to_idle_state)  # Store the task ID
 
     def reset_timer(self, event=None):
         """Reset timer for going back to home page if there is activity."""
@@ -93,9 +97,15 @@ class App(tk.Tk):
             self.after_cancel(self.timer_id)
         self.start_timer()  # Restart the timer
 
-    def show_home_page(self):
-        """Show home page."""
-        self.show_frame("Home_page")
+    def reset_to_idle_state(self):
+        """Reset applikation to idle state and let Robot run a specific pattern."""
+
+        # Show Home Page
+        if hasattr(self, 'current_page'):
+            if self.current_page != "Home_page":
+                self.show_frame("Home_page")
+        
+        # Run pattern
 
 
 

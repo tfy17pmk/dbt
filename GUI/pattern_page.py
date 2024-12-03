@@ -3,20 +3,24 @@ import tkinter as tk
 from PIL import Image, ImageDraw, ImageTk, ImageEnhance  # Import Pillow for image resizing
 import GUI.constants
 import GUI.button
-import GUI.Hexagon
-from GUI.Hexagon import HexagonShape
+import GUI.patterns
+from GUI.patterns import Patterns
 import math
 import threading
 
 # Page 3: Practice mode
 class Pattern_page(tk.Frame):
-    def __init__(self, parent, controller, goal_pos_queue):
+    def __init__(self, parent, controller, patterns, resources):
         super().__init__(parent)
         self.controller = controller
         self.constants = GUI.constants
         self.button = GUI.button
-        self.hexagon = GUI.Hexagon
-        self.goal_pos_queue = goal_pos_queue
+        self.hexagon = patterns
+        self.goal_pos_queue = resources.goal_position_queue
+        """Patterns init"""
+
+
+
 
         # Setup grid pattern with equal weight for each row and column
         self.grid_rowconfigure(0, weight=1)
@@ -165,11 +169,28 @@ class Pattern_page(tk.Frame):
         
         # Canvas for drawing patterns
         self.bg_canvas = tk.Canvas(pattern_frame, width=800, height=680, bg=self.constants.background_color, highlightthickness=0)
-        self.hex = HexagonShape(self.bg_canvas, fill=self.constants.text_color, outline=self.constants.text_color)
+        self.hex = Patterns(self.bg_canvas, fill=self.constants.text_color, outline=self.constants.text_color)
+
+        
+        # Bind to draw the hexagon in the case of window resize
+        self.bg_canvas.bind("<Configure>", self.on_resize)
+
+        # Bind to handle mouse interactions
+        self.bg_canvas.bind("<Button-1>", self.start_drawing)
+        self.bg_canvas.bind("<B1-Motion>", self.draw)
+        self.bg_canvas.bind("<ButtonRelease-1>", self.stop_drawing)
+
+        # Create initial hexagon
+        self.create_hexagon()   
+
+
         self.hex.set_goal_function(self.send_goal_pos)
         self.bg_canvas.place(relx=0.5, rely=0.47, anchor="center")
         label.place(relx=0.5, rely=0.05, anchor="center")
         label_line_canvas.place(relx=0.5, rely=0.08, anchor="center")
+
+
+
 
         # in pattern frame
         # Pattern Page title
@@ -227,4 +248,143 @@ class Pattern_page(tk.Frame):
     def go_back(self):
         self.controller.show_frame("Home_page")
         self.hex.clear_all()  # Clear all shapes and lines before navigating
-        self.hex.clear_thread() #dont need to kill if we kill the power :)
+        self.hex.clear_pattern_data() #dont need to kill if we kill the power :)
+
+    """---------------------------------------------PATTERN METHODS--------------------------------------------"""
+    def create_hexagon(self):
+        # Clear canvas
+        self.bg_canvas.delete("all")
+        
+        # Find center and radius
+        width = self.bg_canvas.winfo_width()
+        height = self.bg_canvas.winfo_height()
+        center_x = width // 2
+        center_y = height // 2
+        radius = width // 2.05  # Making sure hexagon fits on the canvas
+
+        # Finding the corner positions of the hexagon
+        self.points = []
+        for i in range(6):
+            angle_deg = 60 * i
+            angle_rad = math.radians(angle_deg)
+            x = center_x + radius * math.cos(angle_rad)
+            y = center_y + radius * math.sin(angle_rad)
+            self.points.append((x, y))
+            
+        # Fill the canvas with the hexagon
+        self.bg_canvas.create_polygon(self.points, outline=self.outline, fill=self.fill, width=2)
+
+
+    def on_resize(self, event):
+        # Rescale the hexagon in case of window size changing
+        self.create_hexagon()
+        self.redraw_points()  # Redraw points on resize
+
+
+    def start_drawing(self, event):
+        self.clear_all()
+		# Start drawing if inside hexagon
+        if self.is_point_inside_hexagon(event.x, event.y):
+            self.clear_shapes_if_present()
+            self.drawing_points = []  # Reset points when starting a new drawing
+            self.current_line_ids = []  # Reset current line segments
+            self.drawing_points.append((event.x, event.y))  # Register initial point
+
+    def draw(self, event):
+        # Capture points as the mouse moves, only add if distance is sufficient
+        if self.is_point_inside_hexagon(event.x, event.y):
+            if not self.drawing_points:
+                self.drawing_points.append((event.x, event.y))
+            else:
+                last_x, last_y = self.drawing_points[-1]
+                # Only add point if x or y difference is more than 5
+                if abs(event.x - last_x) > 5 or abs(event.y - last_y) > 5:
+                    # Draw and add segment ID to current line
+                    line_id = self.bg_canvas.create_line(last_x, last_y, event.x, event.y, fill="black")
+                    self.current_line_ids.append(line_id)
+                    self.drawing_points.append((event.x, event.y))
+
+    def stop_drawing(self, event):
+        self.clear_all()
+        self.mapped_points = []
+        # Connect the last point to the first to close the shape, if close enough
+        if len(self.drawing_points) > 1:
+            first_x, first_y = self.drawing_points[0]
+            last_x, last_y = self.drawing_points[-1]
+            if abs(last_x - first_x) <= 20 and abs(last_y - first_y) <= 20:
+                line_id = self.bg_canvas.create_line(last_x, last_y, first_x, first_y, fill="black")
+                self.current_line_ids.append(line_id)
+        
+        # Store the current completed line segments
+        if self.current_line_ids:
+            self.line_ids.append(self.current_line_ids)
+            self.current_line_ids = []  # Reset for next line
+
+        # Remap coordinates into cropped camera picture
+        self.mapped_points = [self.map_coordinates(x, y) for x, y in self.drawing_points]
+        print("Mapped drawing points", self.mapped_points)
+
+
+    def redraw_points(self):
+        # Redraw the stored lines between points
+        for line in self.line_ids:
+            for line_id in line:
+                # Canvas automatically keeps deleted segments removed
+                pass
+
+    def is_point_inside_hexagon(self, x, y):
+        # Point-within-polygon test (Ray-casting algorithm)
+        n = len(self.points)
+        inside = False
+        p1x, p1y = self.points[0]
+        for i in range(n + 1):
+            p2x, p2y = self.points[i % n]
+            if y > min(p1y, p2y):
+                if y <= max(p1y, p2y):
+                    if x <= max(p1x, p2x):
+                        if p1y != p2y:
+                            xinters = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
+                        if p1x == p2x or x <= xinters:
+                            inside = not inside
+            p1x, p1y = p2x, p2y
+        return inside
+    
+    def clear_shapes_if_present(self):
+        # Check if any shapes are in line_ids and remove them
+        if self.line_ids:
+            # Filter out all items tagged as "shape" from line_ids
+            self.line_ids = [line for line in self.line_ids if "shape" not in self.canvas.gettags(line[0])]
+            # Remove all items tagged "shape" from the canvas
+            self.canvas.delete("shape")
+
+
+    def reset_mapped_points(self):
+        # Function for reseting position to [0, 0] when reseting pattern or going back to prev GUI slide
+
+        # Clear all lines
+        while self.line_ids:
+            last_line = self.line_ids.pop()
+            for line_id in last_line:
+                self.canvas.delete(line_id)
+        
+        # Clear any shapes by deleting all items with the "shape" tag
+        self.canvas.delete("shape")
+
+        # Resets ball position to origin
+        while not self.data_queue.empty():
+            self.data_queue.get_nowait()
+        self.mapped_points = []
+        self.send_goal_pos(0, 0)
+    
+    def clear_pattern_data(self):
+
+        while not self.data_queue.empty():
+            self.data_queue.get_nowait()
+        
+        self.mapped_points = []
+        self.send_goal_pos(0, 0)
+        ''' # If we want to kill the thread 
+        self.stop_event.set()
+        self.thread.join()
+        self.thread_started = False
+        '''

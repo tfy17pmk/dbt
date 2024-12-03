@@ -4,7 +4,7 @@ from multiprocessing import Queue
 import time
 import numpy as np
 
-class HexagonShape:
+class Patterns:
     def __init__(self, canvas, fill="#ffffff", outline="#ffffff"):
         self.canvas = canvas
         self.points = []  # Hexagon corner points

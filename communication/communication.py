@@ -9,9 +9,9 @@ class Commmunication:
         self.baud_rate = 115200
 
         # Open the serial port
-        self.esp32 = None
-        self.connect()
-        time.sleep(1)  # Wait for the connection to establish
+        #self.esp32 = None
+        #self.connect()
+        #time.sleep(1)  # Wait for the connection to establish
 
     def connect(self):
         for port in self.serial_ports:

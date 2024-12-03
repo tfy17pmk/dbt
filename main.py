@@ -21,7 +21,7 @@ class SharedResources:
         # Shared variables
         self.send_frames_to_gui = Value('b', False)
         self.send_frames_to_challenge = Value('b', False)
-        self.esp_com = Commmunication()
+        self.esp_com = 0
 
 def put_value_in_shared_queue(value, shared_queue, variant):
     """Put a value in the shared queue if it is not full."""
@@ -100,7 +100,7 @@ def pid_control(resources, k_pid, stop_event):
                 controlling = False
             elif isinstance(local_joystick_control, tuple) and (last_tuple is not local_joystick_control):
                 last_tuple = local_joystick_control
-                resources.esp_com.send_data(local_joystick_control[0], local_joystick_control[1], height, state1, state2, state3, homing)
+                #resources.esp_com.send_data(local_joystick_control[0], local_joystick_control[1], height, state1, state2, state3, homing)
                 controlling = True
 
             if not resources.ball_coords_queue.empty():
@@ -114,12 +114,12 @@ def pid_control(resources, k_pid, stop_event):
 
                 
                 if not controlling:
-                    resources.esp_com.send_data(-control_x, control_y, height, state1, state2, state3, homing)
-
+                    #resources.esp_com.send_data(-control_x, control_y, height, state1, state2, state3, homing)
+                    pass
             # Check if 3 seconds have passed since the last update
             if (time.perf_counter() - last_received_time > 3) and not controlling:
                 pid_controller.reset()  # Reset the PID controllers
-                resources.esp_com.send_data(0, 0, height, state1, state2, state3, homing)
+                #resources.esp_com.send_data(0, 0, height, state1, state2, state3, homing)
                 last_received_time = time.perf_counter()  # Reset timer to avoid continuous reset
     
     except KeyboardInterrupt:
