@@ -16,6 +16,9 @@ class App(tk.Tk):
         self.title("BallBot")
         self.resources = resources
 
+        #  Reset timer when there is any action on the touch screen
+        self.bind_all("<Motion>", self.reset_timer)
+
         # Replace this shared resources with the resources from main.py
         self.send_frames_to_challenge = resources.send_frames_to_challenge
         self.gui_challange_frame_queue = resources.gui_challange_frame_queue
@@ -57,12 +60,14 @@ class App(tk.Tk):
             frame.grid(row=0, column=0, sticky="nsew")
 
         # Show the start page
-        self.show_frame("Home_page")
-
+        self.show_home_page()
 
     def show_frame(self, page_name):
         """Show a frame for the given page name."""
         frame = self.frames[page_name]
+
+        if page_name != "Home_page":
+            self.start_timer()
 
         if page_name == "Challenge_page":
             self.resources.send_frames_to_challenge.value = True
@@ -74,3 +79,24 @@ class App(tk.Tk):
         for frame in self.frames.values():
             if hasattr(frame, 'join_threads'):
                 frame.join_threads()
+
+    def start_timer(self):
+        """Start timer for going back to home page due to inactivity."""
+        # Ensure only one timer is active at a time
+        if hasattr(self, 'timer_id'):
+            self.after_cancel(self.timer_id)
+        self.timer_id = self.after(180000, self.show_home_page)  # Store the task ID
+
+    def reset_timer(self, event=None):
+        """Reset timer for going back to home page if there is activity."""
+        if hasattr(self, 'timer_id'):  # Cancel the existing timer
+            self.after_cancel(self.timer_id)
+        self.start_timer()  # Restart the timer
+
+    def show_home_page(self):
+        """Show home page."""
+        self.show_frame("Home_page")
+
+
+
+    
