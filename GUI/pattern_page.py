@@ -232,3 +232,6 @@ class Pattern_page(tk.Frame):
         self.label.config(text=texts["create_your_pattern"])
         self.btn_undo.update_text(texts["undo"])
         self.back_button.update_text(texts["back"])
+
+    def join_threads(self):
+        self.hex.join_threads()
