@@ -100,7 +100,9 @@ class App(tk.Tk):
         self.start_timer()  # Restart the timer
 
     def show_home_page(self):
-        """Show home page."""
+        """Show home page and reset language to swedish."""
+        self.set_language = "sv"
+        self.update_text()
         self.show_frame("Home_page")
         
     def update_text(self):
