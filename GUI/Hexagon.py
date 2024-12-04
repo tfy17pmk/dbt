@@ -24,7 +24,7 @@ class HexagonShape:
         self.data_queue = Queue(maxsize=500)
         self.prev_goal_pos = (0, 0)
         self.restart_delay = 0.01
-        self.epsilon = 20 # deviation for draw patterns optimization
+        self.epsilon = 15 # deviation for draw patterns optimization
 
         # Bind to draw the hexagon in the case of window resize
         self.canvas.bind("<Configure>", self.on_resize)
@@ -357,7 +357,7 @@ class HexagonShape:
 
         # Remap coordinates into cropped camera picture
         self.mapped_points = [self.map_coordinates(x, y) for x, y in self.drawing_points]
-        self.mapped_points = self.douglas_peucker(self, self.mapped_points)
+        self.mapped_points = self.douglas_peucker(self.mapped_points)
         print("Mapped drawing points", self.mapped_points)
 
     def redraw_points(self):
@@ -383,6 +383,28 @@ class HexagonShape:
                             inside = not inside
             p1x, p1y = p2x, p2y
         return inside
+    def perpendicular_distance(self, point, line_start, line_end):
+        """
+        Calculate the perpendicular distance of a point from a line.
+        
+        Args:
+            point (tuple): (x, y) coordinates of the point.
+            line_start (tuple): (x, y) coordinates of the line's start point.
+            line_end (tuple): (x, y) coordinates of the line's end point.
+            
+        Returns:
+            float: The perpendicular distance.
+        """
+        if line_start == line_end:
+            return np.sqrt((point[0] - line_start[0])**2 + (point[1] - line_start[1])**2)
+        
+        x0, y0 = point
+        x1, y1 = line_start
+        x2, y2 = line_end
+
+        num = abs((y2 - y1) * x0 - (x2 - x1) * y0 + x2 * y1 - y2 * x1)
+        den = np.sqrt((y2 - y1)**2 + (x2 - x1)**2)
+        return num / den
     
     def douglas_peucker(self, points):
         """
@@ -390,35 +412,32 @@ class HexagonShape:
         
         Args:
             points (list of tuples): List of (x, y) coordinates.
-            epsilon (float): Tolerance for point simplification.
             
         Returns:
-            list of tuples: Simplified list of (x, y) coordinates.
+            list of tuples: Simplified curve as a list of points.
         """
+        # Base case: If the segment has fewer than 3 points, return it
         if len(points) < 3:
             return points
-        
-        # Find the point with the maximum distance from the line between start and end
+
+        # Find the point with the maximum perpendicular distance
         start, end = points[0], points[-1]
-        dmax = 0
+        max_dist = 0
         index = 0
         for i in range(1, len(points) - 1):
-            d = distance.euclidean(
-                points[i], 
-                (start[0] + (end[0] - start[0]) * ((points[i][0] - start[0]) / (end[0] - start[0] if end[0] != start[0] else 1)),
-                start[1] + (end[1] - start[1]) * ((points[i][1] - start[1]) / (end[1] - start[1] if end[1] != start[1] else 1)))
-            )
-            if d > dmax:
+            dist = self.perpendicular_distance(points[i], start, end)
+            if dist > max_dist:
+                max_dist = dist
                 index = i
-                dmax = d
-        
-        # If max distance is greater than epsilon, recursively simplify
-        if dmax > self.epsilon:
+
+        # If the maximum distance is greater than epsilon, recurse
+        if max_dist > self.epsilon:
+            # Recursive call on both segments
             left = self.douglas_peucker(points[:index + 1])
             right = self.douglas_peucker(points[index:])
-            return left[:-1] + right
-        
+            return left[:-1] + right  # Combine results, removing duplicate at the join
         else:
+            # Return the endpoints as the simplified segment
             return [start, end]
     
     '''def remove_last_line(self):
