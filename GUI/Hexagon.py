@@ -439,6 +439,12 @@ class HexagonShape:
         else:
             # Return the endpoints as the simplified segment
             return [start, end]
+        
+    def join_threads(self):
+        self.stop_event.set()
+        if hasattr(self, 'thread') and self.thread.is_alive():
+            self.thread.join()
+
     
     '''def remove_last_line(self):
         # Remove the last drawn line or shape

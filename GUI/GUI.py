@@ -48,12 +48,10 @@ class App(tk.Tk):
         self.frames = {}
 
         # Initialize each page
-        for Page in (Home_page, Info_page, Pattern_page, Challenge_page, Competition_page, Freeplay_page):
+        for Page in (Home_page, Info_page, Pattern_page, Freeplay_page):
             page_name = Page.__name__
             
             if Page is Info_page:
-                frame = Page(parent=container, controller=self, resources=self.resources)
-            elif Page is Challenge_page:
                 frame = Page(parent=container, controller=self, resources=self.resources)
             elif Page is Pattern_page:
                 frame = Page(parent=container, controller=self, goal_pos_queue=self.goal_pos_queue)
@@ -74,9 +72,6 @@ class App(tk.Tk):
 
         if page_name != "Home_page":
             self.start_timer()
-
-        if page_name == "Challenge_page":
-            self.resources.send_frames_to_challenge.value = True
 
         frame.tkraise()
 
