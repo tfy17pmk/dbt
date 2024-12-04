@@ -14,7 +14,7 @@ class Challenges:
         self.create_patterns()
         self.dot_radius = 10
         self.goal_pos_queue = goal_pos_queue
-
+'''
     def create_patterns(self):
         size = min(self.frame_width, self.frame_height)/2
 
@@ -130,4 +130,4 @@ class Challenges:
             self.result_time = time.time()
             self.isFinished = True
         else:
-            self.result_time = time.time()
+            self.result_time = time.time()'''

@@ -298,3 +298,8 @@ class Info_page(tk.Frame):
             self.current_page = 0
             self.show_page(0)  # Show the first page when returning
             self.controller.show_frame("Home_page")
+            
+    def update_labels(self, texts):    
+        self.back_button.update_text(texts["back"])
+        self.page_texts = texts["text_info"]
+        self.show_page(self.current_page)

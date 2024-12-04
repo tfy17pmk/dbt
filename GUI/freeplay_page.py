@@ -38,19 +38,19 @@ class Freeplay_page(tk.Frame):
         text_frame.grid(row=0, column=1, pady=(0,0), sticky="")
 
         # Adding text to the text frame
-        text_label = tk.Label(text_frame, 
+        self.text_label = tk.Label(text_frame, 
                               text="Välkommen till balanssidan!\n", 
                               font=self.constants.heading, 
                               bg=self.constants.background_color, 
                               fg=self.constants.text_color)
-        text_label.grid(row=0, column=0, sticky="nsew")
+        self.text_label.grid(row=0, column=0, sticky="nsew")
 
-        additional_text = tk.Label(text_frame, 
+        self.additional_text = tk.Label(text_frame, 
                                    text="Här kan du testa balansera bollen själv,\nanvänd spaken för att röra roboten.\nSpaken hittar du nere i högra hörnet.", 
                                     font=self.constants.sub_heading, 
                                     bg=self.constants.background_color, 
                                     fg=self.constants.text_color)
-        additional_text.grid(row=1, column=0, sticky="nsew")
+        self.additional_text.grid(row=1, column=0, sticky="nsew")
 
         # Joystick area
         joystick_frame = tk.Frame(self, bg=self.constants.background_color)
@@ -181,5 +181,10 @@ class Freeplay_page(tk.Frame):
             print(f"Queue joystick control is full!")
 
     def go_back(self):
-        self.controller.show_frame("Competition_page")
+        self.controller.show_frame("Home_page")
         self.joystick_control_queue.put_nowait(False)
+        
+    def update_labels(self, texts):    
+        self.back_button.update_text(texts["back"])
+        self.text_label.config(text=texts["welcome"])
+        self.additional_text.config(text=texts["instructions"])

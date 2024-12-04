@@ -9,7 +9,9 @@ class Home_page(tk.Frame):
         super().__init__(parent)
         self.controller = controller
         self.constants = GUI.constants
-
+        self.circular_buttons_object = []
+        self.circular_buttons_id = []
+        
         # Get screen dimensions
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
@@ -28,7 +30,7 @@ class Home_page(tk.Frame):
         # Load and resize images for each button
         # Replace 'path_to_image1.png' with the path to your actual image files
         self.info_image = Image.open(self.constants.INFO_IMAGE).resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
-        self.competition_image = Image.open(self.constants.COMPETITION_IMAGE).resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
+        self.competition_image = Image.open(self.constants.JOYSTICK).resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
         self.pattern_image = Image.open(self.constants.PATTERN_IMAGE).resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
         
         # Convert images to PhotoImage for tkinter compatibility
@@ -54,12 +56,13 @@ class Home_page(tk.Frame):
             label_canvas.pack()
 
             # Place the cropped label background and overlay text
-            label_canvas.create_text(
+            text_id = label_canvas.create_text(
                 button_diameter // 2, int(button_diameter * 0.15),
                 text=text,
                 font=self.constants.heading,
                 fill=self.constants.text_color
             )
+            self.circular_buttons_id.append(text_id)
 
             # Canvas for the button
             button_canvas = tk.Canvas(
@@ -88,6 +91,7 @@ class Home_page(tk.Frame):
 
             # Add the button container to the main canvas
             canvas.create_window(canvas_x, canvas_y, window=btn_container, anchor="center")
+            return label_canvas
 
         # Example button creation
         # Button properties
@@ -103,29 +107,111 @@ class Home_page(tk.Frame):
         center_y = screen_height // 2
 
         # Create buttons dynamically, centering them
-        create_circular_button(
+        self.circular_buttons_object.append(create_circular_button(
             self.canvas,
             "Information",
             lambda: controller.show_frame("Info_page"),
             self.info_image,
             canvas_x=start_x + button_diameter // 2,
             canvas_y=center_y
-        )
+        ))
 
-        create_circular_button(
+        self.circular_buttons_object.append(create_circular_button(
             self.canvas,
-            "Tävla",
-            lambda: controller.show_frame("Competition_page"),
+            "Balansera Själv",
+            lambda: controller.show_frame("Freeplay_page"),
             self.competition_image,
             canvas_x=start_x + button_diameter + button_spacing + button_diameter // 2,
             canvas_y=center_y
-        )
+        ))
 
-        create_circular_button(
+        self.circular_buttons_object.append(create_circular_button(
             self.canvas,
             "Skapa Mönster",
             lambda: controller.show_frame("Pattern_page"),
             self.pattern_image,
             canvas_x=start_x + 2 * (button_diameter + button_spacing) + button_diameter // 2,
             canvas_y=center_y
+        ))
+        
+        
+        # Load and resize images for the language options
+        self.sv_icon = ImageTk.PhotoImage(Image.open(self.constants.SV).resize((50, 50), Image.LANCZOS))
+        self.en_icon = ImageTk.PhotoImage(Image.open(self.constants.EN).resize((50, 50), Image.LANCZOS))
+
+        # Add Swedish language canvas image
+        sv_image = self.canvas.create_image(
+            60,  # Adjust to place near the right edge
+            screen_height - 70,  # Adjust to place near the bottom edge
+            image=self.sv_icon,
+            anchor="center"
         )
+
+        # Bind click event to the Swedish image
+        self.canvas.tag_bind(sv_image, "<Button-1>", lambda event: switch_language("sv"))
+
+        # Add English language canvas image
+        en_image = self.canvas.create_image(
+            130,  # Adjust to place left of the Swedish image
+            screen_height - 70,  # Align with the Swedish image
+            image=self.en_icon,
+            anchor="center"
+        )
+
+        # Bind click event to the English image
+        self.canvas.tag_bind(en_image, "<Button-1>", lambda event: switch_language("en"))
+        
+        # Add highlight circles for the flags
+        self.sv_highlight = self.canvas.create_oval(
+            35,  # Adjust based on flag position
+            screen_height - 95,  # Adjust based on flag position
+            85,  # Adjust based on flag size
+            screen_height - 45,  # Adjust based on flag size
+            outline=self.constants.text_color,  # Highlight color
+            width=2,
+            state="hidden"  # Initially hidden
+        )
+
+        self.en_highlight = self.canvas.create_oval(
+            105,  # Adjust based on flag position
+            screen_height - 95,  # Adjust based on flag position
+            155,  # Adjust based on flag size
+            screen_height - 45,  # Adjust based on flag size
+            outline=self.constants.text_color,  # Highlight color
+            width=2,
+            state="hidden"  # Initially hidden
+        )
+        
+        # Uppdates the higlited language
+        if self.controller.set_language == "sv":
+            self.canvas.itemconfig(self.sv_highlight, state="normal")  # Show Swedish highlight
+            self.canvas.itemconfig(self.en_highlight, state="hidden")  # Hide English highlight
+        elif self.controller.set_language == "en":
+            self.canvas.itemconfig(self.en_highlight, state="normal")  # Show English highlight
+            self.canvas.itemconfig(self.sv_highlight, state="hidden")  # Hide Swedish highlight
+        
+
+
+        # Add a function to handle language switching
+        def switch_language(lang_code):
+            self.controller.set_language = lang_code  # Assuming the controller has a method to set the language
+            self.controller.update_text()
+            
+            if self.controller.set_language == "sv":
+                self.canvas.itemconfig(self.sv_highlight, state="normal")  # Show Swedish highlight
+                self.canvas.itemconfig(self.en_highlight, state="hidden")  # Hide English highlight
+            elif self.controller.set_language == "en":
+                self.canvas.itemconfig(self.en_highlight, state="normal")  # Show English highlight
+                self.canvas.itemconfig(self.sv_highlight, state="hidden")  # Hide Swedish highlight
+               
+             
+    def update_labels(self, texts):    
+        
+        tmp = self.circular_buttons_object[1]
+        id = self.circular_buttons_id[1]
+        tmp.itemconfig(id, text=texts["control"])    
+
+        tmp = self.circular_buttons_object[2]
+        id = self.circular_buttons_id[2]
+        tmp.itemconfig(id, text=texts["create_pattern"])
+

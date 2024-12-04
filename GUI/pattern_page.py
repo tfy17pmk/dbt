@@ -59,7 +59,7 @@ class Pattern_page(tk.Frame):
         back_button_frame.grid(row=2, column=0, sticky="sw", padx=20, pady=20)
 
         # Add the 'back' button on top of the background image
-        back_button = self.button.RoundedButton(
+        self.back_button = self.button.RoundedButton(
             master=back_button_frame,
             text="Bakåt",
             radius=20,
@@ -69,7 +69,7 @@ class Pattern_page(tk.Frame):
             btnforeground=self.constants.background_color, 
             clicked=self.go_back
         )
-        back_button.place(relx=0.5, rely=0.5, anchor="center")
+        self.back_button.place(relx=0.5, rely=0.5, anchor="center")
 
         # Frames for each of the 'premade pattern' buttons
         # Square
@@ -134,7 +134,7 @@ class Pattern_page(tk.Frame):
                                         clicked=lambda: self.hex.draw_star())
         
         # Label for premade patterns & underline
-        btn_label = tk.Label(master=button_frame, 
+        self.btn_label = tk.Label(master=button_frame, 
                              text = "Färdiga mönster", 
                              font=(self.constants.heading, 24), 
                              fg=self.constants.text_color, 
@@ -143,7 +143,7 @@ class Pattern_page(tk.Frame):
         btn_line_canvas.create_line(0, 0, 200, 0, fill=self.constants.text_color)
 
         # Aligning buttons within the premade button frame
-        btn_label.grid(row=0, column=4, sticky="nsew", pady=5)
+        self.btn_label.grid(row=0, column=4, sticky="nsew", pady=5)
         btn_line_canvas.grid(row=1, column=4)  # Add padding above and below the line
         btn_rec.grid(row=2, column=4, sticky="nsew", pady=20)
         btn_hexa.grid(row=3, column=4, sticky="nsew", pady=20)
@@ -160,7 +160,7 @@ class Pattern_page(tk.Frame):
          # Canvas to draw label
         label_line_canvas = tk.Canvas(pattern_frame, width=200, height=2, bg=self.constants.background_color, highlightthickness=0)
         label_line_canvas.create_line(0, 0, 200, 0, fill=self.constants.text_color)
-        label = tk.Label(pattern_frame, text="Skapa ett mönster", font=(self.constants.heading, 24), 
+        self.label = tk.Label(pattern_frame, text="Skapa ett mönster", font=(self.constants.heading, 24), 
                          fg=self.constants.text_color, bg=self.constants.background_color, justify="center")
         
         # Canvas for drawing patterns
@@ -168,27 +168,25 @@ class Pattern_page(tk.Frame):
         self.hex = HexagonShape(self.bg_canvas, fill=self.constants.text_color, outline=self.constants.text_color)
         self.hex.set_goal_function(self.send_goal_pos)
         self.bg_canvas.place(relx=0.5, rely=0.47, anchor="center")
-        label.place(relx=0.5, rely=0.05, anchor="center")
+        self.label.place(relx=0.5, rely=0.05, anchor="center")
         label_line_canvas.place(relx=0.5, rely=0.08, anchor="center")
 
         # in pattern frame
         # Pattern Page title
-        label = tk.Label(pattern_frame, text="Skapa ett mönster", font=(self.constants.heading, 24), 
-                         fg=self.constants.text_color, bg=self.constants.background_color, justify="center")
+        '''self.label = tk.Label(pattern_frame, text="Skapa ett mönster", font=(self.constants.heading, 24), 
+                         fg=self.constants.text_color, bg=self.constants.background_color, justify="center")'''
         
-        btn_undo = self.button.RoundedButton(
-                    master = pattern_frame, 
-                    text="Ångra", 
-                    radius=25, 
-                    width=200, 
-                    height=70, 
-                    btnbackground=self.constants.text_color, 
-                    btnforeground=self.constants.background_color, 
-                    clicked=lambda: self.hex.reset_mapped_points() #self.hex.remove_last_line(), använder clear_all() istället
-                )
-        btn_undo.place(relx=0.5, rely=0.9, anchor="center")
-
-       
+        self.btn_undo = self.button.RoundedButton(
+            master = pattern_frame, 
+            text="Ångra", 
+            radius=25, 
+            width=200, 
+            height=70, 
+            btnbackground=self.constants.text_color, 
+            btnforeground=self.constants.background_color, 
+            clicked=lambda: self.hex.reset_mapped_points() #self.hex.remove_last_line(), använder clear_all() istället
+        )
+        self.btn_undo.place(relx=0.5, rely=0.9, anchor="center") 
         
     def create_hexagon_icon(self, size, outline_color="#000000"):
         # Create a transparent image
@@ -228,3 +226,9 @@ class Pattern_page(tk.Frame):
         self.controller.show_frame("Home_page")
         self.hex.clear_all()  # Clear all shapes and lines before navigating
         self.hex.clear_thread() #dont need to kill if we kill the power :)
+        
+    def update_labels(self, texts):    
+        self.btn_label.config(text=texts["premade_patterns"])    
+        self.label.config(text=texts["create_your_pattern"])
+        self.btn_undo.update_text(texts["undo"])
+        self.back_button.update_text(texts["back"])

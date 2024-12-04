@@ -6,6 +6,7 @@ from .competition_page import Competition_page
 from .pattern_page import Pattern_page
 from .freeplay_page import Freeplay_page
 from .challenge_page import Challenge_page
+import json
 
 
 # Main Application Class
@@ -15,6 +16,7 @@ class App(tk.Tk):
         super().__init__()
         self.title("BallBot")
         self.resources = resources
+        self.set_language = "sv"
 
         #  Reset timer when there is any action on the touch screen
         self.bind_all("<Motion>", self.reset_timer)
@@ -26,6 +28,10 @@ class App(tk.Tk):
         self.goal_pos_queue = resources.goal_position_queue
         self.joystick_control_queue = resources.joystick_control_queue
         #--------------------------------------------------------------
+
+        # Load translations
+        with open('GUI/translation.json', 'r') as file:
+            self.translations = json.load(file)
 
         # Start in full-screen mode
         self.attributes("-fullscreen", True)
@@ -96,6 +102,12 @@ class App(tk.Tk):
     def show_home_page(self):
         """Show home page."""
         self.show_frame("Home_page")
+        
+    def update_text(self):
+        # Update all frames with new text
+        for frame in self.frames.values():
+            if hasattr(frame, "update_labels"):
+                frame.update_labels(self.translations[self.set_language])
 
 
 

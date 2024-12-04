@@ -25,6 +25,8 @@ BG = "GUI/assets/bluebg.png"
 STAR_PATTERN = "GUI/assets/star.png"
 HEART_PATTERN = "GUI/assets/heart.png"
 JOYSTICK = "GUI/assets/joystick.png"
+EN = "GUI/assets/ENFlag.png"
+SV = "GUI/assets/SVFlag.png"
 
 #communication
 serial_port = "/dev/tty.usbserial-0199B457"  # Use 'ls /dev/tty.*' to find the correct port AND you cant have serial monitor on in Arduino IDE!

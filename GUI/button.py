@@ -39,6 +39,11 @@ class RoundedButton(tk.Canvas):
             self["width"] = width
         if height > int(self["height"]):
             self["height"] = height
+            
+    def update_text(self, new_text):
+        """Update the button's text dynamically."""
+        self.itemconfig(self.text_id, text=new_text)
+        self.adjust_button_size()  # Recalculate dimensions
 
     def round_rectangle(self, x1, y1, x2, y2, radius=25, update=False, **kwargs):
         points = [x1 + radius, y1, x1 + radius, y1, x2 - radius, y1, x2 - radius, y1, x2, y1,
