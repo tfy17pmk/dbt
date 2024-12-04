@@ -1,3 +1,11 @@
+/*
+ * This file is part of the ball ballancing robot.
+ *
+ * Developed for Curiosum during the design bulid test course, fall 2024 by 
+ * project group 11.
+ *
+ * date: 4/12-2024
+ */
 #ifndef Kinematics_h
 #define Kinematics_h
 
@@ -28,14 +36,9 @@ private:
   double _min_normal_x = -0.15;
   double _max_normal_y = 0.15;
   double _min_normal_y = -0.15;
-  /*
-  double _max_normal_x = 1;
-  double _min_normal_x = -1;
-  double _max_normal_y = 1;
-  double _min_normal_y = -1;
-  */
+  
   double _d = 7.75;  //distance from the center of the base to any of its corners
-  double _e = 21.75;  //22distance from the center of the platform to any of its corners
+  double _e = 21.75;  //distance from the center of the platform to any of its corners
   double _f = 9;  //length of link #1
   double _g = 15;  //length of link #2
 

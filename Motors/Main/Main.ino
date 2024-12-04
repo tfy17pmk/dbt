@@ -1,3 +1,11 @@
+/*
+ * This file is part of the ball ballancing robot.
+ *
+ * Developed for Curiosum during the design bulid test course, fall 2024 by 
+ * project group 11.
+ *
+ * date: 4/12-2024
+ */
 #include "Arduino.h"
 #include "Kinematics.h"
 #include "Motors.h"
@@ -23,9 +31,12 @@ double update_time;
 
 Kinematics kinematics;
 Motors motors;
+
+// initialize stepper motors
 std::array<AccelStepper, 3>& stepper = motors.setup_accel();
 std::array<double, 3> motor_angles = {0,0,0};
 
+// setup interupt for calibration buttons
 void IRAM_ATTR handleButtonPress1() {
   motors.buttonPressed[0] = true;  // Set flag when the button is pressed
 }
@@ -38,19 +49,13 @@ void IRAM_ATTR handleButtonPress3() {
   motors.buttonPressed[2] = true;  // Set flag when the button is pressed
 }
 
-//  HardwareSerial SerialPort(1);   // Use UART1 on ESP32
-// Interrupt Service Routine (ISR) for the button
-
 void setup() {
   Serial.begin(115200);
-  //SerialPort.begin(115200, SERIAL_8N1, 16, 17);
   setCpuFrequencyMhz(240);
 
   motors.buttonPressed.fill(false);
   motors.skipPhaseOne.fill(false);
 
-  // Initialize UART1 for communication with Raspberry Pi
-  //SerialPort.begin(115200, SERIAL_8N1, 16, 17);  // UART1: TX=GPIO17, RX=GPIO16
   pinMode(motors.buttonPin[0], INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(motors.buttonPin[0]), handleButtonPress1, RISING);
 
@@ -63,16 +68,16 @@ void setup() {
   // initialize position
   motors.home(); 
 
-  // Print the motor angles
-  for (size_t i = 0; i < motor_angles.size(); ++i) {
-      Serial.print("Motor angle ");
-      Serial.print(i);
-      Serial.print(": ");
-      Serial.println(motor_angles[i]);
-  }
   Serial.println("setup done!");
 }
 
+/*
+* Description: Recieves and unpacks data send from the large computer.  
+*
+* Input: None
+*
+* Output: None
+*/
 void receiveData() {
   // Wait for the start byte
   if ((Serial.available() > 0) && Serial.read() == START_BYTE) {
@@ -81,7 +86,6 @@ void receiveData() {
     // Wait until the complete message is available or a timeout occurs
     while (Serial.available() < MESSAGE_LENGTH - 1) {
       if (millis() - startTime > 1000) { // 1-second timeout
-        //Serial.println("Timeout! Discarding incomplete message.");
         Serial.flush();
         return;
       }
@@ -106,7 +110,7 @@ void receiveData() {
 
 void loop() {
 
-  receiveData();
+  receiveData(); // receive data
   if (homing == true){
     // home and find position
     motors.home();
@@ -120,34 +124,12 @@ void loop() {
     motors.set_angle(motor_angles.data());
     
     update_time = millis();
+    // Run latets set position in 2ms
     while (millis() - update_time < 2){
       stepper[0].run();
       stepper[1].run();
       stepper[2].run();
     }
-    /*
-    // Example data to send
-    double a1 = stepper[0].speed();
-    double a2 = stepper[1].speed();
-    double a3 = stepper[2].speed();
-    uint8_t states_byte = 0b101;   // Example bitwise states (state1=1, state2=0, state3=1)
-    uint8_t homing_byte = 1;       // 1 for homing active, 0 for inactive
-    // Send start byte
-    Serial.write(0x02);
-
-
-    // Send structured data
-    Serial.write((uint8_t*)&a1, sizeof(a1));
-    Serial.write((uint8_t*)&a2, sizeof(a2));
-    Serial.write((uint8_t*)&a3, sizeof(a3));
-    Serial.write(states_byte);
-    Serial.write(homing_byte);
-    
-    stepper[0].run();
-    stepper[1].run();
-    stepper[2].run();
-    
-    */
   }
 }
 
