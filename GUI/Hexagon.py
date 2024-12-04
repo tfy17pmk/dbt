@@ -3,6 +3,7 @@ import threading
 from multiprocessing import Queue
 import time
 import numpy as np
+from scipy.spatial import distance
 
 class HexagonShape:
     def __init__(self, canvas, fill="#ffffff", outline="#ffffff"):
@@ -23,6 +24,7 @@ class HexagonShape:
         self.data_queue = Queue(maxsize=500)
         self.prev_goal_pos = (0, 0)
         self.restart_delay = 0.01
+        self.epsilon = 20 # deviation for draw patterns optimization
 
         # Bind to draw the hexagon in the case of window resize
         self.canvas.bind("<Configure>", self.on_resize)
@@ -250,8 +252,6 @@ class HexagonShape:
         # Log the coordinates of the hexagon vertices
         self.log_shape_coordinates(points)
 
-
-
     def draw_circle(self):
         self.is_freehand = False
         self.clear_all()
@@ -357,6 +357,7 @@ class HexagonShape:
 
         # Remap coordinates into cropped camera picture
         self.mapped_points = [self.map_coordinates(x, y) for x, y in self.drawing_points]
+        self.mapped_points = self.douglas_peucker(self, self.mapped_points)
         print("Mapped drawing points", self.mapped_points)
 
     def redraw_points(self):
@@ -382,6 +383,43 @@ class HexagonShape:
                             inside = not inside
             p1x, p1y = p2x, p2y
         return inside
+    
+    def douglas_peucker(self, points):
+        """
+        Simplify a curve using the Douglas-Peucker algorithm.
+        
+        Args:
+            points (list of tuples): List of (x, y) coordinates.
+            epsilon (float): Tolerance for point simplification.
+            
+        Returns:
+            list of tuples: Simplified list of (x, y) coordinates.
+        """
+        if len(points) < 3:
+            return points
+        
+        # Find the point with the maximum distance from the line between start and end
+        start, end = points[0], points[-1]
+        dmax = 0
+        index = 0
+        for i in range(1, len(points) - 1):
+            d = distance.euclidean(
+                points[i], 
+                (start[0] + (end[0] - start[0]) * ((points[i][0] - start[0]) / (end[0] - start[0] if end[0] != start[0] else 1)),
+                start[1] + (end[1] - start[1]) * ((points[i][1] - start[1]) / (end[1] - start[1] if end[1] != start[1] else 1)))
+            )
+            if d > dmax:
+                index = i
+                dmax = d
+        
+        # If max distance is greater than epsilon, recursively simplify
+        if dmax > self.epsilon:
+            left = self.douglas_peucker(points[:index + 1])
+            right = self.douglas_peucker(points[index:])
+            return left[:-1] + right
+        
+        else:
+            return [start, end]
     
     '''def remove_last_line(self):
         # Remove the last drawn line or shape
