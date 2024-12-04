@@ -38,7 +38,7 @@ show_speaker = False
 info_text = [
     {
         "heading": "Hej! \nJag är balansmästaren Axis. Jag är en robot specialiserad på att balansera bollar. Även om du och jag inte ser så lika ut så finns många likheter mellan en robot och en människa. ", 
-        "subheading": "\n\nTryck på pilen så berättar jag mer!",
+        "subheading": "\nTryck på pilen så berättar jag mer!",
         "body": "",
         "lightButtonText": ""
     },

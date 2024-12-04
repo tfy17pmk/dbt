@@ -84,16 +84,16 @@ class Info_page(tk.Frame):
             font=self.constants.body_text,  # Default font
             bg=self.constants.background_color, 
             relief="flat", 
-            height=30, 
+            height=70, 
             width=70, 
             highlightthickness=0,
-            pady=100,
+            pady=0,
             padx=100
         )
         
-        self.page_content_text.grid(row=0, column=1, padx=(200,0), sticky="n")
+        self.page_content_text.grid(row=0, column=1, padx=(200,0), pady=(75,0), sticky="n")
         
-        self.page_content_text.tag_configure("heading", font=self.constants.heading, foreground=self.constants.text_color)
+        self.page_content_text.tag_configure("heading", font=self.constants.heading, foreground=self.constants.text_color, spacing3=0)
         self.page_content_text.tag_configure("subheading", font=self.constants.sub_heading, foreground=self.constants.text_color)
         self.page_content_text.tag_configure("body", font=self.constants.body_text, foreground=self.constants.text_color)
         self.page_content_text.tag_configure("lightButtonText", font=self.constants.sub_heading, foreground=self.constants.text_color)
