@@ -6,6 +6,7 @@ from .competition_page import Competition_page
 from .pattern_page import Pattern_page
 from .freeplay_page import Freeplay_page
 from .challenge_page import Challenge_page
+from .idle_pattern import IdlePatterns
 import json
 
 
@@ -17,9 +18,12 @@ class App(tk.Tk):
         self.title("BallBot")
         self.resources = resources
         self.set_language = "sv"
+        self.IdlePattern = IdlePatterns(self.resources)
 
         #  Reset timer when there is any action on the touch screen
-        self.bind_all("<Motion>", self.reset_timer)
+        self.bind_all("<Motion>", self.combined_handler)
+
+        #self.bind_all("<Motion>", self.reset_timer)
 
         # Replace this shared resources with the resources from main.py
         self.send_frames_to_challenge = resources.send_frames_to_challenge
@@ -66,6 +70,12 @@ class App(tk.Tk):
         # Show the start page
         self.show_home_page()
 
+    def combined_handler(self, event):
+        """Handle <Motion> event for both IdlePattern and timer reset."""
+        self.IdlePattern.reset_data(event)  
+        self.reset_timer(event)
+
+
     def show_frame(self, page_name):
         """Show a frame for the given page name."""
         frame = self.frames[page_name]
@@ -80,6 +90,8 @@ class App(tk.Tk):
         for frame in self.frames.values():
             if hasattr(frame, 'join_threads'):
                 frame.join_threads()
+        self.IdlePattern.reset_data()
+        
 
     def start_timer(self):
         """Start timer for going back to home page due to inactivity."""
@@ -99,6 +111,7 @@ class App(tk.Tk):
         self.set_language = "sv"
         self.update_text()
         self.show_frame("Home_page")
+        self.IdlePattern.run_pattern()
         
     def update_text(self):
         # Update all frames with new text

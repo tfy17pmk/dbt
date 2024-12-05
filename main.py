@@ -110,7 +110,8 @@ def pid_control(resources, k_pid, stop_event):
                 if not resources.goal_position_queue.empty():
                     local_goal_pos = resources.goal_position_queue.get_nowait()
 
-                control_x, control_y = pid_controller.compute(local_goal_pos, current_position)
+                if isinstance(local_goal_pos[0], int) and isinstance(local_goal_pos[0], int):
+                    control_x, control_y = pid_controller.compute(local_goal_pos, current_position)
 
                 
                 if not controlling:
