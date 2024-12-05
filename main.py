@@ -84,7 +84,8 @@ def pid_control(resources, k_pid, stop_event):
             # Check for joystick control input
             if not resources.joystick_control_queue.empty():
                 local_joystick_control = resources.joystick_control_queue.get_nowait()
-        
+
+            # check data type of joystick input
             if isinstance(local_joystick_control, bool):
                 controlling = False
             elif isinstance(local_joystick_control, tuple) and (last_tuple is not local_joystick_control):
@@ -100,6 +101,7 @@ def pid_control(resources, k_pid, stop_event):
                 # Check for goal position
                 if not resources.goal_position_queue.empty():
                     local_goal_pos = resources.goal_position_queue.get_nowait()
+                    print("goal position: ",local_goal_pos)
 
                 # Compute control angles
                 if isinstance(local_goal_pos[0], int) and isinstance(local_goal_pos[0], int):

@@ -33,14 +33,15 @@ class IdlePatterns:
         if hasattr(self, 'thread') and self.thread.is_alive():
             self.thread.join()
             del self.thread  # Remove the thread attribute
+            while not self.data_queue.empty():
+                self.data_queue.get_nowait()
+            while not self.goal_position_queue.empty():
+                self.goal_position_queue.get_nowait()
             self.send_goal_pos(0, 0)
 
 
     def reset_data(self, event=None):
-        while not self.data_queue.empty():
-            self.data_queue.get_nowait()
-        while not self.goal_position_queue.empty():
-            self.goal_position_queue.get_nowait()
+        
         self.next_pattern = "square"
         self.join_threads()
 
