@@ -67,10 +67,10 @@ class HexagonShape:
         
     def clear_thread(self):
 
+        self.mapped_points = []
         while not self.data_queue.empty():
             self.data_queue.get_nowait()
         
-        self.mapped_points = []
         self.send_goal_pos(0, 0)
         ''' # If we want to kill the thread 
         self.stop_event.set()
@@ -244,7 +244,6 @@ class HexagonShape:
             y = -scale * (13 * np.cos(t) - 5 * np.cos(2 * t) - 2 * np.cos(3 * t) - np.cos(4 * t)) + center_y
             points.append((x, y))
         points.append(points[0])
-        print(points)
         # Draw the hexagon on the canvas
         shape_id = self.canvas.create_polygon(points, outline="black", fill="", tags="shape")
         self.line_ids.append([shape_id])
@@ -272,7 +271,6 @@ class HexagonShape:
             y = center_y + radius * math.sin(angle_rad)
             points.append((x, y))
         points.append(points[0])
-        print(points)
         # Draw the hexagon on the canvas
         shape_id = self.canvas.create_polygon(points, outline="black", fill="", tags="shape")
         self.line_ids.append([shape_id])
