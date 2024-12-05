@@ -9,12 +9,17 @@ class IdlePatterns:
         self.data_queue = Queue(maxsize=500)
         self.stop_event = threading.Event()
         self.prev_goal_pos = (0, 0)
-        self.square_coords = [(-68, -71), (68, -71), (68, 71), (-68, 71), (-68, -71)]
-        self.triangle_coords = [(0, -71), (-68, 71), (68, 71), (0, -71)]
-        self.hexagon_coords = [(108, 0), (54, 98), (-54, 98), (-108, 0), (-54, -98), (54, -98), (108, 0)]
+        self.next_pattern = "triangle"
+        self.pattern_delay = 3
+        self.square_coords = [(-68, -71), (68, -71), (68, 71), (-68, 71), (-68, -71), (0, 0)]
+        self.triangle_coords = [(0, -71), (-68, 71), (68, 71), (0, -71), (0, 0)]
+        self.hexagon_coords = [(108, 0), (54, 98), (-54, 98), (-108, 0), (-54, -98), (54, -98), (108, 0), (0, 0)]
 
 
     def run_pattern(self):
+        # initialize first idle pattern
+        [self.data_queue.put((x,y)) for x, y in self.triangle_coords]
+        # start thread
         self.start_thread()
 
     def start_thread(self):
@@ -27,14 +32,28 @@ class IdlePatterns:
         self.stop_event.set()
         if hasattr(self, 'thread') and self.thread.is_alive():
             self.thread.join()
+            del self.thread  # Remove the thread attribute
+            self.send_goal_pos(0, 0)
 
-    def reset_data(self):
+
+    def reset_data(self, event=None):
         while not self.data_queue.empty():
             self.data_queue.get_nowait()
-        
-        self.mapped_points = []
-        self.send_goal_pos(0, 0)
+        while not self.goal_position_queue.empty():
+            self.goal_position_queue.get_nowait()
+        self.next_pattern = "square"
         self.join_threads()
+
+    def custom_sleep(self):
+        """
+        Sleep for `duration` seconds, but allow interruption by `stop_event`.
+        """
+        start_time = time.time()
+        while time.time() - start_time < self.pattern_delay:
+            if self.stop_event.is_set():
+                break  # Exit early if the stop event is set
+            time.sleep(0.1)  # Sleep in small increments
+
 
     def send_data(self):
         while not self.stop_event.is_set():
@@ -47,7 +66,18 @@ class IdlePatterns:
                     self.send_goal_pos(coordinates[0], coordinates[1])
                     self.prev_goal_pos = coordinates
                     time.sleep(delay)
-
+                elif self.data_queue.empty() and self.next_pattern == "triangle":
+                    [self.data_queue.put((x,y)) for x, y in self.triangle_coords]
+                    self.next_pattern = "square"
+                    self.custom_sleep()
+                elif self.data_queue.empty() and self.next_pattern == "square":
+                    [self.data_queue.put((x,y)) for x, y in self.square_coords]
+                    self.next_pattern = "hexagon"
+                    self.custom_sleep()
+                elif self.data_queue.empty() and self.next_pattern == "hexagon":
+                    [self.data_queue.put((x,y)) for x, y in self.hexagon_coords]
+                    self.next_pattern = "triangle"
+                    self.custom_sleep()
                 
             except Exception as e:
                 pass

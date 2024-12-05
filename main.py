@@ -102,7 +102,8 @@ def pid_control(resources, k_pid, stop_event):
                     local_goal_pos = resources.goal_position_queue.get_nowait()
 
                 # Compute control angles
-                control_x, control_y = pid_controller.compute(local_goal_pos, current_position)
+                if isinstance(local_goal_pos[0], int) and isinstance(local_goal_pos[0], int):
+                    control_x, control_y = pid_controller.compute(local_goal_pos, current_position)
 
                 # Send control angles to ESP if not in joystick control mode
                 if not controlling:
