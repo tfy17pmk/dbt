@@ -220,6 +220,9 @@ class Pattern_page(tk.Frame):
             except Exception as e:
                 print(f"Queue error: {e}")
         else:
+            # Empty the queue so it gets the most reasent pos quicker.
+            while not self.goal_pos_queue.empty():
+                self.goal_pos_queue.get_nowait()
             print(f"Queue goal pos is full!")
     
     def go_back(self):
