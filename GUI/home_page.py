@@ -55,7 +55,7 @@ class Home_page(tk.Frame):
             label_canvas.config(bg=self.constants.background_color)
             label_canvas.pack()
 
-            # Place the cropped label background and overlay text
+            # Place the label background and overlay text
             text_id = label_canvas.create_text(
                 button_diameter // 2, int(button_diameter * 0.15),
                 text=text,
@@ -80,14 +80,20 @@ class Home_page(tk.Frame):
                 5, 5, button_diameter - 5, button_diameter - 5,
                 outline=self.constants.text_color,
                 fill=self.constants.text_color,
-                width=2
+                width=2,
+                tags="button_clickable"
             )
 
             # Place the button icon
-            button_canvas.create_image(button_diameter // 2, button_diameter // 2, image=image)
+            button_canvas.create_image(
+                button_diameter // 2, 
+                button_diameter // 2, 
+                image=image, 
+                tags="button_clickable"
+            )
 
             # Bind the button action
-            button_canvas.bind("<Button-1>", lambda e: command())
+            button_canvas.tag_bind("button_clickable", "<Button-1>", lambda e: command())
 
             # Add the button container to the main canvas
             canvas.create_window(canvas_x, canvas_y, window=btn_container, anchor="center")
