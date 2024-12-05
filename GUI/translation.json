@@ -6,8 +6,8 @@
         "control": "Take Controll",
         "back": "Back",
         "undo": "Undo",
-        "welcome": "placeholder\n",
-        "instructions": "placeholder",
+        "welcome": "Welcome \nto try my work!\n",
+        "instructions": "Here you can try balancing the ball yourself. \nUse the joystick in the bottom right corner to take control \n\nGood luck!",
         "text_info": [
             {
                 "heading": "Hello! \nI am the balance master Axis. I am a robot specialized in balancing balls. Even though you and I don’t look very similar, there are many similarities between a robot and a human.", 
@@ -39,8 +39,8 @@
         "control": "Balansera Själv",
         "back": "Bakåt",
         "undo": "Ångra",
-        "welcome": "utfyllnad\n",
-        "instructions": "utfyllnad",
+        "welcome": "Välkomen\n att testa mitt jobb!\n ",
+        "instructions": "Här kan du testa att balansera bollen själv. \nAnvänd joysticken nere i högra hörnet och kontrollen blir din \n\nLycka till!",
         "text_info": [
             {
                 "heading": "Hej! \nJag är balansmästaren Axis. Jag är en robot specialiserad på att balansera bollar. Även om du och jag inte ser så lika ut så finns många likheter mellan en robot och en människa. ", 
