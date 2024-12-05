@@ -188,28 +188,24 @@ class Home_page(tk.Frame):
             state="hidden"  # Initially hidden
         )
         
-        # Uppdates the higlited language
-        if self.controller.set_language == "sv":
-            self.canvas.itemconfig(self.sv_highlight, state="normal")  # Show Swedish highlight
-            self.canvas.itemconfig(self.en_highlight, state="hidden")  # Hide English highlight
-        elif self.controller.set_language == "en":
-            self.canvas.itemconfig(self.en_highlight, state="normal")  # Show English highlight
-            self.canvas.itemconfig(self.sv_highlight, state="hidden")  # Hide Swedish highlight
+        self.update_highlight(self.controller.set_language)
         
-
 
         # Add a function to handle language switching
         def switch_language(lang_code):
             self.controller.set_language = lang_code  # Assuming the controller has a method to set the language
             self.controller.update_text()
             
-            if self.controller.set_language == "sv":
-                self.canvas.itemconfig(self.sv_highlight, state="normal")  # Show Swedish highlight
-                self.canvas.itemconfig(self.en_highlight, state="hidden")  # Hide English highlight
-            elif self.controller.set_language == "en":
-                self.canvas.itemconfig(self.en_highlight, state="normal")  # Show English highlight
-                self.canvas.itemconfig(self.sv_highlight, state="hidden")  # Hide Swedish highlight
-               
+            self.update_highlight(self.controller.set_language)
+            
+    def update_highlight(self, language):
+        # Uppdates the higlited language
+        if language == "sv":
+            self.canvas.itemconfig(self.sv_highlight, state="normal")  # Show Swedish highlight
+            self.canvas.itemconfig(self.en_highlight, state="hidden")  # Hide English highlight
+        elif language == "en":
+            self.canvas.itemconfig(self.en_highlight, state="normal")  # Show English highlight
+            self.canvas.itemconfig(self.sv_highlight, state="hidden")  # Hide Swedish highlight
              
     def update_labels(self, texts):    
         
@@ -220,4 +216,6 @@ class Home_page(tk.Frame):
         tmp = self.circular_buttons_object[2]
         id = self.circular_buttons_id[2]
         tmp.itemconfig(id, text=texts["create_pattern"])
+        
+        self.update_highlight(self.controller.set_language)
 
