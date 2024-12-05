@@ -286,7 +286,7 @@ class Info_page(tk.Frame):
             self.controller.show_frame("Home_page")
             
     def update_labels(self, texts):
-         """Update labels with new text based on the current language."""   
+        """Update labels with new text based on the current language."""   
         self.back_button.update_text(texts["back"])
         self.page_texts = texts["text_info"]
         self.show_page(self.current_page)

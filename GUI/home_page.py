@@ -4,7 +4,7 @@ from PIL import Image, ImageTk
 import GUI.constants
 
 class Home_page(tk.Frame):
-     """Class for the Home page of the GUI."""
+    """Class for the Home page of the GUI."""
 
     def __init__(self, parent, controller):
         """Initialize the Home page."""
@@ -202,7 +202,7 @@ class Home_page(tk.Frame):
         elif language == "en":
             self.canvas.itemconfig(self.en_highlight, state="normal")  # Show English highlight
             self.canvas.itemconfig(self.sv_highlight, state="hidden")  # Hide Swedish highlight
-             
+            
     def update_labels(self, texts):    
         """Update labels with new text based on the current language."""
         tmp = self.circular_buttons_object[1]
