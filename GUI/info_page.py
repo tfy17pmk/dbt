@@ -34,12 +34,11 @@ class Info_page(tk.Frame):
         original_arrow = Image.open(self.constants.RIGHT_ARROW).resize((40, 40))
         self.right_arrow_icon = ImageTk.PhotoImage(original_arrow)
         self.left_arrow_icon = ImageTk.PhotoImage(original_arrow.rotate(180))
+        
+        first_page = Image.open(self.constants.FIRSTPAGE)
+        self.first_page = ImageTk.PhotoImage(first_page.rotate(90))
 
-        # Load images for each page (eyes, arm, and brain images)
-        eyes_image_original = Image.open(self.constants.EYES).resize((300, 300))
-        self.eyes_image_icon = ImageTk.PhotoImage(eyes_image_original)
-
-        arm_image_original = Image.open(self.constants.ARM).resize((250, 250))
+        arm_image_original = Image.open(self.constants.ARM).resize((750, 500))
         self.arm_image_icon = ImageTk.PhotoImage(arm_image_original)
 
         brain_image_original = Image.open(self.constants.BRAIN).resize((250, 250))
@@ -137,7 +136,7 @@ class Info_page(tk.Frame):
         self.back_button.grid(row=1, column=0, padx=(0,200), pady=10, sticky="n")
 
         # Canvas to display images on relevant pages
-        self.image_canvas = tk.Canvas(self, width=500, height=300, bg=self.constants.background_color, highlightthickness=0)
+        self.image_canvas = tk.Canvas(self, width=500, height=1000, bg=self.constants.background_color, highlightthickness=0)
         self.image_canvas.grid(row=0, column=2, pady=(50,0), sticky="n")
         self.image_canvas.grid_remove()  # Initially hidden
 
@@ -186,11 +185,13 @@ class Info_page(tk.Frame):
         
         if page_index == 0:
             self.image_canvas.grid()  # Make sure the image canvas is visible
+            self.image_canvas.create_image(195, 350, image=self.first_page)
+            self.image_canvas.grid()
 
         if page_index == 1:
             self.resources.send_frames_to_gui.value = True # Set flag for backend to send frames to GUI
             # Show the EYES image for the second page
-            self.image_canvas.create_image(150, 150, image=self.eyes_image_icon)
+            #self.image_canvas.create_image(150, 150, image=self.eyes_image_icon)
             self.image_canvas.grid()  # Make sure the image canvas is visible
 
             # Create and display camera_frame below the image, only on the second page
@@ -215,7 +216,7 @@ class Info_page(tk.Frame):
 
             # Show the BRAIN image for the last page
             elif page_index == len(self.page_texts) - 1:
-                self.image_canvas.create_image(125, 170, image=self.brain_image_icon)
+                self.image_canvas.create_image(200, 200, image=self.brain_image_icon)
                 self.image_canvas.grid()
             '''else:
                 # Hide the canvas if no image is needed
