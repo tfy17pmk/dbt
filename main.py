@@ -93,9 +93,11 @@ def pid_control(resources, k_pid, stop_event):
 
     try:
         while not stop_event.is_set():
+            # check if input from joystick is present
             if not resources.joystick_control_queue.empty():
                 local_joystick_control = resources.joystick_control_queue.get_nowait()
-        
+
+            # check data type of joystick input
             if isinstance(local_joystick_control, bool):
                 controlling = False
             elif isinstance(local_joystick_control, tuple) and (last_tuple is not local_joystick_control):
@@ -103,14 +105,16 @@ def pid_control(resources, k_pid, stop_event):
                 resources.esp_com.send_data(local_joystick_control[0], local_joystick_control[1], height, state1, state2, state3, homing)
                 controlling = True
 
+            # get current position of ball from queue
             if not resources.ball_coords_queue.empty():
                 current_position = resources.ball_coords_queue.get_nowait()
                 last_received_time = time.perf_counter()  # Update the time with each new data
 
                 if not resources.goal_position_queue.empty():
                     local_goal_pos = resources.goal_position_queue.get_nowait()
+                    print("goal position: ",local_goal_pos)
 
-                if isinstance(local_goal_pos[0], int) and isinstance(local_goal_pos[0], int):
+                if isinstance(local_goal_pos[0], int) and isinstance(local_goal_pos[0], int) and not controlling:
                     control_x, control_y = pid_controller.compute(local_goal_pos, current_position)
 
                 

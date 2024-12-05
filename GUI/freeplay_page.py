@@ -7,13 +7,14 @@ import time
 
 
 class Freeplay_page(tk.Frame):
-    def __init__(self, parent, controller, joystick_control_queue):
+    def __init__(self, parent, controller, resources):
         super().__init__(parent)
         self.controller = controller
         self.constants = GUI.constants
         self.button = GUI.button
         self.configure(bg=self.constants.background_color)
-        self.joystick_control_queue = joystick_control_queue
+        self.joystick_control_queue = resources.joystick_control_queue
+        self.goal_position_queue = resources.goal_position_queue
         self.last_time = time.time()
 
         # Get screen dimensions
@@ -183,6 +184,9 @@ class Freeplay_page(tk.Frame):
     def go_back(self):
         self.controller.show_frame("Home_page")
         self.joystick_control_queue.put_nowait(False)
+        while not self.goal_position_queue.empty():
+            self.goal_position_queue.get_nowait()
+        self.goal_position_queue.put((0, 0))
         
     def update_labels(self, texts):    
         self.back_button.update_text(texts["back"])

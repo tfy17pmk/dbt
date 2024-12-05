@@ -18,6 +18,8 @@ class App(tk.Tk):
         self.title("BallBot")
         self.resources = resources
         self.set_language = "sv"
+        self.pattern = False # True = run pattern when idle
+        self.time_before_idle = 20000
         self.IdlePattern = IdlePatterns(self.resources)
 
         #  Reset timer when there is any action on the touch screen
@@ -60,7 +62,7 @@ class App(tk.Tk):
             elif Page is Pattern_page:
                 frame = Page(parent=container, controller=self, goal_pos_queue=self.goal_pos_queue)
             elif Page is Freeplay_page:
-                frame = Page(parent=container, controller=self, joystick_control_queue=self.joystick_control_queue)
+                frame = Page(parent=container, controller=self, resources=self.resources)
             else:
                 frame = Page(parent=container, controller=self)
 
@@ -72,7 +74,8 @@ class App(tk.Tk):
 
     def combined_handler(self, event):
         """Handle <Motion> event for both IdlePattern and timer reset."""
-        self.IdlePattern.reset_data(event)  
+        if self.pattern:
+            self.IdlePattern.reset_data(event)  
         self.reset_timer(event)
 
 
@@ -98,7 +101,7 @@ class App(tk.Tk):
         # Ensure only one timer is active at a time
         if hasattr(self, 'timer_id'):
             self.after_cancel(self.timer_id)
-        self.timer_id = self.after(180000, self.show_home_page)  # Store the task ID
+        self.timer_id = self.after(self.time_before_idle, self.show_home_page)  # Store the task ID
 
     def reset_timer(self, event=None):
         """Reset timer for going back to home page if there is activity."""
@@ -111,7 +114,8 @@ class App(tk.Tk):
         self.set_language = "sv"
         self.update_text()
         self.show_frame("Home_page")
-        self.IdlePattern.run_pattern()
+        if self.pattern:
+            self.IdlePattern.run_pattern()
         
     def update_text(self):
         # Update all frames with new text
