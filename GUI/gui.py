@@ -98,7 +98,7 @@ class App(tk.Tk):
         """Start timer for going back to home page due to inactivity."""
         if hasattr(self, 'timer_id'):
             self.after_cancel(self.timer_id)
-        self.timer_id = self.after(self.time_before_idle, self.show_home_page)  # Store the task ID
+        self.timer_id = self.after(self.time_before_idle, self.show_home_page)
 
     def reset_timer(self, event=None):
         """Reset timer for going back to home page if there is activity."""
