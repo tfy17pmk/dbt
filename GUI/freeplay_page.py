@@ -4,10 +4,11 @@ import GUI.button
 from math import atan2, cos, sin, sqrt
 import time
 
-
-
 class Freeplay_page(tk.Frame):
+    """Page for manual control of the robot using a joystick."""
+
     def __init__(self, parent, controller, resources):
+        """Initialize the page."""
         super().__init__(parent)
         self.controller = controller
         self.constants = GUI.constants
@@ -119,6 +120,7 @@ class Freeplay_page(tk.Frame):
     
 
     def move_handle(self, event):
+        """Move the joystick handle based on input from touchscreen."""
         # Calculate the distance and angle from the center
         dx = (event.x - self.joystick_center)
         dy = (event.y - self.joystick_center)
@@ -130,9 +132,6 @@ class Freeplay_page(tk.Frame):
             angle = atan2(dy, dx)
             dx = cos(angle) * (self.joystick_center - self.handle_radius)
             dy = sin(angle) * (self.joystick_center - self.handle_radius)
-            '''dx_mapped = float(dx * (0.15 / (self.joystick_center - self.handle_radius)))
-            dy_mapped = float(dy * (0.15 / (self.joystick_center - self.handle_radius)))'''
-
 
         # Move the handle
         self.joystick_canvas.coords(
@@ -143,6 +142,7 @@ class Freeplay_page(tk.Frame):
             self.joystick_center + dy + self.handle_radius
         )
 
+        # Normalize the joystick values
         dx = dx * (self.maxnormal / (self.joystick_center - self.handle_radius))
         dy = dy * (self.maxnormal / (self.joystick_center - self.handle_radius))
 
@@ -150,6 +150,7 @@ class Freeplay_page(tk.Frame):
 
 
     def reset_handle(self, event):
+        """Reset the joystick handle to the center."""
         # Reset the handle to the center
         self.joystick_canvas.coords(
             self.handle,
@@ -158,6 +159,7 @@ class Freeplay_page(tk.Frame):
             self.joystick_center + self.handle_radius,
             self.joystick_center + self.handle_radius
         )
+        # Send joystick control values to reset the position
         self.send_joystick_control(0.14, 0.14)
         self.send_joystick_control(0.14, 0.14)
         self.send_joystick_control(0.14, 0.14)
@@ -171,17 +173,17 @@ class Freeplay_page(tk.Frame):
 
 
     def send_joystick_control(self, dx, dy):
+        """Send joystick control values to the queue."""
         if not self.joystick_control_queue.full():
             try:
-                #if time.time() - self.last_time > 0.1:
-                    self.joystick_control_queue.put_nowait((dx, dy))
-                    #self.last_time = time.time()
+                self.joystick_control_queue.put_nowait((dx, dy))
             except Exception as e:
                 print(f"Queue error: {e}")
         else:
             print(f"Queue joystick control is full!")
 
     def go_back(self):
+        """Return to the home page."""
         self.controller.show_frame("Home_page")
         
         while not self.joystick_control_queue.empty():
@@ -192,7 +194,8 @@ class Freeplay_page(tk.Frame):
             self.goal_position_queue.get_nowait()
         self.goal_position_queue.put((0, 0))
         
-    def update_labels(self, texts):    
+    def update_labels(self, texts):
+        """Update the text labels with the given texts."""
         self.back_button.update_text(texts["back"])
         self.text_label.config(text=texts["welcome"])
         self.additional_text.config(text=texts["instructions"])
