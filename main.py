@@ -14,9 +14,7 @@ class SharedResources:
         # Shared queues
         self.goal_position_queue = Queue(maxsize=5)
         self.ball_coords_queue = Queue(maxsize=5)
-        self.ball_coords_gui_queue = Queue(maxsize=5)
         self.gui_frame_queue = Queue(maxsize=10)
-        self.gui_challange_frame_queue = Queue(maxsize=10)
         self.joystick_control_queue = Queue(maxsize=10)
         # Shared variables
         self.send_frames_to_gui = Value('b', False)
@@ -57,8 +55,9 @@ def capture_and_detect(resources, stop_event):
                 if resources.send_frames_to_gui.value:
                     put_value_in_shared_queue(cropped_frame, resources.gui_frame_queue, 2)
                 else:
+                    # Clear the queue if not empty
                     if not resources.gui_frame_queue.empty():
-                        empty_queue(resources.gui_frame_queue)  # Clear the queue if not empty
+                        empty_queue(resources.gui_frame_queue)  
 
     except KeyboardInterrupt:
         print("Capture process interrupting. Exiting.")
@@ -83,7 +82,7 @@ def pid_control(resources, k_pid, stop_event):
 
     try:
         while not stop_event.is_set():
-            # check if input from joystick is present
+            # Check for joystick control input
             if not resources.joystick_control_queue.empty():
                 local_joystick_control = resources.joystick_control_queue.get_nowait()
 
@@ -96,23 +95,25 @@ def pid_control(resources, k_pid, stop_event):
                 resources.esp_com.send_data(local_joystick_control[0], local_joystick_control[1], height, state1, state2, state3, homing)
                 controlling = True
 
-            # get current position of ball from queue
+            # Check for ball coordinates
             if not resources.ball_coords_queue.empty():
                 current_position = resources.ball_coords_queue.get_nowait()
                 last_received_time = time.perf_counter()  # Update the time with each new data
 
+                # Check for goal position
                 if not resources.goal_position_queue.empty():
                     local_goal_pos = resources.goal_position_queue.get_nowait()
                     print("goal position: ",local_goal_pos)
 
+                # Compute control angles
                 if isinstance(local_goal_pos[0], int) and isinstance(local_goal_pos[0], int) and not controlling:
                     control_x, control_y = pid_controller.compute(local_goal_pos, current_position)
 
-                
+                # Send control angles to ESP if not in joystick control mode
                 if not controlling:
                     resources.esp_com.send_data(-control_x, control_y, height, state1, state2, state3, homing)
 
-            # Check if 3 seconds have passed since the last update
+            # Check if 3 seconds have passed since the last update, reset in that case
             if (time.perf_counter() - last_received_time > 3) and not controlling:
                 pid_controller.reset()  # Reset the PID controllers
                 resources.esp_com.send_data(0, 0, height, state1, state2, state3, homing)
@@ -126,31 +127,36 @@ def pid_control(resources, k_pid, stop_event):
 def handle_keyboard_interrupt(signum, frame, stop_event):
     """Handle keyboard interrupt by setting the stop event."""
     print("Keyboard interrupt received. Exiting...")
-    stop_event.set()  # Signal processes to stop
+    stop_event.set()
 
 def shutdown_processes(capture_process, pid_process, stop_event):
     """Shutdown processes."""
     stop_event.set()
-    
+    print("Shutting down processes.")
     # Allow processes to finish gracefully within timeout
-    print("Join processes.")
     capture_process.join(timeout=5)
     pid_process.join(timeout=5)
 
     # Force terminate if still alive
     if capture_process.is_alive():
-        print("Terminating capture_process.")
         capture_process.terminate()
     if pid_process.is_alive():
-        print("Terminating pid_process.")
         pid_process.terminate()
-    
-    print(f"Capture process dead: {not capture_process.is_alive()}, pid process dead: {not pid_process.is_alive()}")
 
 def shutdown_gui(app):
+     """Shutdown the GUI application."""
     if app is not None:
-        print("Destroing app.")
+        print("Destroing application.")
         app.destroy()
+
+def check_for_stop(app, stop_event):
+    """Periodically check if the stop event is set and quit the app if it is."""
+    if stop_event.is_set():
+        print("Stop event is set. Quiting appplication.")
+        app.join_threads()
+        app.quit()
+    else:
+        app.after(100, check_for_stop, app, stop_event)
 
 if __name__ == "__main__":
     
@@ -173,17 +179,8 @@ if __name__ == "__main__":
     try:
         app = App(resources=resources)
 
-        # Use after() to periodically check if the stop_event is set
-        def check_for_stop():
-            if stop_event.is_set():
-                print("Stop event is set. Quiting app.")
-                app.join_threads()
-                app.quit()
-            else:
-                app.after(100, check_for_stop)  # Check again after 100 ms
-
-        # Start the periodic check
-        app.after(100, check_for_stop)
+        # Start the periodic check of the stop event
+        app.after(100, check_for_stop, app, stop_event)
 
         app.mainloop()
 
@@ -192,7 +189,6 @@ if __name__ == "__main__":
         stop_event.set()
 
     finally:
-        print("In main finally.")
         # Stop processes
         shutdown_processes(capture_process, pid_process, stop_event)
         # Exit GUI
