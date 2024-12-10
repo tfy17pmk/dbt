@@ -5,13 +5,13 @@ from .info_page import Info_page
 from .pattern_page import Pattern_page
 from .freeplay_page import Freeplay_page
 import json
-# from .challenge_page import Challenge_page
-# from .competition_page import Competition_page
 
 # Main Application Class
 class App(tk.Tk):
-    """Initialize the application."""
+    """Main application class for BallBot GUI."""
+
     def __init__(self, resources):
+         """Initialize the application."""
         super().__init__()
         self.title("BallBot")
         self.resources = resources
@@ -24,9 +24,6 @@ class App(tk.Tk):
         self.ball_coords_queue = resources.ball_coords_gui_queue
         self.goal_pos_queue = resources.goal_position_queue
         self.joystick_control_queue = resources.joystick_control_queue
-        # self.send_frames_to_challenge = resources.send_frames_to_challenge
-        # self.gui_challange_frame_queue = resources.gui_challange_frame_queue
-        #--------------------------------------------------------------
 
         # Load translations
         with open('GUI/translation.json', 'r') as file:
@@ -82,25 +79,24 @@ class App(tk.Tk):
 
     def start_timer(self):
         """Start timer for going back to home page due to inactivity."""
-        # Ensure only one timer is active at a time
         if hasattr(self, 'timer_id'):
             self.after_cancel(self.timer_id)
-        self.timer_id = self.after(180000, self.show_home_page)  # Store the task ID
+        self.timer_id = self.after(180000, self.show_home_page)
 
     def reset_timer(self, event=None):
         """Reset timer for going back to home page if there is activity."""
-        if hasattr(self, 'timer_id'):  # Cancel the existing timer
+        if hasattr(self, 'timer_id'):
             self.after_cancel(self.timer_id)
-        self.start_timer()  # Restart the timer
+        self.start_timer()  
 
     def show_home_page(self):
-        """Show home page and reset language to swedish."""
+        """Show home page and reset language to Swedish."""
         self.set_language = "sv"
         self.update_text()
         self.show_frame("Home_page")
         
     def update_text(self):
-        # Update all frames with new text
+        """Update all frames with new text based on the current language."""
         for frame in self.frames.values():
             if hasattr(frame, "update_labels"):
                 frame.update_labels(self.translations[self.set_language])
