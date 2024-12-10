@@ -2,13 +2,16 @@ from tkinter import *
 import tkinter as tk
 from .home_page import Home_page
 from .info_page import Info_page
-from .competition_page import Competition_page
 from .pattern_page import Pattern_page
 from .freeplay_page import Freeplay_page
+<<<<<<< HEAD
 from .challenge_page import Challenge_page
 from .idle_pattern import IdlePatterns
+=======
+>>>>>>> fd1d475 (Added comments to challenge_page and class_challenges in the case of future development)
 import json
-
+# from .challenge_page import Challenge_page
+# from .competition_page import Competition_page
 
 # Main Application Class
 class App(tk.Tk):
@@ -28,11 +31,11 @@ class App(tk.Tk):
         #self.bind_all("<Motion>", self.reset_timer)
 
         # Replace this shared resources with the resources from main.py
-        self.send_frames_to_challenge = resources.send_frames_to_challenge
-        self.gui_challange_frame_queue = resources.gui_challange_frame_queue
         self.ball_coords_queue = resources.ball_coords_gui_queue
         self.goal_pos_queue = resources.goal_position_queue
         self.joystick_control_queue = resources.joystick_control_queue
+        # self.send_frames_to_challenge = resources.send_frames_to_challenge
+        # self.gui_challange_frame_queue = resources.gui_challange_frame_queue
         #--------------------------------------------------------------
 
         # Load translations

@@ -10,12 +10,14 @@ import math
 
 class Challenges:
     def __init__(self, height, width, goal_pos_queue):
+        """Initialize challenge class"""
         self.frame_height, self.frame_width = height, width
         self.create_patterns()
         self.dot_radius = 10
         self.goal_pos_queue = goal_pos_queue
-'''
+
     def create_patterns(self):
+        """ Create patterns and goalpositions for challenges."""
         size = min(self.frame_width, self.frame_height)/2
 
         # Square
@@ -41,8 +43,9 @@ class Challenges:
 
         self.patterns = {"Medel": square, "Svår": hexagon, "Lätt": triangle}
 
-    def start_challenge(self, nivå):
-        # Function to overwrite previous goal points
+    def start_challenge(self, difficulty):
+        """Starts challenge of selected difficulty"""
+        # Start all challenges in center of plate
         while not self.goal_pos_queue.empty():
             self.goal_pos_queue.get_nowait()
         self.goal_pos_queue.put((0, 0), timeout=0.01)
@@ -52,8 +55,10 @@ class Challenges:
         self.userResultTime = None
         self.robotResultTime = None
 
-        # Set goal array
-        self.array = self.patterns[nivå]
+        # Set array according to difficulty
+        self.array = self.patterns[difficulty]
+
+        # Create rescaled goal array
         self.goal_array = np.zeros(self.array.shape)
         rescaled_x = self.array[:,0] - (self.frame_width/2)
         rescaled_y = self.array[:,1] - (self.frame_height/2)
@@ -61,7 +66,7 @@ class Challenges:
         for i in range(len(rescaled_x)):
             self.goal_array[i,0], self.goal_array[i,1] = rescaled_x[i], rescaled_y[i]
         
-        # Set starting color for goals
+        # Set starting color for goals as blue
         self.circle_colors = np.zeros((len(self.array[:,0]), 3))
         for i in range(len(self.circle_colors[:,1])):
             self.circle_colors[i, :] = [255,0,0]
@@ -74,17 +79,20 @@ class Challenges:
         self.goal_pos_queue.put((self.goal_array[0,0], self.goal_array[0,1]), timeout=0.01)
 
     def compete(self, frame, ball_x, ball_y):
+        """Running competition"""
         self.robotIsFinished = False
+
         if self.competitor == "Robot":
             self.create_dots_robot(frame, ball_x, ball_y)
             if self.robotIsFinished:
                 # Return ball to center
                 self.goal_pos_queue.put((0, 0), timeout=0.01)
 
+                # Reset circle color to red
                 for i in range(len(self.circle_colors[:,1])):
                     self.circle_colors[i, :] = [255,0,0]
 
-                # Set starting competitor as robot
+                # Set competitor as user
                 self.competitor = "User"
                 self.goals_hit = np.zeros(len(self.array[:,0]))
         elif self.competitor == "User":
@@ -94,18 +102,22 @@ class Challenges:
 
                 
     def create_dots_robot(self, frame, ball_x, ball_y):
-        
+        """Update goalpoints for each frame while robot is running challenge. Count goals hit."""
         if [ball_x, ball_y] != [-1, -1]:
             for i in range(len(self.array[:,0])):
+                # If goal is hit
                 if abs(ball_x-self.goal_array[i,0]) <= self.dot_radius*2 and abs(ball_y-self.goal_array[i,1]) <= self.dot_radius*2 and self.goals_hit[i] != 1:
+                    # Set color of hit goals to red, add to hit list
                     self.circle_colors[i, :] = [0,0,255]
                     self.goals_hit[i] = 1
 
+                    # Set new goalposition for robot
                     if sum(self.goals_hit) == self.nr_of_goals:
                         self.goal_pos_queue.put((0, 0), timeout=0.01)
                     else:
                         self.goal_pos_queue.put((self.goal_array[i+1,0], self.goal_array[i+1,1]), timeout=0.01)
         
+        # Create goalpoints
         for i in range(len(self.array[:,0])):
             cv.circle(frame, (int(self.array[i,0]), int(self.array[i,1])), int(self.dot_radius), color=self.circle_colors[i, :], thickness=2)
 
@@ -116,13 +128,16 @@ class Challenges:
             self.result_time = time.time()
 
     def create_dots_user(self, frame, ball_x, ball_y):
-        
+        """Update goalpoints for each frame while user is running challenge. Count goals hit."""
         if [ball_x, ball_y] != [-1, -1]:
             for i in range(len(self.array[:,0])):
+                # If goal is hit
                 if abs(ball_x-self.goal_array[i,0]) <= self.dot_radius*2 and abs(ball_y-self.goal_array[i,1]) <= self.dot_radius*2 and self.goals_hit[i] != 1:
+                    # Set color of hit goals to red, add to hit list
                     self.circle_colors[i, :] = [0,0,255]
                     self.goals_hit[i] = 1
         
+        # Create goalpoints
         for i in range(len(self.array[:,0])):
             cv.circle(frame, (int(self.array[i,0]), int(self.array[i,1])), int(self.dot_radius), color=self.circle_colors[i, :], thickness=2)
 
@@ -130,4 +145,4 @@ class Challenges:
             self.result_time = time.time()
             self.isFinished = True
         else:
-            self.result_time = time.time()'''
+            self.result_time = time.time()
