@@ -9,6 +9,8 @@ from multiprocessing import Lock
 import threading
 
 class Info_page(tk.Frame):
+    """Class for the Info page of the GUI."""
+
     def __init__(self, parent, controller, resources):
         """Initialize the Info page."""
         super().__init__(parent)
@@ -58,13 +60,11 @@ class Info_page(tk.Frame):
         # Prevents dynamic resizing when widgets are shown/hidden
         self.grid_propagate(False)
         
-
         # Dots canvas for page indicators
         self.dots = tk.Canvas(self, height=40, bg=self.constants.background_color, highlightthickness=0)
         self.dots.grid(row=2, column=1, pady=10, padx=(420,0), sticky="n")
         self.update_dots()
         
-
         # Create canvases for navigation buttons
         self.btn_prev_canvas = tk.Canvas(self, width=80, height=80, bg=self.constants.background_color, highlightthickness=0)
         self.btn_prev_canvas.grid(row=2, column=1, sticky="nw", padx=(730,0), pady=0)
@@ -91,12 +91,12 @@ class Info_page(tk.Frame):
         )
         
         self.page_content_text.grid(row=0, column=1, padx=(200,0), pady=(75,0), sticky="n")
-        
         self.page_content_text.tag_configure("heading", font=self.constants.heading, foreground=self.constants.text_color, spacing3=0)
         self.page_content_text.tag_configure("subheading", font=self.constants.sub_heading, foreground=self.constants.text_color)
         self.page_content_text.tag_configure("body", font=self.constants.body_text, foreground=self.constants.text_color)
         self.page_content_text.tag_configure("lightButtonText", font=self.constants.sub_heading, foreground=self.constants.text_color)
         self.page_content_text.config(state="disabled")
+
         # Disable selection bindings
         self.page_content_text.bind("<Button-1>", lambda e: "break")     # Disable left-click selection
         self.page_content_text.bind("<B1-Motion>", lambda e: "break")    # Disable mouse drag selection
@@ -106,21 +106,16 @@ class Info_page(tk.Frame):
         self.page_content_text.bind("<Shift-Down>", lambda e: "break")   # Disable Shift+Down selection
         self.page_content_text.bind("<Control-a>", lambda e: "break")    # Disable Ctrl+A selection (Select All)
 
-
-
         # Define a custom style for the rounded button
         style = ttk.Style()
         style.configure("RoundedButton.TButton", 
-                        foreground=self.constants.text_color,   # Text color
-                        background=self.constants.background_color,    # Background color
+                        foreground=self.constants.text_color,
+                        background=self.constants.background_color,
                         borderwidth=0, 
-                        focuscolor=style.configure(".")["background"])  # Match focus color to background
+                        focuscolor=style.configure(".")["background"])
         
         style.map("RoundedButton.TButton",
-                  background=[("active", self.constants.background_color)])  # Hover color
-
-
-
+                  background=[("active", self.constants.background_color)])
 
         # Lower-left corner button to go back
         self.back_button = self.button.RoundedButton(
@@ -190,20 +185,16 @@ class Info_page(tk.Frame):
 
         if page_index == 1:
             self.resources.send_frames_to_gui.value = True # Set flag for backend to send frames to GUI
-            # Show the EYES image for the second page
-            #self.image_canvas.create_image(150, 150, image=self.eyes_image_icon)
             self.image_canvas.grid()  # Make sure the image canvas is visible
 
             # Create and display camera_frame below the image, only on the second page
             if not hasattr(self, "camera_frame"):
                 self.camera_frame = tk.Label(self)
-                #self.camera_frame = tk.Canvas(self, width=640, height=480, bg="transparent", highlightthickness=0)
             self.camera_frame.grid(row=0, column=2, padx=(0,100), sticky="")
             self.start_frame_thread()  # Start the frame fetching thread
         else:
             self.resources.send_frames_to_gui.value = False # Set flag to stop sending frames to GUI
             self.current_frame = None  # Clear the current frame
-            #self.join_threads()  # Terminate the frame fetching thread
 
             # Hide camera_frame on pages other than the second
             if hasattr(self, "camera_frame"):
@@ -218,10 +209,6 @@ class Info_page(tk.Frame):
             elif page_index == len(self.page_texts) - 1:
                 self.image_canvas.create_image(200, 200, image=self.brain_image_icon)
                 self.image_canvas.grid()
-            '''else:
-                # Hide the canvas if no image is needed
-                self.image_canvas.grid_remove()'''
-
 
         # Update arrow visibility based on the current page
         self.update_arrow_visibility()
@@ -249,6 +236,7 @@ class Info_page(tk.Frame):
                 if not self.resources.gui_frame_queue.empty():
                     frame = self.resources.gui_frame_queue.get_nowait()
                     self.current_frame = ImageTk.PhotoImage(Image.fromarray(frame))
+
                     # Update the camera_frame with the latest frame directly
                     self.camera_frame.config(image=self.current_frame)
                     self.camera_frame.image = self.current_frame
@@ -300,7 +288,8 @@ class Info_page(tk.Frame):
             self.show_page(0)  # Show the first page when returning
             self.controller.show_frame("Home_page")
             
-    def update_labels(self, texts):    
+    def update_labels(self, texts):
+         """Update labels with new text based on the current language."""   
         self.back_button.update_text(texts["back"])
         self.page_texts = texts["text_info"]
         self.show_page(self.current_page)
