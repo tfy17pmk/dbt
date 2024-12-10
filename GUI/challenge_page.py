@@ -11,6 +11,7 @@ import time
 
 class Challenge_page(tk.Frame):
     def __init__(self, parent, controller, resources):
+        """Initialize the challenge page."""
         super().__init__(parent)
         self.controller = controller
         self.gui_frame_queue = resources.gui_challange_frame_queue
@@ -18,27 +19,31 @@ class Challenge_page(tk.Frame):
         self.send_frames = resources.send_frames_to_challenge
         self.goal_pos_queue = resources.goal_position_queue
         self.joystick_control_queue = resources.joystick_control_queue
-        self.isJoystick = False
+        
+        self.isJoystick = False # Variable indicating if robot can be controlled using the joystick
         self.start_time = None
         self.robot_time = None
         self.user_time = None
+
         self.stop_event = threading.Event()
-        #self.thread_started = False
+        # self.thread_started = False # Variable indicating if thread is started
 
         self.configure(bg=constants.background_color)
         self.page_texts = constants.challenge_text
         self.button_diameter = 200
             
-        # Output frame size
         self.current_frame = None
+        # Input and output video frame sizes
         self.frame_height, self.frame_width = 285, 320
         self.cam_width = int(self.frame_width*2.5)
         self.cam_height = int(self.frame_height*2.5)
 
-        # Frame for the video feed
+        # TK frame for the video feed
         self.cam_frame = tk.Label(self) #
         self.cam_frame.grid(row=0, column=0, rowspan=3, columnspan=2, sticky="new", padx=(30,20), pady=(30,0))  # Place below text widget in grid
 
+        # Creating descriptive text for challenge page
+        # Text widget for desciptive text
         self.page_content_text = tk.Text(
             self, 
             wrap="word", 
@@ -53,20 +58,22 @@ class Challenge_page(tk.Frame):
             pady=50
         )
 
-        # Configure text tags for heading and body text styles. Add it to column 1
+        # Configure text tags for heading and body text styles
         self.page_content_text.tag_configure("heading", font=constants.heading, foreground=constants.text_color, justify="center")
         self.page_content_text.tag_configure("body", font=constants.body_text, foreground=constants.text_color, justify="center")
-
+        
         # Clear any existing text and insert text from challenge_text
         self.page_content_text.delete("1.0", tk.END)
         self.page_content_text.insert(tk.END, self.page_texts[0]["heading"] + "\n", ("heading", "center"))
         self.page_content_text.insert(tk.END, self.page_texts[0]["body"] + "\n", ("body", "center"))
         self.page_content_text.grid(row=0, column=2, sticky="new")
 
+        # Creating buttons to start the different challenges
+        # TK frame for label and button container
         self.btn_frame = tk.Frame(self, bg=constants.background_color, highlightthickness=0)
         self.btn_frame.grid(row=1, column=2, sticky="new", ipadx=0, ipady=0)
 
-        # Label above the button_test with extra vertical padding
+        # Label above the buttons with extra vertical padding
         self.btn_frame_label = tk.Label(self.btn_frame, 
                              text="Starta utmaning!", 
                              font=constants.heading, 
@@ -75,6 +82,7 @@ class Challenge_page(tk.Frame):
                              anchor="center")
         self.btn_frame_label.pack(pady=(0,30))  # Adds 10 pixels of space below the label
 
+        # TK frame for buttons
         self.btn_container = tk.Frame(self.btn_frame, bg=constants.background_color)
         self.btn_container.pack(side="left")
 
@@ -83,10 +91,13 @@ class Challenge_page(tk.Frame):
         self.create_button(self.btn_container, "Medel")
         self.create_button(self.btn_container, "Svår")
 
-        # Create frame to display results
+        # Create text in order to display results of challenge
+        # TK frame to display results
         self.result_frame = tk.Frame(self, bg=constants.background_color, highlightthickness=0)
         self.result_frame.grid(row=2, column=2, sticky="new", ipadx=0, ipady=0)
         self.result_canvas = tk.Canvas(self.result_frame, bg=constants.background_color, height=4, width=50, highlightthickness=0)
+        
+        # Create results label and text variable
         self.result_text_variable = tk.StringVar()
         self.result_text_variable.set("")
         self.result_label = tk.Label(self.result_frame, 
@@ -96,7 +107,8 @@ class Challenge_page(tk.Frame):
                                 fg=constants.text_color)
         self.result_label.pack(side="bottom")
 
-        # Go back frame
+        # Creating back button
+        # TK frame for back button
         back_btn_frame = tk.Frame(self, 
                                   bg=constants.background_color, 
                                   highlightthickness=0, 
@@ -116,7 +128,8 @@ class Challenge_page(tk.Frame):
         )
         self.back_button.grid(row=3, column=0, padx=10, pady=10, sticky="nw")
 
-        # Joystick area
+        # Creating joystick for user control
+        # TK frame for joystick
         joystick_frame = tk.Frame(self, bg=constants.background_color)
         joystick_frame.grid(row=3, column=2, sticky="new", pady=(0, 10))
 
@@ -175,7 +188,8 @@ class Challenge_page(tk.Frame):
         self.update_camera()
 
     def create_button(self, btn_frame, text):
-        # Canvas for circular button_test, based on calculated button_test diameter
+        """Create button widgets for starting challenges."""
+        # Canvas for circular button
         self.btn_canvas = tk.Canvas(btn_frame, 
                            width=self.button_diameter, 
                            height=self.button_diameter, 
@@ -183,11 +197,12 @@ class Challenge_page(tk.Frame):
                            bg=constants.background_color)
         self.btn_canvas.pack(side="left", padx=90)
 
-        # Draw circular button_test shape with calculated diameter
+        # Draw circular button shape
         button_circle = self.btn_canvas.create_oval(
             0, 0, self.button_diameter, self.button_diameter, fill="#B9D9EB"
         )
 
+        # Create button label
         text_id = self.btn_canvas.create_text(self.button_diameter/2, self.button_diameter/2, 
                                                     text=text, tags="button", fill=constants.background_color,
                                                     font=(constants.heading, 25), justify="center")
@@ -195,26 +210,33 @@ class Challenge_page(tk.Frame):
         # Button action using a lambda
         self.btn_canvas.bind("<Button-1>", lambda e: self.on_button_click(text))
 
-    def on_button_click(self, nivå):
-        # Define the action for the button_test click
+    def on_button_click(self, difficulty):
+        """Initializes challenge with defined level of difficulty."""
+        # Set result text variable to indicate start of challenge
         self.result_text_variable.set("Tävlingen startar!\nRoboten börjar!")
         self.isJoystick = False
         self.joystick_control_queue.put_nowait(False)
-        time.sleep(1)
+        time.sleep(1) # OBS: Delays to place ball in center before starting challenge, other delay-method needed
 
+        # Start challenge and timekeeping
         self.challenge = Challenges(self.frame_height, self.frame_width, self.goal_pos_queue)
-        self.challenge.start_challenge(nivå)
+        self.challenge.start_challenge(difficulty)
         self.start_time = time.time()
         self.challenge_isRunning = True
 
     def update_camera(self):
+        """Running challenge and updating camera, depending on conditions. Running continuously"""
+        # If sending frames to challenge page, start thread and update camera frames
         if self.send_frames.value:
             self.start_thread()
         
             if self.current_frame is not None:
                 if self.challenge_isRunning:
+                    # Get coordinated of ball in camera frame
                     x, y, _ = self.current_coords
+                    # Run challenge for camera frame
                     robotIsFinished, self.challenge_isFinished, current_time = self.challenge.compete(self.current_frame, x, y)
+                    # If challenge is finished, display results and end challenge
                     if self.challenge_isFinished:
                         self.user_time = current_time - self.start_time
                         self.goal_pos_queue.put((0, 0), timeout=0.01)
@@ -224,11 +246,12 @@ class Challenge_page(tk.Frame):
                         self.challenge_isRunning = False
                         self.challenge_isFinished = False
                         self.isJoystick = False
+                    # If only robot is finished, countdown and start challenge for user
                     elif robotIsFinished:
                         self.robot_time = current_time - self.start_time
 
                         self.result_label.config(font=constants.heading)
-                        time.sleep(1.5)
+                        time.sleep(1.5) # OBS: Delays to place ball in center before starting challenge, other delay-method needed
                         self.result_text_variable.set("Din tur!\n Kör!")
                         
                         self.isJoystick = True
@@ -243,9 +266,10 @@ class Challenge_page(tk.Frame):
             else:
                 print("no frame")
 
-        self.after(self.delay, self.update_camera)
+        self.after(self.delay, self.update_camera) # Runs function update_camera continuously
 
     def move_handle(self, event):
+        """Move handle of joystick and send position to robot"""
         # Calculate the distance and angle from the center
         dx = event.x - self.joystick_center
         dy = event.y - self.joystick_center
@@ -267,14 +291,17 @@ class Challenge_page(tk.Frame):
             self.joystick_center + dy + self.handle_radius
         )
 
+        # Map handle position
         dx = dx * (self.maxnormal / (self.joystick_center - self.handle_radius))
         dy = dy * (self.maxnormal / (self.joystick_center - self.handle_radius))
 
+        # Send data to main
         if self.isJoystick:
             self.send_joystick_control(dx, dy)
 
     def reset_handle(self, event):
-        # Reset the handle to the center
+        """Reset the handle to the center. Resets robot position"""
+        # Reset handle
         self.joystick_canvas.coords(
             self.handle,
             self.joystick_center - self.handle_radius,
@@ -283,6 +310,7 @@ class Challenge_page(tk.Frame):
             self.joystick_center + self.handle_radius
         )
 
+        # Reset robot
         if self.isJoystick:
             self.send_joystick_control(0.14, 0.14)
             self.send_joystick_control(0.14, 0.14)
@@ -296,6 +324,7 @@ class Challenge_page(tk.Frame):
             self.send_joystick_control(0, 0)
 
     def send_joystick_control(self, dx, dy):
+        """Sends data for controlling the robot using the joystick to main"""
         if not self.joystick_control_queue.full():
             try:
                 #if time.time() - self.last_time > 0.1:
@@ -331,6 +360,8 @@ class Challenge_page(tk.Frame):
                 pass
 
     def back(self):
+        """Empties goal queue, ends challenge, kills thread and returns to previous page."""
+        # Empty goal queue
         while not self.goal_pos_queue.empty():
             self.goal_pos_queue.get_nowait()
         self.goal_pos_queue.put((0, 0), timeout=0.01)
@@ -340,11 +371,14 @@ class Challenge_page(tk.Frame):
         for widget in self.result_frame.winfo_children():
             widget.destroy()
         self.result_canvas = tk.Canvas(self.result_frame, bg=constants.background_color, height=2, width=35, highlightthickness=0)
+        
         # End challenge
         self.challenge_isRunning = False
         self.challenge_isFinished = False
+        
         # Kill thread
-        #self.join_threads()
+        self.join_threads()
         self.send_frames.value = False
+        
         # Show previous page
         self.controller.show_frame("Competition_page")
