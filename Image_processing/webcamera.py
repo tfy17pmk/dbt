@@ -3,7 +3,10 @@ import numpy as np
 import time
 
 class Camera:
+	"""Class for capturing frames from the webcam and detecting round ball objects in the frame."""
+
 	def __init__(self):
+		"""Initialize the camera and set up parameters."""
 		# Open webcam and check that it is opened
 		self.cam = cv.VideoCapture(0)  # 0 for laptop webcam, 1 for external webcam
 
@@ -34,6 +37,7 @@ class Camera:
 		self.frame_count = 0
 
 	def get_frame(self):
+		"""Capture a frame from the webcam."""
 		return_value, frame = self.cam.read()
 		if not return_value:
 			print("Error: Can't receive frame. Exiting.")
@@ -41,11 +45,20 @@ class Camera:
 		return frame
     
 	def crop_frame(self, frame):
+		"""Crop the frame to the specified region."""
 		cropped_frame = frame[self.crop_y1:self.crop_y2, self.crop_x1:self.crop_x2]
 		return cropped_frame
 
 	def get_masked_frame(self):
+		"""Capture a frame and apply color masking to detect objects."""
 		return_value, frame = self.cam.read()
+		if return_value:
+			frame_hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
+		else:
+			print("Error: Can't receive frame. Exiting.")
+			return None
+			print("Error: Can't receive mask_frame. Exiting.")
+			return None
 		frame_hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
 
 		# Create binary masks for orange and white balls
@@ -67,7 +80,8 @@ class Camera:
 
 
 	def show_frame(self, frame, goal_position):
-			# Calculate FPS
+		"""Display the frame with FPS and goal position overlay."""
+		# Calculate FPS
 		self.frame_count += 1
 		current_time = time.time()
 		total_time = current_time - self.last_time
@@ -81,14 +95,17 @@ class Camera:
 		x_origin = (width / 2) + goal_position[0]
 		y_origin = (height / 2) - goal_position[1]
 
+		# Draw a circle at the goal position
 		cv.circle(frame, (int(x_origin), int(y_origin)), 1, (0, 255, 0), 2)
 
+		# Display the frame
 		cv.imshow("Display window", frame)
 		if cv.waitKey(1) == ord('q'):
 			return True
 		return False
 
 	def get_ball(self, frame):
+		"""Detect the ball in the frame and return its coordinates and area."""
 		# Convert frame to HSV
 		frame_hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
 
@@ -118,9 +135,11 @@ class Camera:
 
 				# Skip small areas to reduce noise
 				if area > 500 and perimeter > 0:
+
 					# Calculate circularity
 					circularity = 4 * np.pi * area / (perimeter * perimeter)
-					if 0.7 < circularity <= 1.0:  # Can try to adjust
+
+					if 0.7 < circularity <= 1.0:
 						# Find the smallest enclosing circle, draw a circle around detected object
 						(x, y), radius = cv.minEnclosingCircle(contour)
 						cv.circle(frame, (int(x), int(y)), int(radius), (0, 255, 0), 2)
@@ -135,23 +154,6 @@ class Camera:
 		return -1, -1, 0
 
 	def clean_up_cam(self):
+		"""Release the camera and destroy all OpenCV windows."""
 		self.cam.release()
 		cv.destroyAllWindows()
-		
-
-
-# Usage example
-'''if __name__ == "__main__":
-    camera = Camera()
-    while True:
-        frame = camera.get_masked_frame()
-        cropped_frame = camera.crop_frame(frame)
-        if frame is not None:
-            ball_coordinates = camera.get_ball(frame)
-            if ball_coordinates[0] != -1:
-                print(f"Ball detected at coordinates: {ball_coordinates[:2]}, Area: {ball_coordinates[2]}")
-            camera.show_frame(cropped_frame)
-        else:
-            break
-
-    camera.clean_up_cam()'''
