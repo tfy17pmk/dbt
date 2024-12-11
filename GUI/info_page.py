@@ -131,7 +131,7 @@ class Info_page(tk.Frame):
             height=70, 
             btnbackground=self.constants.text_color, 
             btnforeground=self.constants.background_color, 
-            clicked=self.go_back_to_home
+            clicked=self.go_back
         )
         self.back_button.grid(row=1, column=0, padx=(0,200), pady=10, sticky="n")
 
@@ -294,7 +294,7 @@ class Info_page(tk.Frame):
         if self.current_page < len(self.page_texts) - 1:
             self.show_page(self.current_page + 1)
     
-    def go_back_to_home(self):
+    def go_back(self):
             """Go back to the home page and reset to the first info page."""
             self.current_page = 0
             self.show_page(0)  # Show the first page when returning

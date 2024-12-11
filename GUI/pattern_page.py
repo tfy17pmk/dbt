@@ -229,6 +229,9 @@ class Pattern_page(tk.Frame):
         self.controller.show_frame("Home_page")
         self.hex.clear_all()  # Clear all shapes and lines before navigating
         self.hex.clear_thread() #dont need to kill if we kill the power :)
+    
+    def clear_mapped_points(self):
+        self.hex.clear_thread()
         
     def update_labels(self, texts):    
         self.btn_label.config(text=texts["premade_patterns"])    
