@@ -4,7 +4,6 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 import GUI.constants
 import GUI.button
-import GUI.communication
 from multiprocessing import Lock
 import threading
 
@@ -18,8 +17,6 @@ class Info_page(tk.Frame):
         self.current_page = 0
         self.constants = GUI.constants
         self.button = GUI.button
-        # temporary using another communication file
-        self.communication = GUI.communication
 
         self.resources = resources
         self.current_frame = None
