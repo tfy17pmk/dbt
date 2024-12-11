@@ -1,6 +1,5 @@
 from multiprocessing import Process, Queue, Event, Value
 from Image_processing.webcamera import Camera
-from PID.pid import PID_control
 from communication.communication import Commmunication
 from PID.class_PID import PID
 from GUI.GUI import App
