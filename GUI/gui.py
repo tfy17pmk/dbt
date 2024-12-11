@@ -17,7 +17,7 @@ class App(tk.Tk):
         self.title("BallBot")
         self.resources = resources
         self.set_language = "sv"
-        self.pattern = False # True = run pattern when idle
+        self.pattern = True # True = run pattern when idle
         self.time_before_idle = 20000
         self.IdlePattern = IdlePatterns(self.resources)
 
@@ -72,6 +72,8 @@ class App(tk.Tk):
         """Handle <Motion> event for both IdlePattern and timer reset."""
         if self.pattern:
             self.IdlePattern.reset_data(event)  
+
+
         self.reset_timer(event)
 
 
@@ -108,7 +110,10 @@ class App(tk.Tk):
         """Show home page and reset language to Swedish."""
         self.set_language = "sv"
         self.update_text()
-        self.show_frame("Home_page")
+        for frame in self.frames.values():
+            if hasattr(frame, "go_back"):
+                frame.go_back()
+                  
         if self.pattern:
             self.IdlePattern.run_pattern()
         

@@ -185,7 +185,11 @@ class Freeplay_page(tk.Frame):
     def go_back(self):
         """Return to the home page."""
         self.controller.show_frame("Home_page")
+        
+        while not self.joystick_control_queue.empty():
+            self.joystick_control_queue.get_nowait()
         self.joystick_control_queue.put_nowait(False)
+
         while not self.goal_position_queue.empty():
             self.goal_position_queue.get_nowait()
         self.goal_position_queue.put((0, 0))
