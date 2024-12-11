@@ -280,10 +280,10 @@ class Info_page(tk.Frame):
             self.show_page(self.current_page + 1)
     
     def go_back(self):
-            """Go back to the home page and reset to the first info page."""
-            self.current_page = 0
-            self.show_page(0)  # Show the first page when returning
-            self.controller.show_frame("Home_page")
+        """Go back to the home page and reset to the first info page."""
+        self.current_page = 0
+        self.show_page(0)  # Show the first page when returning
+        self.controller.show_frame("Home_page")
             
     def update_labels(self, texts):
         """Update labels with new text based on the current language."""   
