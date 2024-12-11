@@ -3,9 +3,11 @@ import tkinter as tk
 from PIL import Image, ImageTk
 import GUI.constants
 
-# Page 1: Home Page
 class Home_page(tk.Frame):
+     """Class for the Home page of the GUI."""
+
     def __init__(self, parent, controller):
+        """Initialize the Home page."""
         super().__init__(parent)
         self.controller = controller
         self.constants = GUI.constants
@@ -16,19 +18,15 @@ class Home_page(tk.Frame):
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
 
-        # Convert the resized image to a PhotoImage
-
         # Create a Canvas to hold the background image
         self.canvas = tk.Canvas(self, width=screen_width, height=screen_height, highlightthickness=0, bd=0)
         self.canvas.config(bg=self.constants.background_color)
         self.canvas.pack(fill="both", expand=True)
 
-
         # Scale button size relative to screen size
         button_diameter = int(screen_width * 0.25)
 
         # Load and resize images for each button
-        # Replace 'path_to_image1.png' with the path to your actual image files
         self.info_image = Image.open(self.constants.INFO_IMAGE).resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
         self.competition_image = Image.open(self.constants.JOYSTICK).resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
         self.pattern_image = Image.open(self.constants.PATTERN_IMAGE).resize((button_diameter // 2, button_diameter // 2), Image.LANCZOS)
@@ -39,7 +37,7 @@ class Home_page(tk.Frame):
         self.pattern_image = ImageTk.PhotoImage(self.pattern_image)
 
         def create_circular_button(canvas, text, command, image, canvas_x, canvas_y):
-
+            """Create a circular button with text and image."""
             # Create the button container (transparent)
             btn_container = tk.Frame(canvas, bd=0)
             btn_container.pack()
@@ -99,11 +97,10 @@ class Home_page(tk.Frame):
             canvas.create_window(canvas_x, canvas_y, window=btn_container, anchor="center")
             return label_canvas
 
-        # Example button creation
         # Button properties
-        button_diameter = int(screen_width * 0.25)  # Adjust button size as needed
-        button_spacing = int(screen_width * 0.05)  # Space between buttons
-        total_buttons = 3  # Number of buttons
+        button_diameter = int(screen_width * 0.25)
+        button_spacing = int(screen_width * 0.05)
+        total_buttons = 3
 
         # Calculate the total width of the buttons row
         total_width = (button_diameter * total_buttons) + (button_spacing * (total_buttons - 1))
@@ -158,7 +155,7 @@ class Home_page(tk.Frame):
 
         # Add English language canvas image
         en_image = self.canvas.create_image(
-            130,  # Adjust to place left of the Swedish image
+            130,                 # Adjust to place left of the Swedish image
             screen_height - 70,  # Align with the Swedish image
             image=self.en_icon,
             anchor="center"
@@ -169,37 +166,36 @@ class Home_page(tk.Frame):
         
         # Add highlight circles for the flags
         self.sv_highlight = self.canvas.create_oval(
-            35,  # Adjust based on flag position
+            35,                  # Adjust based on flag position
             screen_height - 95,  # Adjust based on flag position
-            85,  # Adjust based on flag size
+            85,                  # Adjust based on flag size
             screen_height - 45,  # Adjust based on flag size
             outline=self.constants.text_color,  # Highlight color
             width=2,
-            state="hidden"  # Initially hidden
+            state="hidden"
         )
 
         self.en_highlight = self.canvas.create_oval(
-            105,  # Adjust based on flag position
+            105,                 # Adjust based on flag position
             screen_height - 95,  # Adjust based on flag position
-            155,  # Adjust based on flag size
+            155,                 # Adjust based on flag size
             screen_height - 45,  # Adjust based on flag size
             outline=self.constants.text_color,  # Highlight color
             width=2,
-            state="hidden"  # Initially hidden
+            state="hidden"
         )
         
         self.update_highlight(self.controller.set_language)
         
-
         # Add a function to handle language switching
         def switch_language(lang_code):
+            """Handle language switching."""
             self.controller.set_language = lang_code  # Assuming the controller has a method to set the language
             self.controller.update_text()
-            
             self.update_highlight(self.controller.set_language)
             
     def update_highlight(self, language):
-        # Uppdates the higlited language
+        """Update the highlighted language."""
         if language == "sv":
             self.canvas.itemconfig(self.sv_highlight, state="normal")  # Show Swedish highlight
             self.canvas.itemconfig(self.en_highlight, state="hidden")  # Hide English highlight
@@ -208,7 +204,7 @@ class Home_page(tk.Frame):
             self.canvas.itemconfig(self.sv_highlight, state="hidden")  # Hide Swedish highlight
              
     def update_labels(self, texts):    
-        
+        """Update labels with new text based on the current language."""
         tmp = self.circular_buttons_object[1]
         id = self.circular_buttons_id[1]
         tmp.itemconfig(id, text=texts["control"])    
