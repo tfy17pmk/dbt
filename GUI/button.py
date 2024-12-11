@@ -2,14 +2,17 @@ import tkinter as tk
 import GUI.constants
 
 class RoundedButton(tk.Canvas):
+    """Rounded button class with text and image support."""
+
     def __init__(self, master=None, text: str = "", image=None, radius=25, btnforeground="#000000",
                  btnbackground=GUI.constants.background_color, clicked=None, *args, **kwargs):
+        """Initialize the rounded button."""
         super(RoundedButton, self).__init__(master, *args, **kwargs)
         self.config(bg=self.master["bg"], border=0, highlightthickness=0)
         self.btnbackground = btnbackground
         self.clicked = clicked
         self.radius = radius
-        self.image = image  # Store the image
+        self.image = image
         self.constants = GUI.constants
 
         # Create the rounded rectangle background
@@ -30,6 +33,7 @@ class RoundedButton(tk.Canvas):
         self.adjust_button_size()
 
     def adjust_button_size(self):
+        """Adjust the button size based on text and/or image size."""
         text_rect = self.bbox(self.text_id)
         width = max(int(self["width"]), text_rect[2] - text_rect[0] + 20)
         height = max(int(self["height"]), text_rect[3] - text_rect[1] + 20)
@@ -43,9 +47,10 @@ class RoundedButton(tk.Canvas):
     def update_text(self, new_text):
         """Update the button's text dynamically."""
         self.itemconfig(self.text_id, text=new_text)
-        self.adjust_button_size()  # Recalculate dimensions
+        self.adjust_button_size()
 
     def round_rectangle(self, x1, y1, x2, y2, radius=25, update=False, **kwargs):
+        """Create a rounded rectangle."""
         points = [x1 + radius, y1, x1 + radius, y1, x2 - radius, y1, x2 - radius, y1, x2, y1,
                   x2, y1 + radius, x2, y1 + radius, x2, y2 - radius, x2, y2 - radius, x2, y2,
                   x2 - radius, y2, x2 - radius, y2, x1 + radius, y2, x1 + radius, y2, x1, y2,
@@ -56,6 +61,7 @@ class RoundedButton(tk.Canvas):
             self.coords(self.rect, points)
 
     def resize(self, event):
+        """Resize the button when the canvas size changes."""
         text_bbox = self.bbox(self.text_id)
 
         # Ensure the radius does not exceed button dimensions
@@ -76,8 +82,8 @@ class RoundedButton(tk.Canvas):
         # Center the text and image based on availability
         if self.image and self.text_id:
             # Center both image and text in the middle, no offset
-            self.coords(self.image_id, x_center, y_center)  # Adjust by a few pixels if needed
-            self.coords(self.text_id, x_center, y_center + 10)  # Adjust by a few pixels if needed
+            self.coords(self.image_id, x_center, y_center)
+            self.coords(self.text_id, x_center, y_center + 10)
         elif self.image:
             # Center the image directly if no text is present
             self.coords(self.image_id, x_center, y_center)
@@ -86,6 +92,7 @@ class RoundedButton(tk.Canvas):
             self.coords(self.text_id, x_center, y_center)
 
     def border(self, event):
+        """Handle button border changes on press and release."""
         if event.type == "4":
             self.itemconfig(self.rect)
             if self.clicked:
