@@ -1,8 +1,8 @@
 from multiprocessing import Process, Queue, Event, Value
 from Image_processing.webcamera import Camera
 from communication.communication import Commmunication
-from PID.class_PID import PID
-from GUI.GUI import App
+from PID.class_pid import PID
+from GUI.gui import App
 import cv2 as cv
 import sys
 import time
