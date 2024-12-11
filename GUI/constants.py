@@ -1,13 +1,13 @@
-#Colors
+# Colors
 background_color = "#00263E" #dark blue
 text_color = "#B9D9EB" #light blue, almost white
 
-#Fonts
+# Fonts
 heading = ("Helvetica Neue", 42, "bold")
 sub_heading = ("Helvetica Neue", 32, "bold")
 body_text = ("Helvetica Neue", 20)
 
-#Image paths
+# Image paths
 INFO_IMAGE = "GUI/assets/info.png"
 COMPETITION_IMAGE = "GUI/assets/competition.png"
 PATTERN_IMAGE = "GUI/assets/pattern.png"
@@ -28,15 +28,15 @@ JOYSTICK = "GUI/assets/joystick.png"
 EN = "GUI/assets/ENFlag.png"
 SV = "GUI/assets/SVFlag.png"
 
-#communication
+# Communication
 serial_port = "/dev/tty.usbserial-0199B457"  # Use 'ls /dev/tty.*' to find the correct port AND you cant have serial monitor on in Arduino IDE!
 baud_rate = 115200  # Same baud rate as in Arduino IDE
 
 
-#Flags
+# Flags
 show_speaker = False
 
-#information pages text
+# Information pages text
 info_text = [
     {
         "heading": "Hej! \nJag är balansmästaren Axis. Jag är en robot specialiserad på att balansera bollar. Även om du och jag inte ser så lika ut så finns många likheter mellan en robot och en människa. ", 
@@ -59,10 +59,4 @@ info_text = [
         "subheading": "\nJag har också en hjärna precis som du. Men till skillnad från dig är min hjärna en liten dator.  Med hjälp av matematik och information om bollens position kan jag därför beräkna hur motorerna ska luta plattan för att inte tappa bollen.",  
         "body": "\nI min dator sker den bildbehandling som hittar bollens position. Bollens position jämförs sedan med en målposition som befinner sig mitt på plattan, om skillnaden är stor måste jag luta plattan mycket och om skillnaden är liten kan jag luta plattan mindre för att rulla bollen mot målpositionen.  För att veta hur plattan lutar använder jag matematiska formler som omvandlar en bestämd lutning på plattan till ett bestämt antal steg som mina motorer tar. Detta gör i sin tur att bollen flyttas mot målpositionen.  När bollen flyttas hittar kameran en ny bollposition och hela processen upprepas. Det är så jag håller balansen! ",
     }
-]
-
-# Challenge page text
-challenge_text = [
-        {"heading": "Utmana mig i att balansera bollen!",
-         "body": "Jag rullar bollen till olika ställen på bordet, sedan får du använda spakarna för att ta dig till samma ställen som mig."},
 ]
