@@ -10,6 +10,7 @@ import time
 import signal
 
 class SharedResources:
+    """Class to hold shared resources between processes."""
     def __init__(self):
         # Shared queues
         self.goal_position_queue = Queue(maxsize=5)
@@ -66,7 +67,6 @@ def capture_and_detect(resources, stop_event):
 
 def pid_control(resources, k_pid, stop_event):
     """Receive ball coordinates from the queue, compute control angles, and send commands."""
-    
     pid_controller = PID(k_pid, 1, 1)
 
     last_received_time = time.perf_counter()
