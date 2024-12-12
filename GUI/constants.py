@@ -15,13 +15,11 @@ RIGHT_ARROW = "GUI/assets/right_arrow.png"
 FIRSTPAGE = "GUI/assets/InfoPageOne.png"
 ARM = "GUI/assets/arm.png"
 BRAIN = "GUI/assets/brain.png"
-LIGHT_BULB = "GUI/assets/light_bulb.png"
 SQUARE = "GUI/assets/square.png"
 CIRCLE = "GUI/assets/circle.png"
 TRIANGLE = "GUI/assets/triangle.png"
 CIRCLE_PATTERN = "GUI/assets/circlePattern.png"
 HEXAGON = "GUI/assets/hexagon.png"
-BG = "GUI/assets/bluebg.png"
 STAR_PATTERN = "GUI/assets/star.png"
 HEART_PATTERN = "GUI/assets/heart.png"
 JOYSTICK = "GUI/assets/joystick.png"
@@ -36,7 +34,7 @@ baud_rate = 115200  # Same baud rate as in Arduino IDE
 # Flags
 show_speaker = False
 
-# Information pages text
+# All text in SV and EN
 translation = {
     "en": {
         "create_pattern": "Create Patterns",

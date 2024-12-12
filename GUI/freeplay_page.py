@@ -106,7 +106,7 @@ class Freeplay_page(tk.Frame):
         # Lower-left corner button to go back
         self.back_button = self.button.RoundedButton(
             master = back_btn_frame, 
-            text="Bakåt", 
+            text=self.constants.translation[self.controller.set_language]["back"], 
             radius=20, 
             width=200, 
             height=70, 

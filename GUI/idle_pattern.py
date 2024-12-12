@@ -11,9 +11,9 @@ class IdlePatterns:
         self.prev_goal_pos = (0, 0)
         self.next_pattern = "triangle"
         self.pattern_delay = 3
-        self.square_coords = [(-68, -71), (68, -71), (68, 71), (-68, 71), (-68, -71), (0, 0)]
-        self.triangle_coords = [(0, -71), (-68, 71), (68, 71), (0, -71), (0, 0)]
-        self.hexagon_coords = [(108, 0), (54, 98), (-54, 98), (-108, 0), (-54, -98), (54, -98), (108, 0), (0, 0)]
+        self.square_coords = [(-60, -63), (60, -63), (60, 63), (-60, 63), (-60, -63), (0, 0)]
+        self.triangle_coords = [(0, -63), (-60, 63), (60, 63), (0, -63), (0, 0)]
+        self.hexagon_coords = [(100, 0), (46, 90), (-46, 90), (-100, 0), (-46, -90), (46, -90), (100, 0), (0, 0)]
 
 
     def run_pattern(self):

@@ -121,7 +121,7 @@ class Home_page(tk.Frame):
 
         self.circular_buttons_object.append(create_circular_button(
             self.canvas,
-            "Balansera Själv",
+            self.constants.translation[self.controller.set_language]["control"],
             lambda: controller.show_frame("Freeplay_page"),
             self.competition_image,
             canvas_x=start_x + button_diameter + button_spacing + button_diameter // 2,
@@ -130,7 +130,7 @@ class Home_page(tk.Frame):
 
         self.circular_buttons_object.append(create_circular_button(
             self.canvas,
-            "Skapa Mönster",
+            self.constants.translation[self.controller.set_language]["create_pattern"],
             lambda: controller.show_frame("Pattern_page"),
             self.pattern_image,
             canvas_x=start_x + 2 * (button_diameter + button_spacing) + button_diameter // 2,

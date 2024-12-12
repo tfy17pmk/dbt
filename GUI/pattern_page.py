@@ -63,7 +63,7 @@ class Pattern_page(tk.Frame):
         # Create 'back' button
         self.back_button = self.button.RoundedButton(
             master=back_button_frame,
-            text="Bakåt",
+            text=self.constants.translation[self.controller.set_language]["back"],
             radius=20,
             width=button_width,
             height=button_height,
@@ -137,7 +137,7 @@ class Pattern_page(tk.Frame):
         
         # Label for premade patterns & underline
         self.btn_label = tk.Label(master=button_frame, 
-                             text = "Färdiga mönster", 
+                             text = self.constants.translation[self.controller.set_language]["premade_patterns"], 
                              font=(self.constants.heading, 24), 
                              fg=self.constants.text_color, 
                              bg=self.constants.background_color)
@@ -161,7 +161,7 @@ class Pattern_page(tk.Frame):
          # Canvas to draw label
         label_line_canvas = tk.Canvas(pattern_frame, width=200, height=2, bg=self.constants.background_color, highlightthickness=0)
         label_line_canvas.create_line(0, 0, 200, 0, fill=self.constants.text_color)
-        self.label = tk.Label(pattern_frame, text="Skapa ett mönster", font=(self.constants.heading, 24), 
+        self.label = tk.Label(pattern_frame, text=self.constants.translation[self.controller.set_language]["create_your_pattern"], font=(self.constants.heading, 24), 
                          fg=self.constants.text_color, bg=self.constants.background_color, justify="center")
         
         # Canvas for drawing patterns
@@ -175,7 +175,7 @@ class Pattern_page(tk.Frame):
         # Create undo button
         self.btn_undo = self.button.RoundedButton(
             master = pattern_frame, 
-            text="Ångra", 
+            text=self.constants.translation[self.controller.set_language]["undo"], 
             radius=25, 
             width=button_width, 
             height=button_height, 

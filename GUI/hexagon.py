@@ -142,7 +142,6 @@ class HexagonShape:
     def log_shape_coordinates(self, points):
         """Puts mapped coordinates into array"""
         self.mapped_points = [self.map_coordinates(x, y) for x, y in points]
-        print("Mapped shape coordinates:", self.mapped_points)
 
     def draw_square(self):
         """Draw square on drawing board and get mapped goal position coordinates"""
@@ -378,9 +377,8 @@ class HexagonShape:
             self.current_line_ids = []  # Reset for next line
 
         # Remap coordinates into cropped camera picture
-        self.mapped_points = [self.map_coordinates(x, y) for x, y in self.drawing_points]
+        self.mapped_points = [self.map_coordinates(-x, y) for x, y in self.drawing_points]
         self.mapped_points = self.douglas_peucker(self.mapped_points)
-        print("Mapped drawing points", self.mapped_points)
 
     def redraw_points(self):
         """Redraw the stored lines between points"""
