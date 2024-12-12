@@ -6,7 +6,6 @@ from .pattern_page import Pattern_page
 from .freeplay_page import Freeplay_page
 from .idle_pattern import IdlePatterns
 from . import constants
-import json
 
 # Main Application Class
 class App(tk.Tk):
@@ -32,10 +31,6 @@ class App(tk.Tk):
         self.ball_coords_queue = resources.ball_coords_queue
         self.goal_pos_queue = resources.goal_position_queue
         self.joystick_control_queue = resources.joystick_control_queue
-
-        # Load translations
-        #with open('GUI/translation.json', 'r') as file:
-            #self.translations = json.load(file)
 
         # Start in full-screen mode
         self.attributes("-fullscreen", True)
