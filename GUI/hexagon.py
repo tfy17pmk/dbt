@@ -28,6 +28,7 @@ class HexagonShape:
         self.prev_goal_pos = (0, 0)
         self.restart_delay = 0.01
         self.epsilon = 15 # deviation for draw patterns optimization
+        self.deviation = 20
 
         # Bind to draw the hexagon in the case of window resizing
         self.canvas.bind("<Configure>", self.on_resize)
@@ -161,7 +162,7 @@ class HexagonShape:
         self.line_ids.append([shape_id])
 
         # Log the coordinates of the square
-        self.log_shape_coordinates([(x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0)])
+        self.log_shape_coordinates([(x0-self.deviation, y0-self.deviation), (x1+self.deviation, y0-self.deviation), (x1+self.deviation, y1+self.deviation), (x0-self.deviation, y1+self.deviation), (x0, y0)])
 
     def draw_hexagon(self):
         """Draw hexagon on drawing board and get mapped goal position coordinates"""
