@@ -143,7 +143,7 @@ def shutdown_processes(capture_process, pid_process, stop_event):
         pid_process.terminate()
 
 def shutdown_gui(app):
-     """Shutdown the GUI application."""
+    """Shutdown the GUI application."""
     if app is not None:
         print("Destroing application.")
         app.destroy()

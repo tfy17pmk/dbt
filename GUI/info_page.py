@@ -44,7 +44,7 @@ class Info_page(tk.Frame):
         self.brain_image_icon = ImageTk.PhotoImage(brain_image_original)
         
         # Placeholder for each page's unique text and actions
-        self.page_texts = self.constants.info_text
+        self.page_texts = self.constants.translation["sv"]["text_info"]
 
         # Configure grid layout to center content
         self.grid_rowconfigure(0, weight=4)
