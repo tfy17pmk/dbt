@@ -42,7 +42,7 @@ translation = {
         "create_pattern": "Create Patterns",
         "create_your_pattern": "Create a Pattern",
         "premade_patterns": "Premade Patterns",
-        "control": "Take Controll",
+        "control": "Take Control",
         "back": "Back",
         "undo": "Undo",
         "welcome": "Welcome \nto try my work!\n",
@@ -56,18 +56,18 @@ translation = {
             },
             {
                 "heading": "My Eyes",
-                "subheading": "\nI have eyes just like you. But instead of eyes, I have a camera. I use the camera to see the position of the ball on the plate.",
-                "body": "\nThe camera takes pictures of the plate at a high speed, 90 images per second. You experience this as a video, while each image can be processed individually by, for example, a computer. By using a computer to process the images, I can locate the ball and quickly display the images in the box you see. What you see in the box is exactly what I see when balancing the ball. There, I have found the ball and marked it with a green circle."
+                "subheading": "\nI have eyes just like you. Unlike you, my eyes come in the form of a camera. I use the camera to see where the ball is located on the plate.",
+                "body": "\nThe camera takes several pictures of the plate one after the other. A full 90 images per second. You experience this as a video. Meanwhile, each image can be processed individually by for example a computer. By processing the images, I can locate the ball in each image and mark its position with a green circle. I then display the images in sequence, like a video. What you see in the box is what I see when balancing the ball."
             },
             {
                 "heading": "My Arms",
-                "subheading": "\nI also have muscles and arms, but unlike you, my arms are made of plastic, and my muscles are electric motors. I use these to move the plate.",  
-                "body": "\nMy arms are made of plastic and printed by a 3D printer. They are attached to electric motors. The motors used are stepper motors. These motors have a fixed number of steps per revolution, and by keeping track of how many steps I have taken, I can also determine the direction in which the arms are pointing. With this information, I can also decide how the plate should tilt and thereby roll the ball."
+                "subheading": "\nI also have muscles and arms. Unlike you, my arms are made of plastic and my muscles are electric motors. I use these to move the plate.",  
+                "body": "\nMy arms are made of plastic and printed on a 3D printer. They are attached to electric steppermotors. These kinds of motors take a fixed number of steps for every revolution. By keeping track of how many steps my motors have taken, I know the direction in which my arms are pointing. With this information, I can decide how the plate should tilt and thereby roll the ball."
             },
             {
                 "heading": "My Brain",
-                "subheading": "\nI also have a brain just like you. But unlike you, my brain is a small computer. Using mathematics and information about the ball's position, I can calculate how the motors should tilt the plate to avoid losing the ball.",  
-                "body": "\nIn my computer, image processing is performed to determine the ball's position. The ball's position is then compared to a target position located at the center of the plate. If the difference is large, I need to tilt the plate significantly, and if the difference is small, I can tilt the plate less to roll the ball toward the target position. To determine how the plate tilts, I use mathematical formulas that convert a specific tilt of the plate into a certain number of steps for my motors. This, in turn, moves the ball toward the target position. When the ball moves, the camera detects a new ball position, and the entire process repeats. That's how I maintain balance!"
+                "subheading": "\nI also have a brain. Unlike you, my brain is a small computer. Using mathematics and knowledge about the ball's position, my computer can calculate how my motors should tilt the plate to avoid dropping the ball.",  
+                "body": "\nIn my computer, image processing is performed to determine where the ball is located. The ball's position is compared to a target position, located at the center of the plate. The distance between them determines how much the plate should be tilted to reach the goal. If the difference is large, I need to tilt the plate more, and the opposite if the difference is small. To determine how many steps my motors should take to tilt the plate correctly, I use mathematical formulas. When the ball moves the camera, detects a new ball position, and the entire process repeats. That's how I maintain balance!"
             }
         ]
     },
@@ -90,7 +90,7 @@ translation = {
             {
                 "heading": "Mina ögon",
                 "subheading": "\nJag har ögon precis som du. Till skillnad från dig är mina ögon en kamera. Kameran använder jag för att se var bollen är på plattan.",
-                "body": "\nKameran tar flera kort på plattan i följd, hela 90 bilder i sekunden. Detta upplever du som en video. Samtidigt kan varje bild behandlas separat av till exempel en dator. Genom att behandla bilderna kan jag hitta var bollen är i varje bild, och markera den platsen med en grön cirkel. Sedan kan jag spela upp bilderna i snabbt följd, som en video. Det du ser i den lilla rutan är samma sak som jag ser när jag balanserar bollen."
+                "body": "\nKameran tar flera kort på plattan i följd. Hela 90 bilder i sekunden. Detta upplever du som en video. Samtidigt kan varje bild behandlas separat av till exempel en dator. Genom att behandla bilderna kan jag hitta var bollen är i varje bild, och markera den platsen med en grön cirkel. Sedan kan jag spela upp bilderna i snabbt följd, som en video. Det du ser i rutan är samma sak som jag ser när jag balanserar bollen."
             },
             {
                 "heading": "Mina armar",
@@ -99,7 +99,7 @@ translation = {
             },
             {
                 "heading": "Min Hjärna",
-                "subheading": "\nJag har också en hjärna. Till skillnad från dig är min hjärna en liten dator.  Med hjälp av matematik och kunskap om bollens position kan datorn beräkna hur mina motorerna ska luta plattan för att inte tappa bollen.",  
+                "subheading": "\nJag har också en hjärna. Till skillnad från dig är min hjärna en liten dator.  Med hjälp av matematik och kunskap om bollens position kan min dator beräkna hur mina motorerna ska luta plattan för att inte tappa bollen.",  
                 "body": "\nI min dator sker den bildbehandling som hittar var bollen befinner sig. Bollens position jämförs med en målposition i mitten av plattan. Avståndet mellan dem bestämmer hur mycket jag måste luta plattan för att nå målet. Ifall skillnaden är stor måste jag luta plattan mycket och tvärt om ifall skillnaden är liten. För att veta hur många steg motorerna ska ta för att luta plattan korrekt använder jag matematiska formler. När bollen flyttas hittar kameran bollens nya position och hela processen upprepas. Det är så jag håller balansen! "
             }
         ]
