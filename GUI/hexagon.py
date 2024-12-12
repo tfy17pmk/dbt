@@ -28,7 +28,6 @@ class HexagonShape:
         self.prev_goal_pos = (0, 0)
         self.restart_delay = 0.01
         self.epsilon = 15 # deviation for draw patterns optimization
-        self.deviation = 20
 
         # Bind to draw the hexagon in the case of window resizing
         self.canvas.bind("<Configure>", self.on_resize)
@@ -162,7 +161,7 @@ class HexagonShape:
         self.line_ids.append([shape_id])
 
         # Log the coordinates of the square, adjusting size to fit plate
-        self.log_shape_coordinates([(x0+self.deviation, y0+self.deviation), (x1-self.deviation, y0+self.deviation), (x1-self.deviation, y1-self.deviation), (x0+self.deviation, y1-self.deviation), (x0+self.deviation, y0+self.deviation)])
+        self.log_shape_coordinates([(x0+20, y0+20), (x1-20, y0+20), (x1-20, y1-20), (x0+20, y1-20), (x0+20, y0+20)])
 
     def draw_hexagon(self):
         """Draw hexagon on drawing board and get mapped goal position coordinates"""
@@ -212,6 +211,7 @@ class HexagonShape:
         width = self.canvas.winfo_width()
         height = self.canvas.winfo_height()
         size = min(width, height) // 2
+        size_log = size - 20
         
         # Calculate points of triangle and draw on drawing board
         points = [
@@ -225,10 +225,10 @@ class HexagonShape:
 
         # Resize and log the coordinates
         points_to_log =[
-            (points[0,0], points[0,1]+self.deviation),
-            (points[1,0]+self.deviation, points[1,1]-self.deviation),
-            (points[2,0]-self.deviation, points[2,1]-self.deviation),
-            (points[3,0], points[3,1]+self.deviation)
+            (width / 2, (height - size_log) / 2),
+            ((width - size_log) / 2, (height + size_log) / 2),
+            ((width + size_log) / 2, (height + size_log) / 2),
+            (width / 2, (height - size_log) / 2)
         ]
         self.log_shape_coordinates(points_to_log)
 
@@ -242,17 +242,15 @@ class HexagonShape:
         height = self.canvas.winfo_height()
         center_x = width / 2
         center_y = height / 2
-        outer_radius_drawing = min(width, height) / 2.5
-        inner_radius_drawing = outer_radius_drawing/3
-        outer_radius_log = min(width, height) / 3
-        inner_radius_log = outer_radius_log/3
+        outer_radius = min(width, height) / 2.5
+        inner_radius = outer_radius / 3
         starpoints = 5
 
         # Calculate the points of the star and draw on drawing board
         points = []
         for i in range(starpoints*2):
             angle  = (i-0.5) * math.pi / starpoints
-            radius = outer_radius_drawing if i % 2 == 0 else inner_radius_drawing
+            radius = outer_radius if i % 2 == 0 else inner_radius
             x = center_x + radius * math.cos(angle)
             y = center_y + radius * math.sin(angle)
             points.append((x, y))
@@ -260,17 +258,8 @@ class HexagonShape:
         shape_id = self.canvas.create_polygon(points, outline="black", fill="", tags="shape")
         self.line_ids.append([shape_id])
 
-        # Create resized coordinated and log them
-        points_to_log = []
-        for i in range(starpoints*2):
-            angle  = (i-0.5) * math.pi / starpoints
-            radius = outer_radius_log if i % 2 == 0 else inner_radius_log
-            x = center_x + radius * math.cos(angle)
-            y = center_y + radius * math.sin(angle)
-            points_to_log.append((x, y))
-        points_to_log.append(points_to_log[0])
-
-        self.log_shape_coordinates(points_to_log)
+        # Log the coordinates
+        self.log_shape_coordinates(points)
 
     def draw_heart(self):
         """Draw heart on drawing board and get mapped goal position coordinates"""
@@ -282,31 +271,22 @@ class HexagonShape:
         height = self.canvas.winfo_height()
         center_x = width / 2
         center_y = height / 2
-        scale_drawing = 12.5
-        scale_log = 10
+        scale = 12.5
         pointnumber = 20
 
         # Calculate the points of the heart and draw on drawing board
         points = []
         for i in range(pointnumber):
             t = i * 2 * math.pi / pointnumber  # Generate n_points evenly spaced values for t
-            x = scale_drawing * (16 * np.sin(t)**3) + center_x
-            y = -scale_drawing * (13 * np.cos(t) - 5 * np.cos(2 * t) - 2 * np.cos(3 * t) - np.cos(4 * t)) + center_y
+            x = scale * (16 * np.sin(t)**3) + center_x
+            y = -scale * (13 * np.cos(t) - 5 * np.cos(2 * t) - 2 * np.cos(3 * t) - np.cos(4 * t)) + center_y
             points.append((x, y))
         points.append(points[0])
         shape_id = self.canvas.create_polygon(points, outline="black", fill="", tags="shape")
         self.line_ids.append([shape_id])
 
-        # Create and log rescaled coordinates
-        points_to_log = []
-        for i in range(pointnumber):
-            t = i * 2 * math.pi / pointnumber  # Generate n_points evenly spaced values for t
-            x = scale_log * (16 * np.sin(t)**3) + center_x
-            y = -scale_log * (13 * np.cos(t) - 5 * np.cos(2 * t) - 2 * np.cos(3 * t) - np.cos(4 * t)) + center_y
-            points_to_log.append((x, y))
-        points_to_log.append(points_to_log[0])
-
-        self.log_shape_coordinates(points_to_log)
+        # Log the coordinates
+        self.log_shape_coordinates(points)
 
     def draw_circle(self):
         """Draw heart on drawing board and get mapped goal position coordinates"""
@@ -319,7 +299,7 @@ class HexagonShape:
         center_x = width / 2
         center_y = height / 2
         radius_drawing = min(width, height) / 2.5
-        radius_log = min(width, height) / 3
+        radius_log = min(width, height) / 3.5
 
         # Calculate the points of the circle and draw on drawing board
         points = []
