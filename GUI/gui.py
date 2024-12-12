@@ -5,7 +5,7 @@ from .info_page import Info_page
 from .pattern_page import Pattern_page
 from .freeplay_page import Freeplay_page
 from .idle_pattern import IdlePatterns
-import json
+from . import constants
 
 # Main Application Class
 class App(tk.Tk):
@@ -20,6 +20,7 @@ class App(tk.Tk):
         self.pattern = True # True = run pattern when idle
         self.time_before_idle = 20000
         self.IdlePattern = IdlePatterns(self.resources)
+        self.translations = constants.translation
 
         #  Reset timer when there is any action on the touch screen
         self.bind_all("<Motion>", self.combined_handler)
@@ -27,13 +28,9 @@ class App(tk.Tk):
         #self.bind_all("<Motion>", self.reset_timer)
 
         # Replace this shared resources with the resources from main.py
-        self.ball_coords_queue = resources.ball_coords_gui_queue
+        self.ball_coords_queue = resources.ball_coords_queue
         self.goal_pos_queue = resources.goal_position_queue
         self.joystick_control_queue = resources.joystick_control_queue
-
-        # Load translations
-        with open('GUI/translation.json', 'r') as file:
-            self.translations = json.load(file)
 
         # Start in full-screen mode
         self.attributes("-fullscreen", True)
