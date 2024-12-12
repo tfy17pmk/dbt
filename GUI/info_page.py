@@ -60,7 +60,6 @@ class Info_page(tk.Frame):
         # Dots canvas for page indicators
         self.dots = tk.Canvas(self, height=40, bg=self.constants.background_color, highlightthickness=0)
         self.dots.grid(row=2, column=1, pady=10, padx=(420,0), sticky="n")
-        self.update_dots()
         
         # Create canvases for navigation buttons
         self.btn_prev_canvas = tk.Canvas(self, width=80, height=80, bg=self.constants.background_color, highlightthickness=0)
@@ -134,7 +133,7 @@ class Info_page(tk.Frame):
 
         # Display the first page initially
         self.show_page(0)
-
+        self.update_dots()
         # Fix for initial rendering of dots
         self.after(100, self.update_dots)
 
@@ -268,6 +267,8 @@ class Info_page(tk.Frame):
             color = self.constants.text_color if i == self.current_page else self.constants.background_color
             dot = self.dots.create_oval(x, 10, x + 2 * dot_radius, 10 + 2 * dot_radius, fill=color, outline=self.constants.text_color)
             self.dots.tag_bind(dot, "<Button-1>", lambda event, index=i: self.show_page(index))
+        # Force the dots to render the first time the page is visited
+        self.update_idletasks()
 
     def prev_page(self):
         """Navigate to previous page if possible."""
