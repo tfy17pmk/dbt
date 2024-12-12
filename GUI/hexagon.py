@@ -377,7 +377,7 @@ class HexagonShape:
             self.current_line_ids = []  # Reset for next line
 
         # Remap coordinates into cropped camera picture
-        self.mapped_points = [self.map_coordinates(-x, y) for x, y in self.drawing_points]
+        self.mapped_points = [self.map_coordinates(x, y) for x, y in self.drawing_points]
         self.mapped_points = self.douglas_peucker(self.mapped_points)
 
     def redraw_points(self):
