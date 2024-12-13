@@ -34,7 +34,7 @@ class Info_page(tk.Frame):
         self.right_arrow_icon = ImageTk.PhotoImage(original_arrow)
         self.left_arrow_icon = ImageTk.PhotoImage(original_arrow.rotate(180))
         
-        first_page = Image.open(self.constants.FIRSTPAGE).resize((550, 700))
+        first_page = Image.open(self.constants.FIRSTPAGE).resize((400, 720))
         self.first_page = ImageTk.PhotoImage(first_page)
         
         arm_image_original = Image.open(self.constants.ARM).resize((750, 500))
@@ -176,7 +176,7 @@ class Info_page(tk.Frame):
         
         if page_index == 0:
             self.image_canvas.grid()  # Make sure the image canvas is visible
-            self.image_canvas.create_image(195, 380, image=self.first_page)
+            self.image_canvas.create_image(195, 480, image=self.first_page)
             self.image_canvas.grid()
 
         if page_index == 1:
