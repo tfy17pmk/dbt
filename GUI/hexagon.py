@@ -130,14 +130,14 @@ class HexagonShape:
         # Put coordinate data in data queuee
         if not self.data_queue.full():
             try:
-                self.data_queue.put((int(mapped_x-self.target_width/2), int(mapped_y-self.target_height/2)), timeout=0.01)
+                self.data_queue.put((int(-(mapped_x-self.target_width/2)), int(mapped_y-self.target_height/2)), timeout=0.01)
             except Exception as e:
                 print(f"Queue error: {e}")
         else:
             print(f"Queue with goal pos is full!")
             
         # Return remapped coordinates   
-        return int(mapped_x-self.target_width/2), int(mapped_y-self.target_height/2) 
+        return int(-(mapped_x-self.target_width/2)), int(mapped_y-self.target_height/2) 
         
     def log_shape_coordinates(self, points):
         """Puts mapped coordinates into array"""
