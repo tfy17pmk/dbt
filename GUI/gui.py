@@ -18,7 +18,7 @@ class App(tk.Tk):
         self.resources = resources
         self.set_language = "sv"
         self.pattern = True # True = run pattern when idle
-        self.time_before_idle = 20000
+        self.time_before_idle = 180000
         self.IdlePattern = IdlePatterns(self.resources)
         self.translations = constants.translation
 
