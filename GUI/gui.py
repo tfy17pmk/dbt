@@ -23,9 +23,7 @@ class App(tk.Tk):
         self.translations = constants.translation
 
         #  Reset timer when there is any action on the touch screen
-        self.bind_all("<Motion>", self.combined_handler)
-
-        #self.bind_all("<Motion>", self.reset_timer)
+        self.bind_all("<Motion>", self.reset_timer)
 
         # Replace this shared resources with the resources from main.py
         self.ball_coords_queue = resources.ball_coords_queue
@@ -65,23 +63,21 @@ class App(tk.Tk):
         # Show the start page
         self.show_home_page()
 
-    def combined_handler(self, event):
-        """Handle <Motion> event for both IdlePattern and timer reset."""
-        if self.pattern:
-            self.IdlePattern.reset_data(event)  
-
-
-        self.reset_timer(event)
-
-
     def show_frame(self, page_name):
         """Show a frame for the given page name."""
         frame = self.frames[page_name]
+
+        if page_name in ["Home_page", "Info_page"]:
+            if self.pattern:  # Start the pattern if it is enabled
+                self.IdlePattern.run_pattern()
+        else:
+            self.IdlePattern.reset_data()  # Stop the pattern for other pages
 
         if page_name != "Home_page":
             self.start_timer()
 
         frame.tkraise()
+
 
     def join_threads(self):
         """Join all threads in the frames."""
