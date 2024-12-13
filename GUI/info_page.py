@@ -176,7 +176,7 @@ class Info_page(tk.Frame):
         
         if page_index == 0:
             self.image_canvas.grid()  # Make sure the image canvas is visible
-            self.image_canvas.create_image(195, 350, image=self.first_page)
+            self.image_canvas.create_image(195, 380, image=self.first_page)
             self.image_canvas.grid()
 
         if page_index == 1:
@@ -198,12 +198,12 @@ class Info_page(tk.Frame):
 
             # Show the ARM image for the third page
             if page_index == 2:
-                self.image_canvas.create_image(195, 170, image=self.arm_image_icon)
+                self.image_canvas.create_image(195, 280, image=self.arm_image_icon)
                 self.image_canvas.grid()
 
             # Show the BRAIN image for the last page
             elif page_index == len(self.page_texts) - 1:
-                self.image_canvas.create_image(200, 200, image=self.brain_image_icon)
+                self.image_canvas.create_image(200, 300, image=self.brain_image_icon)
                 self.image_canvas.grid()
 
         # Update arrow visibility based on the current page
