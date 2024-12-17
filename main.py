@@ -59,7 +59,6 @@ def capture_and_detect(resources, stop_event):
                     # Clear the queue if not empty
                     if not resources.gui_frame_queue.empty():
                         empty_queue(resources.gui_frame_queue)  
-                camera.show_frame(cropped_frame, (0,0))
 
     except KeyboardInterrupt:
         print("Capture process interrupting. Exiting.")
@@ -99,7 +98,6 @@ def pid_control(resources, k_pid, stop_event):
             if not resources.ball_coords_queue.empty():
                 current_position = resources.ball_coords_queue.get_nowait()
                 last_received_time = time.perf_counter()  # Update the time with each new data
-                print(current_position)
 
                 # Check for goal position
                 if not resources.goal_position_queue.empty():
