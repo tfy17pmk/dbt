@@ -9,6 +9,7 @@ class IdlePatterns:
         self.data_queue = Queue(maxsize=500)
         self.stop_event = threading.Event()
         self.prev_goal_pos = (0, 0)
+        self.new_page = False
         self.next_pattern = "triangle"
         self.pattern_delay = 5
         self.scale_hexagon = 1.15
@@ -36,6 +37,7 @@ class IdlePatterns:
 
     def join_threads(self):
         self.stop_event.set()
+        self.new_page = True
         if hasattr(self, 'thread') and self.thread.is_alive():
             self.thread.join()
             del self.thread  # Remove the thread attribute
@@ -44,6 +46,7 @@ class IdlePatterns:
             while not self.goal_position_queue.empty():
                 self.goal_position_queue.get_nowait()
             self.send_goal_pos(0, 0)
+        self.new_page = False
 
 
     def reset_data(self, event=None):
@@ -51,13 +54,13 @@ class IdlePatterns:
         self.next_pattern = "square"
         self.join_threads()
 
-    def custom_sleep(self):
+    def custom_sleep(self, delay):
         """
         Sleep for `duration` seconds, but allow interruption by `stop_event`.
         """
         start_time = time.time()
-        while time.time() - start_time < self.pattern_delay:
-            if self.stop_event.is_set():
+        while time.time() - start_time < delay:
+            if self.stop_event.is_set() or self.new_page:
                 break  # Exit early if the stop event is set
             time.sleep(0.1)  # Sleep in small increments
 
@@ -67,24 +70,23 @@ class IdlePatterns:
             try:
                 if not self.data_queue.empty():
                     coordinates = self.data_queue.get_nowait()
-                    
                     dist = math.sqrt((self.prev_goal_pos[0] - coordinates[0]) ** 2 + (self.prev_goal_pos[1] - coordinates[1]) ** 2)
                     delay = abs((dist/80))
                     self.send_goal_pos(coordinates[0], coordinates[1])
                     self.prev_goal_pos = coordinates
-                    time.sleep(delay)
+                    self.custom_sleep(delay)
                 elif self.data_queue.empty() and self.next_pattern == "triangle":
                     [self.data_queue.put((x,y)) for x, y in self.triangle_coords]
                     self.next_pattern = "square"
-                    self.custom_sleep()
+                    self.custom_sleep(self.pattern_delay)
                 elif self.data_queue.empty() and self.next_pattern == "square":
                     [self.data_queue.put((x,y)) for x, y in self.square_coords]
                     self.next_pattern = "hexagon"
-                    self.custom_sleep()
+                    self.custom_sleep(self.pattern_delay)
                 elif self.data_queue.empty() and self.next_pattern == "hexagon":
                     [self.data_queue.put((x,y)) for x, y in self.hexagon_coords]
                     self.next_pattern = "triangle"
-                    self.custom_sleep()
+                    self.custom_sleep(self.pattern_delay)
                 
             except Exception as e:
                 pass
