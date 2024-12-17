@@ -34,9 +34,9 @@ class Info_page(tk.Frame):
         self.right_arrow_icon = ImageTk.PhotoImage(original_arrow)
         self.left_arrow_icon = ImageTk.PhotoImage(original_arrow.rotate(180))
         
-        first_page = Image.open(self.constants.FIRSTPAGE)
-        self.first_page = ImageTk.PhotoImage(first_page.rotate(90))
-
+        first_page = Image.open(self.constants.FIRSTPAGE).resize((400, 720))
+        self.first_page = ImageTk.PhotoImage(first_page)
+        
         arm_image_original = Image.open(self.constants.ARM).resize((750, 500))
         self.arm_image_icon = ImageTk.PhotoImage(arm_image_original)
 
@@ -116,7 +116,7 @@ class Info_page(tk.Frame):
         # Lower-left corner button to go back
         self.back_button = self.button.RoundedButton(
             master = button_frame, 
-            text="Bakåt", 
+            text=self.constants.translation[self.controller.set_language]["back"], 
             radius=25, 
             width=200, 
             height=70, 
@@ -176,7 +176,7 @@ class Info_page(tk.Frame):
         
         if page_index == 0:
             self.image_canvas.grid()  # Make sure the image canvas is visible
-            self.image_canvas.create_image(195, 350, image=self.first_page)
+            self.image_canvas.create_image(195, 480, image=self.first_page)
             self.image_canvas.grid()
 
         if page_index == 1:
@@ -198,12 +198,12 @@ class Info_page(tk.Frame):
 
             # Show the ARM image for the third page
             if page_index == 2:
-                self.image_canvas.create_image(195, 170, image=self.arm_image_icon)
+                self.image_canvas.create_image(195, 280, image=self.arm_image_icon)
                 self.image_canvas.grid()
 
             # Show the BRAIN image for the last page
             elif page_index == len(self.page_texts) - 1:
-                self.image_canvas.create_image(200, 200, image=self.brain_image_icon)
+                self.image_canvas.create_image(200, 300, image=self.brain_image_icon)
                 self.image_canvas.grid()
 
         # Update arrow visibility based on the current page

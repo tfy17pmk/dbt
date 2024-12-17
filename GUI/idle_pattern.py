@@ -10,10 +10,16 @@ class IdlePatterns:
         self.stop_event = threading.Event()
         self.prev_goal_pos = (0, 0)
         self.next_pattern = "triangle"
-        self.pattern_delay = 3
-        self.square_coords = [(-68, -71), (68, -71), (68, 71), (-68, 71), (-68, -71), (0, 0)]
-        self.triangle_coords = [(0, -71), (-68, 71), (68, 71), (0, -71), (0, 0)]
-        self.hexagon_coords = [(108, 0), (54, 98), (-54, 98), (-108, 0), (-54, -98), (54, -98), (108, 0), (0, 0)]
+        self.pattern_delay = 5
+        self.scale_hexagon = 1.15
+        self.square_coords = [(-60, -63), (60, -63), (60, 63), (-60, 63), (-60, -63), (0, 0)]
+        self.triangle_coords = [(0, -63), (-60, 63), (60, 63), (0, -63), (0, 0)]
+        self.hexagon_coords = [(int(100/self.scale_hexagon), 0), (int(46/self.scale_hexagon), 
+                                int(90/self.scale_hexagon)), (int(-46/self.scale_hexagon), 
+                                int(90/self.scale_hexagon)), (int(-100/self.scale_hexagon), 0), 
+                                (int(-46/self.scale_hexagon), int(-90/self.scale_hexagon)), 
+                                (int(46/self.scale_hexagon), int(-90/self.scale_hexagon)), 
+                                (int(100/self.scale_hexagon), 0), (0, 0)]
 
 
     def run_pattern(self):
