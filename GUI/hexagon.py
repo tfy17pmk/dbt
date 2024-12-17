@@ -138,6 +138,33 @@ class HexagonShape:
             
         # Return remapped coordinates   
         return int(-(mapped_x-self.target_width/2)), int(mapped_y-self.target_height/2) 
+    
+    def map_drawn_coordinates(self, x, y):
+        """Remap position data to balancing plate dimensions with origin in the center"""
+        # Get screen dimensions
+        canvas_width = self.canvas.winfo_width()
+        canvas_height = self.canvas.winfo_height()
+        target_width = self.target_width - 50
+        target_height = self.target_height - 50
+
+        # Remap coordinates with a linear scale factor
+        mapped_x = x * (target_width / canvas_width)
+        mapped_y = y * (target_height / canvas_height)
+
+        if not self.thread_started:
+            self.start_thread()
+        
+        # Put coordinate data in data queuee
+        if not self.data_queue.full():
+            try:
+                self.data_queue.put((int(-(mapped_x-target_width/2)), int(mapped_y-target_height/2)), timeout=0.01)
+            except Exception as e:
+                print(f"Queue error: {e}")
+        else:
+            print(f"Queue with goal pos is full!")
+            
+        # Return remapped coordinates   
+        return int(-(mapped_x-target_width/2)), int(mapped_y-target_height/2) 
         
     def log_shape_coordinates(self, points):
         """Puts mapped coordinates into array"""
@@ -404,7 +431,7 @@ class HexagonShape:
             self.current_line_ids = []  # Reset for next line
 
         # Remap coordinates into cropped camera picture
-        self.mapped_points = [self.map_coordinates(x, y) for x, y in self.drawing_points]
+        self.mapped_points = [self.map_drawn_coordinates(x, y) for x, y in self.drawing_points]
         self.mapped_points = self.douglas_peucker(self.mapped_points)
 
     def redraw_points(self):
