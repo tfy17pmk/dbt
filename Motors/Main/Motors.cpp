@@ -84,8 +84,6 @@ void Motors::phase1() {
       phase2(i, first_time[i]);
     }
   }
-  
-  Serial.println("Limit switch hit, moving back.");
   buttonPressed.fill(false);
 }
 
@@ -178,8 +176,7 @@ void Motors::home() {
       skipPhaseOne[i] = true;
     }
   }
-
-  Serial.println("nu startar home!");
+  
   bool homingComplete = false;
   buttonPressed.fill(false);
 
@@ -195,16 +192,9 @@ void Motors::home() {
     }
   }
 
-  Serial.println("Back off complete. Fine tuning...");
-
   phase3();
-  
-  Serial.println(stepper[0].currentPosition());
-  Serial.println(stepper[1].currentPosition());
-  Serial.println(stepper[2].currentPosition());
 
   initial_position();
-  Serial.println("Homing complete, position set to 0.");
 }
 
 /*

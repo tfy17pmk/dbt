@@ -38,18 +38,38 @@ std::array<double, 3> motor_angles = {0,0,0};
 
 // setup interupt for calibration buttons
 void IRAM_ATTR handleButtonPress1() {
-  motors.buttonPressed[0] = true;  // Set flag when the button is pressed
+
+  if(!homing){
+    homing = true;
+    motors.home();
+    homing = false;
+  }else {
+    motors.buttonPressed[0] = true;  // Set flag when the button is pressed
+  }
 }
 
 void IRAM_ATTR handleButtonPress2() {
-  motors.buttonPressed[1] = true;  // Set flag when the button is pressed
+  if(!homing){
+    homing = true;
+    motors.home();
+    homing = false;
+  }else {
+    motors.buttonPressed[1] = true;  // Set flag when the button is pressed
+  }
 }
 
 void IRAM_ATTR handleButtonPress3() {
-  motors.buttonPressed[2] = true;  // Set flag when the button is pressed
+  if(!homing){
+    homing = true;
+    motors.home();
+    homing = false;
+  }else {
+    motors.buttonPressed[2] = true;  // Set flag when the button is pressed
+  }
 }
 
 void setup() {
+
   Serial.begin(115200);
   setCpuFrequencyMhz(240);
 
@@ -66,9 +86,9 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(motors.buttonPin[2]), handleButtonPress3, RISING);
 
   // initialize position
+  homing = true;
   motors.home(); 
-
-  Serial.println("setup done!");
+  homing = false;
 }
 
 /*
