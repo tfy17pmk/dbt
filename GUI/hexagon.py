@@ -115,7 +115,7 @@ class HexagonShape:
         self.send_goal_pos(0, 0)
 
     def map_coordinates(self, x, y):
-        """Remap position data to balancing plate dimensions with origin in the center"""
+        """Remap position data to balancing plate dimensions with origin in the center, for premade patterns"""
         # Get screen dimensions
         canvas_width = self.canvas.winfo_width()
         canvas_height = self.canvas.winfo_height()
@@ -140,10 +140,11 @@ class HexagonShape:
         return int(-(mapped_x-self.target_width/2)), int(mapped_y-self.target_height/2) 
     
     def map_drawn_coordinates(self, x, y):
-        """Remap position data to balancing plate dimensions with origin in the center"""
+        """Remap position data to balancing plate dimensions with origin in the center, for shapes drawn by user"""
         # Get screen dimensions
         canvas_width = self.canvas.winfo_width()
         canvas_height = self.canvas.winfo_height()
+        # Make smaller target dimensions
         target_width = self.target_width - 50
         target_height = self.target_height - 50
 
