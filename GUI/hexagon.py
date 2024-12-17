@@ -19,8 +19,8 @@ class HexagonShape:
         self.line_ids = []  # Store IDs for each complete drawn line
         self.current_line_ids = []  # Track segment IDs for current line
         self.is_freehand = False  # Track if drawing is freehand
-        self.target_width = 320
-        self.target_height = 285
+        self.target_width = 170 * 2
+        self.target_height = 150 * 2
         self.send_goal_pos = None
         self.stop_event = threading.Event()
         self.thread_started = False
@@ -269,7 +269,7 @@ class HexagonShape:
         height = self.canvas.winfo_height()
         center_x = width / 2
         center_y = height / 2
-        outer_radius = min(width, height) / 2.3
+        outer_radius = min(width, height) / 2.9
         inner_radius = outer_radius / 3
         starpoints = 5
 
