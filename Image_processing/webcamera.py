@@ -16,10 +16,10 @@ class Camera:
 		self.cam.set(cv.CAP_PROP_FRAME_HEIGHT, 480)
 		self.cam.set(cv.CAP_PROP_FPS, 90)
 		self.cam.set(cv.CAP_PROP_AUTOFOCUS, 0)
-		self.crop_x1 = 180
-		self.crop_y1 = 120
-		self.crop_x2 = 500
-		self.crop_y2 = 410
+		self.crop_x1 = 162
+		self.crop_y1 = 105
+		self.crop_x2 = 518
+		self.crop_y2 = 425
 		self.x_offset = 3
 		self.y_offset = 2
 		if not self.cam.isOpened():
@@ -126,7 +126,7 @@ class Camera:
 
 		# Find contours
 		contours, _ = cv.findContours(mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-
+		
 		if contours:
 			# Filter contours by area and circularity to identify round objects
 			for contour in contours:
@@ -134,22 +134,17 @@ class Camera:
 				perimeter = cv.arcLength(contour, True)
 
 				# Skip small areas to reduce noise
-				if area > 500 and perimeter > 0:
+				if area > 500:
+					# Find the smallest enclosing circle, draw a circle around detected object
+					(x, y), radius = cv.minEnclosingCircle(contour)
+					cv.circle(frame, (int(x), int(y)), int(radius), (0, 255, 0), 2)
 
-					# Calculate circularity
-					circularity = 4 * np.pi * area / (perimeter * perimeter)
-
-					if 0.7 < circularity <= 1.0:
-						# Find the smallest enclosing circle, draw a circle around detected object
-						(x, y), radius = cv.minEnclosingCircle(contour)
-						cv.circle(frame, (int(x), int(y)), int(radius), (0, 255, 0), 2)
-
-                        # Change coordinate system
-						height, width, _ = frame.shape
-						x -= (width / 2)
-						y -= (height / 2)
-						y = -y
-						return int(x), int(y), int(area)
+					# Change coordinate system
+					height, width, _ = frame.shape
+					x -= (width / 2)
+					y -= (height / 2)
+					y = -y
+					return int(x), int(y), int(area)
 
 		return -1, -1, 0
 
