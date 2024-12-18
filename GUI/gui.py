@@ -71,7 +71,6 @@ class App(tk.Tk):
             if self.pattern:  # Start the pattern if it is enabled
                 self.IdlePattern.run_pattern()
         else:
-            print("reset")
             self.IdlePattern.reset_data()  # Stop the pattern for other pages
 
         if page_name != "Home_page":
