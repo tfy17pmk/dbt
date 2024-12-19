@@ -15,7 +15,7 @@ class SharedResources:
         self.goal_position_queue = Queue(maxsize=5)
         self.ball_coords_queue = Queue(maxsize=5)
         self.gui_frame_queue = Queue(maxsize=10)
-        self.joystick_control_queue = Queue(maxsize=10)
+        self.joystick_control_queue = Queue(maxsize=20)
         # Shared variables
         self.send_frames_to_gui = Value('b', False)
         self.send_frames_to_challenge = Value('b', False)

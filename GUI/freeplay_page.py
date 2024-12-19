@@ -160,16 +160,10 @@ class Freeplay_page(tk.Frame):
             self.joystick_center + self.handle_radius
         )
         # Send joystick control values to reset the position
-        self.send_joystick_control(0.14, 0.14)
-        self.send_joystick_control(0.14, 0.14)
-        self.send_joystick_control(0.14, 0.14)
-        self.send_joystick_control(0.14, 0.14)
-        self.send_joystick_control(0.14, 0.14)
-        self.send_joystick_control(0, 0)
-        self.send_joystick_control(0, 0)
-        self.send_joystick_control(0, 0)
-        self.send_joystick_control(0, 0)
-        self.send_joystick_control(0, 0)
+        for i in range(10):
+            self.send_joystick_control(0.14, 0.14)
+            self.send_joystick_control(0, 0)
+
 
 
     def send_joystick_control(self, dx, dy):
