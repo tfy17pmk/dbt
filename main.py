@@ -76,7 +76,7 @@ def pid_control(resources, k_pid, stop_event):
     state3 = 1
     homing = False
     local_goal_pos = (0, 0)
-    local_joystick_control = False
+    local_joystick_control = None
     controlling = local_joystick_control
     last_tuple = (0 ,0)
 
@@ -89,10 +89,14 @@ def pid_control(resources, k_pid, stop_event):
             # check data type of joystick input
             if isinstance(local_joystick_control, bool):
                 controlling = False
+                local_joystick_control = None
+                pid_controller.reset()
+
             elif isinstance(local_joystick_control, tuple) and (last_tuple is not local_joystick_control):
                 last_tuple = local_joystick_control
                 resources.esp_com.send_data(local_joystick_control[0], local_joystick_control[1], height, state1, state2, state3, homing)
                 controlling = True
+
 
             # Check for ball coordinates
             if not resources.ball_coords_queue.empty():
@@ -103,12 +107,12 @@ def pid_control(resources, k_pid, stop_event):
                 if not resources.goal_position_queue.empty():
                     local_goal_pos = resources.goal_position_queue.get_nowait()
 
-                # Compute control angles
-                if isinstance(local_goal_pos[0], int) and isinstance(local_goal_pos[0], int):
-                    control_x, control_y = pid_controller.compute(local_goal_pos, current_position)
 
                 # Send control angles to ESP if not in joystick control mode
                 if not controlling:
+                    # Compute control angles
+                    if isinstance(local_goal_pos[0], int) and isinstance(local_goal_pos[0], int):
+                        control_x, control_y = pid_controller.compute(local_goal_pos, current_position)
                     resources.esp_com.send_data(-control_x, control_y, height, state1, state2, state3, homing)
 
             # Check if 3 seconds have passed since the last update, reset in that case
