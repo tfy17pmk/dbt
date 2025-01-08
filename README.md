@@ -96,7 +96,7 @@ The two processing devices communicate between each other using serial communica
 
 3. One process for using the a PID controller to find the a new wanted normalvector of the plate. The PID controller accesses the ball coordinates in the queue and performs calculations using previous known position and current position. From this process a packet och data containing x- and y-component of the normalvector, the height of the plateand four uint_8 for controlling leds and if a homingroutine is to be run. The leds are however not implemented and used, just prepared the packet. 
 
-The script in the ESP32 is more simple and straight forward. It is implemented using two classes and a main script. One class contains the inverse kinematics of the table, which allows easy and fast conversion between the normal vector of the plate to three motor angles. The second class governs the control of the motors. Acceleration of motors and calculates the maximum speed of each motor. The motors are then moved to the positions found by inverse kinematics. This is the performed continuos in the main script and when a new packet is received the calculationn is påerformed again. 
+The script in the ESP32 is more simple and straight forward. It is implemented using two classes and a main script. One class contains the inverse kinematics of the table, which allows easy and fast conversion between the normal vector of the plate to three motor angles. The second class governs the control of the motors. Acceleration of motors and calculates the maximum speed of each motor. The motors are then moved to the positions found by inverse kinematics. This is the performed continuos in the main script and when a new packet is received the calculationn is performed again. 
 
 ## Common errors
 When the robot is plugged in a terminal window is automatically opened to allow printing of error messages
@@ -107,11 +107,21 @@ When the robot is plugged in a terminal window is automatically opened to allow 
 3. Change camera index, line 11 in ```webcamera.py```
 
 #### ESP not found
+Use the command ```ls /dev/tty*``` to find the port, should be named ```/dev/ttyUSB#```
 1. Check if the ESP is plugged in (USB behind the screen) and micro USB underneath the robot connected to the ESP. 
 2. Change the range of USB ports, line 10 in ```communication.py```
 
-#### Lost count of stepps
+#### Lost count of steps
 This error is not printed in the terminal but can be seen. The error is can be visualized if no ball is on the robot but the plate is not horizontal. 
 
-1. Press one of the three micro switches located under the arms. This will perfome the homing routine and the robot will find its steps again. 
+1. Press one of the three micro switches located under the arms. This will perform the homing routine and the robot will find its steps again. 
 2. Restart the robot will have the same effect. 
+
+#### Weird starting up procedure
+Sometimes  when the robots is plugged in it do not start normally. It allows the user to choose operating system. If this is the case. 
+
+1. Wait for the timer to run out. 
+2. If 1. did not work. pluggit out and in and choose the Ubuntu operating system the next time. 
+
+#### Computer want to update
+If the computer sends a message that it wants to update, just press close or remind me later. 

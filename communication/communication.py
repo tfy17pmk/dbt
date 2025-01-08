@@ -7,7 +7,7 @@ class Commmunication:
 
     def __init__(self):
         """Initialize the communication class."""
-        self.serial_ports = [f"/dev/ttyUSB{i}" for i in range(5)]  # Use 'ls /dev/tty.*' to find the correct port
+        self.serial_ports = [f"/dev/ttyUSB{i}" for i in range(5)]  # Use 'ls /dev/tty*' to find the correct port
         self.baud_rate = 115200
 
         # Open the serial port and wait for the connection to establish
