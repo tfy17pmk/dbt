@@ -79,6 +79,7 @@ def pid_control(resources, k_pid, stop_event):
     local_joystick_control = None
     controlling = local_joystick_control
     last_tuple = (0 ,0)
+    reset = False
 
     try:
         while not stop_event.is_set():
@@ -102,6 +103,7 @@ def pid_control(resources, k_pid, stop_event):
             if not resources.ball_coords_queue.empty():
                 current_position = resources.ball_coords_queue.get_nowait()
                 last_received_time = time.perf_counter()  # Update the time with each new data
+                reset = False
 
                 # Check for goal position
                 if not resources.goal_position_queue.empty():
@@ -116,15 +118,16 @@ def pid_control(resources, k_pid, stop_event):
                     resources.esp_com.send_data(-control_x, control_y, height, state1, state2, state3, homing)
 
             # Check if 3 seconds have passed since the last update, reset in that case
-            if (time.perf_counter() - last_received_time > 3) and not controlling:
+            if (time.perf_counter() - last_received_time > 3) and not controlling and not reset:
                 pid_controller.reset()  # Reset the PID controllers
-                # BAD CODE! speeds up return to initial state
+                # BAD CODE! speeds up return to initial position
                 for i in range(10):
                     resources.esp_com.send_data(0.14, 0.14, height, state1, state2, state3, homing)
                     resources.esp_com.send_data(0, 0, height, state1, state2, state3, homing)
 
 
                 last_received_time = time.perf_counter()  # Reset timer to avoid continuous reset
+                reset = True
     
     except KeyboardInterrupt:
         print("PID control process interrupted. Exiting.")
