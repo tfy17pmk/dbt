@@ -3,7 +3,6 @@ import threading
 from multiprocessing import Queue
 import time
 import numpy as np
-from scipy.spatial import distance
 
 class HexagonShape:
     """Handles pattern page drawing board interactions"""

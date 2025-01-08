@@ -82,6 +82,17 @@ OBS! Make sure to not add the dependencies that are not used/needed, if you inta
 
 Don't forget to commit and push in the end of the day.
 
+## Start program from new terminal
+To start the program from a new terminal run the command:
+```/home/curiadm/start_gui.sh```
+It will start the program with the correct environment. 
+
+## Maintenance of program
+Password is the standard password. 
+### Change text
+To change the text of the pages go to ```GUI/constants.py``` here all text of the program is defined. If the text is changed be careful to check that the layout of the pages are still correct, or if the text has been changed to something that do not fit in the current canvas size. 
+
+
 ## Program structure
 The program uses two seperate processing devices and two different programming languages python and C++
 

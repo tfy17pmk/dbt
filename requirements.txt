@@ -1,6 +1,4 @@
 numpy==2.1.1
 opencv-python==4.10.0.84
-advanced_pid==0.0.8
 pyserial==3.5
 pillow==11.0.0
-scipy==1.14.1
