@@ -106,8 +106,23 @@ class Camera:
 
 	def get_ball(self, frame):
 		"""Detect the ball in the frame and return its coordinates and area."""
+		# Get frame dimensions
+		height, width, _ = frame.shape
+
 		# Convert frame to HSV
 		frame_hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
+
+		# Define triangles for corners to cover the corners outside the enclosure
+		top_left_triangle = np.array([[0, 0], [85, 0], [0, 140]], np.int32)  # Adjust the size as needed
+		top_right_triangle = np.array([[width, 0], [width - 85, 0], [width, 140]], np.int32)
+		bottom_left_triangle = np.array([[0, height], [0, height - 140], [85, height]], np.int32)
+		bottom_right_triangle = np.array([[width, height], [width - 85, height], [width, height - 140]], np.int32)
+
+		# Draw black triangles
+		cv.fillPoly(frame_hsv, [top_left_triangle], (0, 0, 0))
+		cv.fillPoly(frame_hsv, [top_right_triangle], (0, 0, 0))
+		cv.fillPoly(frame_hsv, [bottom_left_triangle], (0, 0, 0))
+		cv.fillPoly(frame_hsv, [bottom_right_triangle], (0, 0, 0))
 
 		# Create binary masks for orange and white balls
 		mask_orange = cv.inRange(frame_hsv, self.lower_orange, self.upper_orange)
@@ -126,7 +141,7 @@ class Camera:
 
 		# Find contours
 		contours, _ = cv.findContours(mask, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-		
+
 		if contours:
 			# Filter contours by area and circularity to identify round objects
 			for contour in contours:
@@ -134,13 +149,11 @@ class Camera:
 				perimeter = cv.arcLength(contour, True)
 
 				# Skip small areas to reduce noise
-				if area > 500:
+				if area > 500 and area < 900 and perimeter < 110:
 					# Find the smallest enclosing circle, draw a circle around detected object
 					(x, y), radius = cv.minEnclosingCircle(contour)
 					cv.circle(frame, (int(x), int(y)), int(radius), (0, 255, 0), 2)
-
 					# Change coordinate system
-					height, width, _ = frame.shape
 					x -= (width / 2)
 					y -= (height / 2)
 					y = -y

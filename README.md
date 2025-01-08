@@ -92,6 +92,13 @@ Password is the standard password.
 ### Change text
 To change the text of the pages go to ```GUI/constants.py``` here all text of the program is defined. If the text is changed be careful to check that the layout of the pages are still correct, or if the text has been changed to something that do not fit in the current canvas size. 
 
+### Tune PID controller
+Tips:
+
+* Use a response curve to watch how the respons of the normalvector behaves. Needs good understanding of the code. 
+* Write a standalone script based on the PID-process and communication while tuning. 
+* Find a new plate that is truly flat that weights maximum 200g more than the current. 
+
 
 ## Program structure
 The program uses two seperate processing devices and two different programming languages python and C++
