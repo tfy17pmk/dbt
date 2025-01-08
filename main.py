@@ -118,7 +118,12 @@ def pid_control(resources, k_pid, stop_event):
             # Check if 3 seconds have passed since the last update, reset in that case
             if (time.perf_counter() - last_received_time > 3) and not controlling:
                 pid_controller.reset()  # Reset the PID controllers
-                resources.esp_com.send_data(0, 0, height, state1, state2, state3, homing)
+                # BAD CODE! speeds up return to initial state
+                for i in range(10):
+                    resources.esp_com.send_data(0.14, 0.14, height, state1, state2, state3, homing)
+                    resources.esp_com.send_data(0, 0, height, state1, state2, state3, homing)
+
+
                 last_received_time = time.perf_counter()  # Reset timer to avoid continuous reset
     
     except KeyboardInterrupt:
