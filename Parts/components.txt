@@ -17,6 +17,7 @@ Computer:
     https://www.electrokit.com/stegmotordrivare-drv8825?gad_source=1&gbraid=0AAAAAD_OrGMrTXFnzQ8wrwwxodle0fPM4&gclid=Cj0KCQiA1p28BhCBARIsADP9HrNd4EJA_50cZmAnnA_PzXtM3sjwja4WmfU8sH_0C1Lcw67MaFKrRgQaAnXWEALw_wcB
 
     Capacitor: 100μF
+    IMPORTANT: Dont forget to set the Vref on the driver, read the driver and motor documentation.
 
 1st ESP32:
     HUZZAH32 ESP32 Feather
