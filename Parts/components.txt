@@ -1,0 +1,36 @@
+Camera:
+    Logitech BRIO ultra HD pro
+    https://www.logitech.com/sv-se/products/webcams/brio-4k-hdr-webcam.960-001106.html?srsltid=AfmBOoo7_qUwo_IYrauLfI6vWmMlsIgNSLn5yV8-zvE_DT2T8sj4HTjo
+
+Computer:
+    HP EliteOne
+
+3st Stepper Motor:
+    NEMA 17 SF2424-10B11
+    https://www.elfa.se/sv/stegmotor-800nmm-2300min-sup-sup-nema-17-sanyo-denki-sf2424-10b11/p/30223848?trackQuery=stegmotor%20nema%2017&pos=5&origPos=19&origPageSize=50&track=true&sid=LJF5yUUO33&itemList=search
+    
+    Cable to motor:
+        https://www.elfa.se/sv/bipolaer-motorkabel-med-tradar-500-mm-sanyo-denki-4835775/p/30159036?gad_source=1&gbraid=0AAAAAD3bZqthYCDZRHWGxLhKQmKn-iA0N&gclid=CjwKCAjwmaO4BhAhEiwA5p4YLwBCl0wu3pqj1pTdBihL582q5lQwj4zVFjnVZSGo_aQzU1W0V5161BoC08AQAvD_BwE&gclsrc=aw.ds
+
+3st Motor Driver:
+    DRV8825
+    https://www.electrokit.com/stegmotordrivare-drv8825?gad_source=1&gbraid=0AAAAAD_OrGMrTXFnzQ8wrwwxodle0fPM4&gclid=Cj0KCQiA1p28BhCBARIsADP9HrNd4EJA_50cZmAnnA_PzXtM3sjwja4WmfU8sH_0C1Lcw67MaFKrRgQaAnXWEALw_wcB
+
+    Capacitor: 100μF
+
+1st ESP32:
+    HUZZAH32 ESP32 Feather
+    https://www.elfa.se/sv/huzzah32-esp32-feather-kort-adafruit-3405/p/30139153?trackQuery=Esp32&pos=5&origPos=6&origPageSize=50&track=true&sid=AMd7lBPnRK&itemList=search
+
+1st PSU
+    LRS-150F-36 154.8W 36V 4.3A
+    https://www.elfa.se/en/embedded-switch-mode-power-supply-smps-154-8w-36v-3a-mean-well-lrs-150f-36/p/30044129?trackQuery=power%20supply&pos=5&origPos=2&origPageSize=50&track=true&filterapplied=filter_disoutputvoltage1num_en_ds%3D36%26filter_disoutputcurrent1num_en_ds%3D3.06%26filter_categoryCodes%3Dcat-L1D_379521&sid=rXoTFelXqh&itemList=search
+
+6st BallBearing:
+    Biltema 12x28x8mm
+    https://www.biltema.se/bil---mc/bilreservdelar/kullager/kullager-6001-2rs-12x28x8-mm-2000050563
+
+3st Rod End:
+    Rod End 5mm Bore, 41mm Long Male Connection Gender
+    https://se.rs-online.com/web/p/rod-ends/1852446
+
